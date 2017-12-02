@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "amaze_vs", "amaze_vs.vcxproj", "{662FED83-1E14-4764-839F-B54EFA52A642}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "amazeUnitTests", "amazeUnitTests\amazeUnitTests.vcxproj", "{54178D72-C4C1-41AC-87D8-13F65C83DD58}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{662FED83-1E14-4764-839F-B54EFA52A642}.Debug|x64.ActiveCfg = Debug|x64
+		{662FED83-1E14-4764-839F-B54EFA52A642}.Debug|x64.Build.0 = Debug|x64
+		{662FED83-1E14-4764-839F-B54EFA52A642}.Release|x64.ActiveCfg = Release|x64
+		{662FED83-1E14-4764-839F-B54EFA52A642}.Release|x64.Build.0 = Release|x64
+		{54178D72-C4C1-41AC-87D8-13F65C83DD58}.Debug|x64.ActiveCfg = Debug|x64
+		{54178D72-C4C1-41AC-87D8-13F65C83DD58}.Debug|x64.Build.0 = Debug|x64
+		{54178D72-C4C1-41AC-87D8-13F65C83DD58}.Release|x64.ActiveCfg = Release|x64
+		{54178D72-C4C1-41AC-87D8-13F65C83DD58}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
