@@ -107,7 +107,7 @@ void SfmlAdapter::RegisterControlHandler(
     m_ControlHandlers[ key ] = controlHandler;
 }
 
-void SfmlAdapter::ProcessInput()
+void SfmlAdapter::processInput()
 {
     return; // TODO
 }

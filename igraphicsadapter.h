@@ -46,7 +46,7 @@ public:
         KeyControls key,
         std::function<void( const bool )> controlHandler
         ) = 0;
-    virtual void ProcessInput() = 0;
+    virtual void processInput() = 0;
 
     // Images
     // Load & display an image; any resources should be immediately discarded

@@ -77,18 +77,16 @@ int main( int, char* argv[] )
         std::string dataDir = findDataDirectory( argv[0] );
 
         int width = 800;
-        SfmlAdapter graphicsManager( width, static_cast<int>( width * 0.75 ) );
+        SfmlAdapter graphicsManager( width, width * 0.75 );
 
         GameModel gameModel;
-        gameModel.SetDataPath( dataDir );
-        Preferences preferences( gameModel.GetDataPath() + "amaze.cfg" );
+        gameModel.setDataPath( dataDir );
+        Preferences preferences( gameModel.getDataPath() + "amaze.cfg" );
         View view( gameModel, graphicsManager );
 
         Controller controller( preferences, gameModel, view, graphicsManager );
-
-        controller.SplashScreen();
-
-        controller.Run(); // main loop is in here
+        controller.splashScreen();
+        controller.run(); // main loop is in here
 
         // TODO model.preferencesSave();
 

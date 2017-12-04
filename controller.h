@@ -22,10 +22,10 @@ public:
         View& v,
         IGraphicsAdapter& s
         );
-    void Run();
-    void CollisionChecks();
-    void RegisterControlHandlers();
-    void SplashScreen();
+    void run();
+    void collisionChecks();
+    void registerControlHandlers();
+    void splashScreen();
 
 private:
     Preferences&      m_preferences;

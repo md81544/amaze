@@ -48,7 +48,7 @@ void View::Update()
     PlaySounds();
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
-    m_Model.ProcessDynamicObjects( [&]( GameShape& shape )
+    m_Model.processDynamicObjects( [&]( GameShape& shape )
     {
         if ( shape.IsVisible() && shape.IsActive() )
         {
@@ -57,7 +57,7 @@ void View::Update()
     } );
 
     // Static shapes (i.e. items which don't move on screen, e.g. the gauges)
-    m_Model.ProcessStaticObjects( [&]( GameShape& shape )
+    m_Model.processStaticObjects( [&]( GameShape& shape )
     {
         if ( shape.IsVisible() )
         {

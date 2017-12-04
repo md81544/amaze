@@ -29,55 +29,55 @@ public:
     GameModel();
 
     // Reset the model to a state ready for a new Level:
-    void Initialise( size_t level_number );
-    void LevelLoad( size_t levelNum );
+    void initialise( size_t level_number );
+    void levelLoad( size_t levelNum );
 
-    void SetDataPath( const std::string& dir );
-    const std::string GetDataPath();
+    void setDataPath( const std::string& dir );
+    const std::string getDataPath();
 
-    void CreateStaticShapes();
+    void createStaticShapes();
 
-    int Level() const;
-    void SetLevel( int value );
+    int level() const;
+    void setLevel( int value );
 
-    bool WasFuelOutWarned() const;
-    void SetWasFuelOutWarned( bool value );
+    bool wasFuelOutWarned() const;
+    void setWasFuelOutWarned( bool value );
 
-    bool WasTimeoutWarned() const;
-    void SetWasTimeoutWarned( bool value );
+    bool wasTimeoutWarned() const;
+    void setWasTimeoutWarned( bool value );
 
-    int TimeLimit() const;
-    void SetTimeLimit( int value );
+    int timeLimit() const;
+    void setTimeLimit( int value );
 
-    double TimeGetTenthBest( int levelNumber );
+    double timeGetTenthBest( int levelNumber );
 
-    std::string LevelDescription() const;
-    void SetLevelDescription( const std::string& value );
+    std::string levelDescription() const;
+    void setLevelDescription( const std::string& value );
 
-    bool GameIsRunning() const;
+    bool gameIsRunning() const;
     void setGameIsRunning( bool value );
 
-    std::shared_ptr<GameShape> NewGameShape();
+    std::shared_ptr<GameShape> newGameShape();
 
     const std::vector<std::shared_ptr<GameShape>>&
-    GetAllDynamicObjects() const;
+    getAllDynamicObjects() const;
 
     const std::vector<std::shared_ptr<GameShape>>&
-    GetAllStaticObjects() const;
+    getAllStaticObjects() const;
 
     std::shared_ptr<ShipModel> getShipModel() const;
 
-    std::shared_ptr<GameShape> CollisionDetect() const;
+    std::shared_ptr<GameShape> collisionDetect() const;
 
-    void Process();
+    void process();
 
-    void UpdateStatistics( size_t millisecs );
+    void updateStatistics( size_t millisecs );
 
-    void ProcessDynamicObjects( std::function<void( GameShape& )> ) override;
+    void processDynamicObjects( std::function<void( GameShape& )> ) override;
 
-    void ProcessStaticObjects( std::function<void( GameShape& )> ) override;
+    void processStaticObjects( std::function<void( GameShape& )> ) override;
 
-    unsigned int GetRotation() const override;
+    unsigned int getRotation() const override;
 
 private:
     std::string m_dataPath { "" };

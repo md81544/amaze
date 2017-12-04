@@ -16,17 +16,17 @@ namespace amaze
 GameModel::GameModel()
 {
     m_shipModel = std::make_shared<ShipModel>(
-        ShipModel( NewGameShape(), NewGameShape(), NewGameShape() ) );
+        ShipModel( newGameShape(), newGameShape(), newGameShape() ) );
 }
 
-void GameModel::Initialise( size_t level_number )
+void GameModel::initialise( size_t levelNumber )
 {
     // Resets the model to a state ready for a new Level
     m_explosionIterationCount = 0;
     m_allDynamicGameShapes.clear();
     m_allStaticGameShapes.clear();
 
-    CreateStaticShapes();
+    createStaticShapes();
 
     // Grid lines on the background
     // graphicsManager_->setDrawColour(0, 100, 0, 255);
@@ -47,14 +47,14 @@ void GameModel::Initialise( size_t level_number )
     m_allDynamicGameShapes.push_back( m_shipModel->flamesGameShape() );
     m_allDynamicGameShapes.push_back( m_shipModel->explosionGameShape() );
 
-    m_level = level_number;
+    m_level = levelNumber;
     m_wasFuelOutWarned = false;
     m_wasTimeoutWarned = false;
 
     m_shipModel->initialise();
 }
 
-void GameModel::CreateStaticShapes()
+void GameModel::createStaticShapes()
 {
     // Note static shapes' coodinates are expressed as if the viewport
     // is 320x240 pixels, regardless of the physical size of the window.
@@ -78,12 +78,12 @@ void GameModel::CreateStaticShapes()
     m_allStaticGameShapes.push_back( m_staticInfoLine );
 }
 
-int GameModel::Level() const { return m_level; }
+int GameModel::level() const { return m_level; }
 
-void GameModel::SetLevel( int value ) { m_level = value; }
+void GameModel::setLevel( int value ) { m_level = value; }
 
 // TODO - put this in the controller?
-void GameModel::LevelLoad( size_t levelNum )
+void GameModel::levelLoad( size_t levelNum )
 {
     // The file format is as follows:
     // The first line should be "!~<timelimit>~<fuel>~<x>~<y>~" followed by
@@ -104,10 +104,10 @@ void GameModel::LevelLoad( size_t levelNum )
     // TODO: move the actual file access out into a separate class
     // or method
 
-    Initialise( levelNum );
+    initialise( levelNum );
 
     std::string filename = "level" + std::to_string( levelNum ) + ".cfg";
-    boost::filesystem::path levelFile( GetDataPath() );
+    boost::filesystem::path levelFile( getDataPath() );
     levelFile.append( filename );
 
     std::ifstream in( levelFile.string() );
@@ -136,7 +136,7 @@ void GameModel::LevelLoad( size_t levelNum )
         {
         case '!': // timelimit, fuel, x, y, description
             m_timeLimit = stoi( vec[ 1 ] );
-            bestTime = static_cast<long>( TimeGetTenthBest( levelNum ) );
+            bestTime = static_cast<long>( timeGetTenthBest( levelNum ) );
             if ( m_timeLimit > bestTime )
             {
                 m_timeLimit = bestTime;
@@ -149,7 +149,7 @@ void GameModel::LevelLoad( size_t levelNum )
         case 'D':
             if ( vec.size() > 1 )
             {
-                SetLevelDescription( vec[ 1 ] );
+                setLevelDescription( vec[ 1 ] );
             }
             break;
         case 'N':
@@ -237,14 +237,14 @@ void GameModel::LevelLoad( size_t levelNum )
     {
         m_allDynamicGameShapes.push_back( std::move( obj ) );
     }
-    SetLevel( levelNum );
+    setLevel( levelNum );
 }
 
-void GameModel::SetDataPath( const std::string& dir ) { m_dataPath = dir; }
+void GameModel::setDataPath( const std::string& dir ) { m_dataPath = dir; }
 
-const std::string GameModel::GetDataPath() { return m_dataPath; }
+const std::string GameModel::getDataPath() { return m_dataPath; }
 
-double GameModel::TimeGetTenthBest( int levelNumber )
+double GameModel::timeGetTenthBest( int levelNumber )
 {
     (void)levelNumber;return 300; // TODO
     /*
@@ -258,18 +258,18 @@ double GameModel::TimeGetTenthBest( int levelNumber )
     */
 }
 
-std::string GameModel::LevelDescription() const { return m_levelDescription; }
+std::string GameModel::levelDescription() const { return m_levelDescription; }
 
-void GameModel::SetLevelDescription( const std::string& value )
+void GameModel::setLevelDescription( const std::string& value )
 {
     m_levelDescription = value;
 }
 
-bool GameModel::GameIsRunning() const { return m_gameIsRunning; }
+bool GameModel::gameIsRunning() const { return m_gameIsRunning; }
 
 void GameModel::setGameIsRunning( bool value ) { m_gameIsRunning = value; }
 
-std::shared_ptr<GameShape> GameModel::NewGameShape()
+std::shared_ptr<GameShape> GameModel::newGameShape()
 {
     std::shared_ptr<GameShape> gameShape( new GameShape );
     m_allDynamicGameShapes.push_back( gameShape );
@@ -277,14 +277,14 @@ std::shared_ptr<GameShape> GameModel::NewGameShape()
 }
 
 const std::vector<std::shared_ptr<GameShape>>&
-GameModel::GetAllDynamicObjects() const
+GameModel::getAllDynamicObjects() const
 {
     // TODO returning references to internals? Yuck.
     return m_allDynamicGameShapes;
 }
 
 const std::vector<std::shared_ptr<GameShape>>&
-GameModel::GetAllStaticObjects() const
+GameModel::getAllStaticObjects() const
 {
     // TODO returning references to internals? Yuck.
     return m_allStaticGameShapes;
@@ -292,25 +292,25 @@ GameModel::GetAllStaticObjects() const
 
 std::shared_ptr<ShipModel> GameModel::getShipModel() const { return m_shipModel; }
 
-bool GameModel::WasFuelOutWarned() const { return m_wasFuelOutWarned; }
+bool GameModel::wasFuelOutWarned() const { return m_wasFuelOutWarned; }
 
-void GameModel::SetWasFuelOutWarned( bool value )
+void GameModel::setWasFuelOutWarned( bool value )
 {
     m_wasFuelOutWarned = value;
 }
 
-bool GameModel::WasTimeoutWarned() const { return m_wasTimeoutWarned; }
+bool GameModel::wasTimeoutWarned() const { return m_wasTimeoutWarned; }
 
-void GameModel::SetWasTimeoutWarned( bool value )
+void GameModel::setWasTimeoutWarned( bool value )
 {
     m_wasTimeoutWarned = value;
 }
 
-int GameModel::TimeLimit() const { return m_timeLimit; }
+int GameModel::timeLimit() const { return m_timeLimit; }
 
-void GameModel::SetTimeLimit( int value ) { m_timeLimit = value; }
+void GameModel::setTimeLimit( int value ) { m_timeLimit = value; }
 
-std::shared_ptr<GameShape> GameModel::CollisionDetect() const
+std::shared_ptr<GameShape> GameModel::collisionDetect() const
 {
     for ( const auto& obj : m_allDynamicGameShapes )
     {
@@ -336,7 +336,7 @@ std::shared_ptr<GameShape> GameModel::CollisionDetect() const
     return nullptr;
 }
 
-void GameModel::Process()
+void GameModel::process() // TODO more descriptive name
 {
     if ( m_shipModel->isExploding() )
     {
@@ -355,7 +355,7 @@ void GameModel::Process()
     m_staticInfoLine->SetScale( 0.25 );
 }
 
-void GameModel::UpdateStatistics( size_t millisecs )
+void GameModel::updateStatistics( size_t millisecs )
 {
     m_frameTimes.push_back( millisecs );
     if ( m_frameTimes.size() > 40 )
@@ -369,15 +369,15 @@ void GameModel::UpdateStatistics( size_t millisecs )
     m_averageFrameTime = static_cast<size_t>( sum / count );
 }
 
-void GameModel::ProcessDynamicObjects( std::function<void( GameShape& )> )
+void GameModel::processDynamicObjects( std::function<void( GameShape& )> )
 {
 }
 
-void GameModel::ProcessStaticObjects( std::function<void( GameShape& )> )
+void GameModel::processStaticObjects( std::function<void( GameShape& )> )
 {
 }
 
-unsigned int GameModel::GetRotation() const
+unsigned int GameModel::getRotation() const
 {
     return 0; // TODO
 }

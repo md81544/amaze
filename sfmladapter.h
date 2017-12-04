@@ -46,7 +46,7 @@ public:
     virtual void ImageUnload( size_t id ) override;
     virtual void RegisterControlHandler( KeyControls key,
         std::function<void( const bool )> controlHandler ) override;
-    virtual void ProcessInput() override;
+    virtual void processInput() override;
     // Sound processing
     virtual void SoundLoad(
         const std::string& key, const std::string& filename ) override;

@@ -16,9 +16,9 @@ Controller::Controller(
     Preferences& p, GameModel& m, View& v, IGraphicsAdapter& g )
     : m_preferences( p ), m_gameModel( m ), m_view( v ), m_graphicsAdapter( g )
 {
-    RegisterControlHandlers();
+    registerControlHandlers();
 
-    boost::filesystem::path dataPath( m_gameModel.GetDataPath() );
+    boost::filesystem::path dataPath( m_gameModel.getDataPath() );
 
     // Load sounds...
     m_graphicsAdapter.SoundLoad(
@@ -31,9 +31,11 @@ Controller::Controller(
         "success", ( dataPath / "success.wav" ).string() );
 }
 
-void Controller::SplashScreen() {}
+void Controller::splashScreen()
+{
+}
 
-void Controller::RegisterControlHandlers()
+void Controller::registerControlHandlers()
 {
     // We register callbacks with the graphics manager to avoid us
     // having to refer to (for example) SFML-specific keycodes outside of
@@ -106,14 +108,14 @@ void Controller::RegisterControlHandlers()
         } );
 }
 
-void Controller::Run()
+void Controller::run()
 {
     // This is the main game control structure, called from main().
     size_t gameLevel = 0;
 
-    SplashScreen();
+    splashScreen();
 
-    m_gameModel.LevelLoad( gameLevel );
+    m_gameModel.levelLoad( gameLevel );
     m_gameModel.setGameIsRunning( true );
 
     // Main game loop
@@ -123,12 +125,12 @@ void Controller::Run()
 
         // Read any key presses and call any registered functions for those
         // keypresses
-        m_graphicsAdapter.ProcessInput();
+        m_graphicsAdapter.processInput();
 
-        m_gameModel.Process(); // perform all processing required per loop
+        m_gameModel.process(); // perform all processing required per loop
 
-        CollisionChecks(); // check input etc and updates model
-        if ( m_gameModel.GameIsRunning() == false )
+        collisionChecks(); // check input etc and updates model
+        if ( m_gameModel.gameIsRunning() == false )
             break;
         m_graphicsAdapter.Cls();
         m_view.Update();
@@ -139,14 +141,14 @@ void Controller::Run()
         auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(
             loopEnd -
             loopStart ).count();
-        m_gameModel.UpdateStatistics( millis );
+        m_gameModel.updateStatistics( millis );
     }
 }
 
-void Controller::CollisionChecks()
+void Controller::collisionChecks()
 {
     // Collision detection
-    std::shared_ptr<GameShape> collider = m_gameModel.CollisionDetect();
+    std::shared_ptr<GameShape> collider = m_gameModel.collisionDetect();
     if ( collider )
     {
         switch ( collider->GetGameShapeType() )
