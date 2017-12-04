@@ -8,11 +8,9 @@ void PressAKey( std::string msg = "Press ENTER: " )
     std::endl( std::cout );
 }
 
-int main( int argc, char* const argv[] )
+int main( int argc, char* argv[] )
 {
-  int result = Catch::Session().run( argc, argv );
-
-  PressAKey();
-
-  return result;
+    int result = Catch::Session().run( argc, argv );
+    PressAKey();
+    return result;
 }
