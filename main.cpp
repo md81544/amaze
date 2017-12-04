@@ -58,16 +58,16 @@ std::string findDataDirectory( const char * const program )
     }
     if ( dir.empty() )
     {
-        THROWUP( amaze::exceptions::AmazeStartupException,
+        THROWUP( marengo::amaze::AmazeStartupException,
             "Could not locate data directory" );
     }
     return dir;
 }
 } // end anonymous namespace
 
-int main( int argc, char* argv[] )
+int main( int, char* argv[] )
 {
-    using namespace marengo::amaze
+    using namespace marengo::amaze;
     try
     {
         srand(
@@ -94,7 +94,7 @@ int main( int argc, char* argv[] )
 
         return 0;
     }
-    catch ( const amaze::exceptions::AmazeBaseException& ex )
+    catch ( const marengo::amaze::AmazeBaseException& ex )
     {
         std::string message =
             "Exception (" + std::string( typeid( ex ).name() ) +

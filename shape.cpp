@@ -1,5 +1,5 @@
 #include "shape.h"
-#include "vector_font.h"
+#include "vectorfont.h"
 #include "helperfunctions.h"
 
 #include <vector>
@@ -93,9 +93,9 @@ void Shape::AddLine( double x0, double y0, double x1, double y1 )
     AddShapeLine( ShapeLine{x0, y0, x1, y1, m_R, m_G, m_B, m_A, 1} );
 }
 
-double Shape::GetWidth() { return m_Width; }
+double Shape::GetWidth() const { return m_Width; }
 
-double Shape::GetHeight() { return m_Height; }
+double Shape::GetHeight() const { return m_Height; }
 
 void Shape::SetPos( double x, double y )
 {
@@ -103,15 +103,15 @@ void Shape::SetPos( double x, double y )
     m_Y = y;
 }
 
-double Shape::GetPosX() { return m_X; }
+double Shape::GetPosX() const { return m_X; }
 
-double Shape::GetPosY() { return m_Y; }
+double Shape::GetPosY() const { return m_Y; }
 
-bool Shape::IsVisible() { return m_IsVisible; }
+bool Shape::IsVisible() const { return m_IsVisible; }
 
 void Shape::SetVisible( bool b ) { m_IsVisible = b; }
 
-double Shape::GetScale() { return m_Scale; }
+double Shape::GetScale() const { return m_Scale; }
 
 void Shape::Rotate( int rotationDelta )
 {
@@ -139,14 +139,14 @@ void Shape::Rotate( int rotationDelta )
     {
 
         // adjust according to rotation
-        double x0r = line.x0 * HelperFunctions::Cosine( rd ) -
-                     line.y0 * HelperFunctions::Sine( rd );
-        double y0r = line.x0 * HelperFunctions::Sine( rd ) +
-                     line.y0 * HelperFunctions::Cosine( rd );
-        double x1r = line.x1 * HelperFunctions::Cosine( rd ) -
-                     line.y1 * HelperFunctions::Sine( rd );
-        double y1r = line.x1 * HelperFunctions::Sine( rd ) +
-                     line.y1 * HelperFunctions::Cosine( rd );
+        double x0r = line.x0 * helperfunctions::Cosine( rd ) -
+                     line.y0 * helperfunctions::Sine( rd );
+        double y0r = line.x0 * helperfunctions::Sine( rd ) +
+                     line.y0 * helperfunctions::Cosine( rd );
+        double x1r = line.x1 * helperfunctions::Cosine( rd ) -
+                     line.y1 * helperfunctions::Sine( rd );
+        double y1r = line.x1 * helperfunctions::Sine( rd ) +
+                     line.y1 * helperfunctions::Cosine( rd );
 
         line.x0 = x0r;
         line.y0 = y0r;
@@ -186,7 +186,7 @@ void Shape::SetScale( double scale )
     m_Height = static_cast<int>( static_cast<double>( m_Height ) * m_Scale );
 }
 
-bool Shape::IntersectCheck( std::shared_ptr<Shape> s )
+bool Shape::IntersectCheck( std::shared_ptr<Shape> s ) const
 {
     // check for intersect with all of my lines against all of another object's:
     for ( size_t myLine = 0; myLine < m_ShapeLines.size(); ++myLine )
@@ -309,7 +309,7 @@ bool Shape::IntersectCheck( std::shared_ptr<Shape> s )
     return false;
 }
 
-const std::vector<ShapeLine>& Shape::GetVec() { return m_ShapeLines; }
+const std::vector<ShapeLine>& Shape::GetVec() const { return m_ShapeLines; }
 
 void Shape::UpdateShapeSize( double x0, double y0, double x1, double y1 )
 {

@@ -7,34 +7,50 @@ namespace amaze
 {
 
 SfmlAdapter::SfmlAdapter( int screenWidth, int screenHeight )
-    : m_Window( sf::VideoMode( screenWidth, screenHeight ), "Amaze" ),
-      m_ScreenHeight( screenHeight ), m_ScreenWidth( screenWidth )
+    : m_window( sf::VideoMode( screenWidth, screenHeight ), "Amaze" ),
+      m_screenHeight( screenHeight ),
+      m_screenWidth( screenWidth )
 {
-    // m_Window.setMouseCursorVisible(false);
+    // m_window.setMouseCursorVisible(false);
 }
 
 SfmlAdapter::~SfmlAdapter() {}
 
-int SfmlAdapter::GetScreenHeight() const { return m_ScreenHeight; }
+int SfmlAdapter::GetScreenHeight() const { return m_screenHeight; }
 
-int SfmlAdapter::GetScreenWidth() const { return m_ScreenWidth; }
+int SfmlAdapter::GetScreenWidth() const { return m_screenWidth; }
 
-void SfmlAdapter::Cls() { m_Window.clear(); }
+void SfmlAdapter::Cls() { m_window.clear(); }
 
-void SfmlAdapter::Redraw() { m_Window.display(); }
+void SfmlAdapter::Redraw() { m_window.display(); }
 
-int SfmlAdapter::SetDrawColour( uint8_t r, uint8_t g, uint8_t b, uint8_t a )
+int SfmlAdapter::SetDrawColour(
+    uint8_t, // r
+    uint8_t, // g
+    uint8_t, // b
+    uint8_t  // a
+    )
 {
     // TODO
     return 0;
 }
 
-void SfmlAdapter::DrawLine( int xFrom, int xTo, int yTo, int width )
+void SfmlAdapter::DrawLine(
+    int, // xFrom,
+    int, // xTo,
+    int, // yTo,
+    int  // width
+    )
 {
     // TODO call SFML
 }
 
-void SfmlAdapter::FillRectangle( int x, int y, int w, int h )
+void SfmlAdapter::FillRectangle(
+    int, // x,
+    int, // y,
+    int, // w,
+    int  // h
+    )
 {
     // TODO
 }
@@ -44,33 +60,43 @@ uint32_t SfmlAdapter::GetTicks() const
     return 0; // TODO
 }
 
-void SfmlAdapter::Delay( uint32_t milliseconds ) const
+void SfmlAdapter::Delay( uint32_t /* milliseconds */ ) const
 {
     // TODO
 }
 
 void SfmlAdapter::LoopDelay(
-    uint32_t previousTicks, uint32_t totalLoopMilliseconds ) const
+    uint32_t, // previousTicks,
+    uint32_t  // totalLoopMilliseconds
+    ) const
 {
     // TODO
 }
 
-size_t SfmlAdapter::imageLoad( const std::string& fileName )
+size_t SfmlAdapter::imageLoad( const std::string& /* fileName */ )
 {
     return 0; // TODO DELETE?
 }
 
-void SfmlAdapter::ImageDisplay( size_t id, int x, int y )
+void SfmlAdapter::ImageDisplay(
+    size_t, // id,
+    int,    // x,
+    int     // y
+    )
 {
     // TODO - delete?
 }
 
-void SfmlAdapter::ImageUnload( size_t id )
+void SfmlAdapter::ImageUnload( size_t /* id */ )
 {
     // TODO - delete?
 }
 
-void SfmlAdapter::ImageDisplay( const std::string& fileName, int x, int y )
+void SfmlAdapter::ImageDisplay(
+    const std::string&, // fileName,
+    int,                // x,
+    int                 // y
+    )
 {
     // TODO - delete?
 }
@@ -87,16 +113,18 @@ void SfmlAdapter::ProcessInput()
 }
 
 void SfmlAdapter::SoundLoad(
-    const std::string& key, const std::string& filename )
+    const std::string&, // key,
+    const std::string&  // filename
+    )
 {
     // TODO
 }
 
-void SfmlAdapter::SoundPlay( const std::string& key ) {}
+void SfmlAdapter::SoundPlay( const std::string& /* key */ ) {}
 
-void SfmlAdapter::SoundLoop( const std::string& key ) {}
+void SfmlAdapter::SoundLoop( const std::string& /* key */ ) {}
 
-void SfmlAdapter::SoundFade( const std::string& key, const int msecs )
+void SfmlAdapter::SoundFade( const std::string& /* key */, const int /* msecs */)
 {
     // TODO
 }

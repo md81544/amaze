@@ -1,5 +1,5 @@
 #include "view.h"
-#include "shapeline.h"
+#include "shape.h"
 #include "helperfunctions.h"
 
 #include <vector>
@@ -21,7 +21,7 @@ View::View(
 
 void View::PlaySounds()
 {
-    if ( m_Model.ShipModel()->isAccelerating() )
+    if ( m_Model.getShipModel()->isAccelerating() )
     {
         m_GraphicsAdapter.SoundLoop( "rocket" );
     }
@@ -30,7 +30,7 @@ void View::PlaySounds()
         m_GraphicsAdapter.SoundFade( "rocket", 1000 );
     }
 
-    if ( m_Model.ShipModel()->isExploding() )
+    if ( m_Model.getShipModel()->isExploding() )
     {
         m_GraphicsAdapter.SoundPlay( "collision" );
     }
@@ -74,19 +74,19 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
     double xOffset = m_GraphicsAdapter.GetScreenWidth() / 2;
     double yOffset = m_GraphicsAdapter.GetScreenHeight() / 2;
 
-    for ( unsigned int line = 0; line < shape.GetVec().size(); ++line )
+    for ( const auto& sl : shape.GetVec() )
     {
-        ShapeLine sl = shape.GetVec()[ line ];
-        double x0 = sl.x0 + shape.GetPosX() - m_Model.ShipModel()->x();
-        double y0 = sl.y0 + shape.GetPosY() - m_Model.ShipModel()->y();
-        double x1 = sl.x1 + shape.GetPosX() - m_Model.ShipModel()->x();
-        double y1 = sl.y1 + shape.GetPosY() - m_Model.ShipModel()->y();
+        //ShapeLine sl = shape.GetVec()[ line ];
+        double x0 = sl.x0 + shape.GetPosX() - m_Model.getShipModel()->x();
+        double y0 = sl.y0 + shape.GetPosY() - m_Model.getShipModel()->y();
+        double x1 = sl.x1 + shape.GetPosX() - m_Model.getShipModel()->x();
+        double y1 = sl.y1 + shape.GetPosY() - m_Model.getShipModel()->y();
         // OK, when we get here, we have a line expressed
         // relative to the origin of the ship.  We can apply the
         // rotate now (unless the shape is marked "don't rotate")...
         double dCos =
-            HelperFunctions::Cosine( m_Model.ShipModel()->rotation() );
-        double dSin = HelperFunctions::Sine( m_Model.ShipModel()->rotation() );
+            helperfunctions::Cosine( m_Model.getShipModel()->rotation() );
+        double dSin = helperfunctions::Sine( m_Model.getShipModel()->rotation() );
         double x0r, y0r, x1r, y1r;
         x0r = x0 * dCos - y0 * dSin;
         y0r = x0 * dSin + y0 * dCos;
@@ -94,6 +94,10 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
         y1r = x1 * dSin + y1 * dCos;
         // now draw adjusted for physical screen coords
         // TODO use IGraphicsAdapter's drawLine function here
+
+        // TODO: remove the line below (it's only there to stop the
+        // compiler complaining about unused variables)
+        (void)x0;(void)y0;(void)x1;(void)y1;(void)x0r;(void)y0r;(void)x1r;(void)y1r;(void)scale;(void)xOffset;(void)yOffset;
     }
 }
 
@@ -104,6 +108,7 @@ void View::DrawStaticShape( const GameShape& shape ) const
 
     for ( const auto& sl : shape.GetVec() )
     {
+        (void)sl;(void)scale; // TODO remove this line (unused variable defeats)
         // TODO use IGraphicsAdapter's drawLine function here
     }
 }

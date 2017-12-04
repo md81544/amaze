@@ -1,4 +1,5 @@
 #include "helperfunctions.h"
+#include "igraphicsadapter.h"
 
 #include "boost/math/constants/constants.hpp"
 
@@ -9,7 +10,12 @@
 namespace
 {
 
-int ClipFindRegion( const IGraphicsAdapter& gm, const int x, const int y )
+/* // TODO: remove?
+int ClipFindRegion(
+    const marengo::amaze::IGraphicsAdapter& gm,
+    const int x,
+    const int y
+    )
 {
     int rc = 0;
     if ( y >= gm.GetScreenHeight() )
@@ -29,15 +35,17 @@ int ClipFindRegion( const IGraphicsAdapter& gm, const int x, const int y )
         rc |= 8; // left
     }
     return ( rc );
-}
+}*/
 }
 
 namespace marengo
 {
 namespace amaze
 {
+namespace helperfunctions
+{
 
-void HelperFunctions::CsvSplit(
+void CsvSplit(
     const std::string& s, char c, std::vector<std::string>& v )
 {
     size_t j = s.find( c );
@@ -62,7 +70,7 @@ void HelperFunctions::CsvSplit(
     }
 }
 
-void HelperFunctions::CsvSplit(
+void CsvSplit(
     const std::string& s, char c, std::vector<double>& v )
 {
     std::vector<std::string> items;
@@ -73,7 +81,7 @@ void HelperFunctions::CsvSplit(
     }
 }
 
-double HelperFunctions::Cosine( int degrees )
+double Cosine( int degrees )
 {
     namespace bmc = boost::math::constants;
     // fast, cached lookup table implementation
@@ -90,7 +98,7 @@ double HelperFunctions::Cosine( int degrees )
     return cosines[ degrees ];
 }
 
-double HelperFunctions::Sine( int degrees )
+double Sine( int degrees )
 {
     namespace bmc = boost::math::constants;
     // fast, cached lookup table implementation
@@ -107,7 +115,7 @@ double HelperFunctions::Sine( int degrees )
     return sins[ degrees ];
 }
 
-int HelperFunctions::Sgn( int x )
+int Sgn( int x )
 {
     if ( x > 0 )
     {
@@ -120,7 +128,7 @@ int HelperFunctions::Sgn( int x )
     return 0;
 }
 
-bool HelperFunctions::DoLinesIntersect(
+bool DoLinesIntersect(
     long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4 )
 {
 
@@ -224,5 +232,6 @@ bool HelperFunctions::DoLinesIntersect(
     return true;
 }
 
+} // namespace helperfunctions
 } // namespace amaze
 } // namespace marengo

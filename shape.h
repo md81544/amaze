@@ -30,14 +30,14 @@ public:
     void    AddShapeLine( ShapeLine sl );
     void    SetColour( uint8_t r, uint8_t g, uint8_t b, uint8_t a );
     void    AddLine( double x0, double y0, double x1, double y1 );
-    double  GetWidth();
-    double  GetHeight();
+    double  GetWidth() const;
+    double  GetHeight() const;
     void    SetPos( double x, double y );
-    double  GetPosX();
-    double  GetPosY();
-    bool    IsVisible();
+    double  GetPosX() const;
+    double  GetPosY() const;
+    bool    IsVisible() const;
     void    SetVisible( bool b );
-    double  GetScale();
+    double  GetScale() const;
     void    Rotate( int rotationDelta );
     void    SetScale( double scale );
     void    makeFromText(
@@ -49,8 +49,8 @@ public:
                 int lineThickness
                 );
     void    Clear();
-    bool    IntersectCheck( std::shared_ptr<Shape> );
-    const std::vector<ShapeLine>& GetVec(); // TODO - yuck - returning reference to internals
+    bool    IntersectCheck( std::shared_ptr<Shape> ) const;
+    const   std::vector<ShapeLine>& GetVec() const; // TODO returning internals??
 
 protected:
     std::vector<ShapeLine> m_ShapeLines;

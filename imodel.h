@@ -2,8 +2,9 @@
 
 #include "gameshape.h"
 
-#include <vector>
+#include <functional>
 #include <memory>
+#include <vector>
 
 // This is the interface for a model. Any model may be passed to
 // the view's Update() function for display. This allows us to use

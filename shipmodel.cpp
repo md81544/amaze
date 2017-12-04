@@ -166,8 +166,8 @@ void ShipModel::updateShipPosition()
 
     if ( m_IsAccelerating )
     {
-        m_Dx = m_Dx + HelperFunctions::Sine( m_Rotation ) * 0.08;
-        m_Dy = m_Dy + HelperFunctions::Cosine( m_Rotation ) * 0.08;
+        m_Dx = m_Dx + helperfunctions::Sine( m_Rotation ) * 0.08;
+        m_Dy = m_Dy + helperfunctions::Cosine( m_Rotation ) * 0.08;
     }
 
     // calculate new position for ship
@@ -254,7 +254,7 @@ void ShipModel::drawFlames()
 
 void ShipModel::buildExplosionShape()
 {
-    using namespace HelperFunctions;
+    using namespace helperfunctions;
 
     m_ExplosionGameShape->Clear();
     // debris:

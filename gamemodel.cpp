@@ -4,6 +4,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <cassert>
 #include <sstream>
 #include <numeric>
 
@@ -112,7 +113,7 @@ void GameModel::LevelLoad( size_t levelNum )
     std::ifstream in( levelFile.string() );
     if ( !in )
     {
-        THROWUP( amaze::exceptions::AmazeRuntimeException,
+        THROWUP( AmazeRuntimeException,
             "Failed to load Level file " + filename );
     }
     std::string currentLine;
@@ -122,7 +123,7 @@ void GameModel::LevelLoad( size_t levelNum )
     {
         getline( in, currentLine );
         std::vector<std::string> vec;
-        HelperFunctions::CsvSplit( currentLine, '~', vec );
+        helperfunctions::CsvSplit( currentLine, '~', vec );
         // When we get here, vec is a vector of all the items on the current
         // line.
         if ( vec.size() == 0 )
@@ -223,12 +224,8 @@ void GameModel::LevelLoad( size_t levelNum )
             }
             break;
         case 'C':
-            __debugbreak();
-            //__asm("int $3"); // DEBUG TODO causes a debug break
-            // if (obj != NULL && vec.size()>1) {
-            //    obj=world.copyObject(dynamic_cast<Shape*>(mapObjects[vec[1]]),
-            //    cls);
-            //}
+            // Think this is currently unused...
+            assert( false );
             break;
         default:
             break;
@@ -249,14 +246,14 @@ const std::string GameModel::GetDataPath() { return m_dataPath; }
 
 double GameModel::TimeGetTenthBest( int levelNumber )
 {
-    return 300; // TODO
+    (void)levelNumber;return 300; // TODO
     /*
     std::vector<double> v;
     std::ostringstream ss;
     ss << "LEVEL" << levelNumber << "_BESTIMES";
     std::string s =
     prefs_.getString(ss.str(),"300,300,300,300,300,300,300,300,300,300");
-    HelperFunctions::CsvSplit(s, ',' ,v);
+    helperfunctions::CsvSplit(s, ',' ,v);
     return v[9];
     */
 }
@@ -293,7 +290,7 @@ GameModel::GetAllStaticObjects() const
     return m_allStaticGameShapes;
 }
 
-std::shared_ptr<ShipModel> GameModel::ShipModel() const { return m_shipModel; }
+std::shared_ptr<ShipModel> GameModel::getShipModel() const { return m_shipModel; }
 
 bool GameModel::WasFuelOutWarned() const { return m_wasFuelOutWarned; }
 
@@ -370,6 +367,19 @@ void GameModel::UpdateStatistics( size_t millisecs )
     sum = static_cast<size_t>(
         std::accumulate( m_frameTimes.begin(), m_frameTimes.end(), 0.0 ) );
     m_averageFrameTime = static_cast<size_t>( sum / count );
+}
+
+void GameModel::ProcessDynamicObjects( std::function<void( GameShape& )> )
+{
+}
+
+void GameModel::ProcessStaticObjects( std::function<void( GameShape& )> )
+{
+}
+
+unsigned int GameModel::GetRotation() const
+{
+    return 0; // TODO
 }
 
 } // namespace amaze

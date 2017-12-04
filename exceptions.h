@@ -10,11 +10,11 @@ namespace amaze
 {
 
 #ifdef __linux
-#define THROWUP( exception, message ) \
-throw exception( __FILE__, __LINE__, __func__, message )
+#define THROWUP( ex, message ) \
+throw ex( __FILE__, __LINE__, __func__, message )
 #else
 #define THROWUP( exception, message ) \
-throw exception( __FILE__, __LINE__, __FUNCSIG__, message )
+throw ex( __FILE__, __LINE__, __FUNCSIG__, message )
 #endif
 
 

@@ -51,7 +51,7 @@ void Preferences::Save()
     std::ofstream ofs( m_filename.c_str(), std::ios::out );
     if ( !ofs )
     {
-        THROWUP( amaze::exceptions::AmazeRuntimeException,
+        THROWUP( AmazeRuntimeException,
             "Could not open the config file for saving" );
     }
     for ( const auto& pr : keyValueMap )

@@ -55,9 +55,9 @@ public:
     virtual void SoundFade( const std::string& key, const int msecs ) override;
 
 private:
-    sf::RenderWindow m_Window;
-    int m_ScreenWidth;
-    int m_ScreenHeight;
+    sf::RenderWindow m_window;
+    int m_screenHeight;
+    int m_screenWidth;
 
     std::map<KeyControls, std::function<void( const bool )>> m_ControlHandlers;
 };

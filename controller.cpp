@@ -46,15 +46,15 @@ void Controller::RegisterControlHandlers()
         KeyControls::LEFT, [&]( const bool isKeyDown ) {
             if ( isKeyDown )
             {
-                m_gameModel.ShipModel()->setRotationDelta( 2 );
+                m_gameModel.getShipModel()->setRotationDelta( 2 );
             }
             else
             {
                 // if we are already rotating in this direction:
-                if ( HelperFunctions::Sgn(
-                         m_gameModel.ShipModel()->rotationDelta() ) == 1 )
+                if ( helperfunctions::Sgn(
+                         m_gameModel.getShipModel()->rotationDelta() ) == 1 )
                 {
-                    m_gameModel.ShipModel()->setRotationDelta( 0 );
+                    m_gameModel.getShipModel()->setRotationDelta( 0 );
                 }
             }
         } );
@@ -64,15 +64,15 @@ void Controller::RegisterControlHandlers()
         KeyControls::RIGHT, [&]( const bool isKeyDown ) {
             if ( isKeyDown )
             {
-                m_gameModel.ShipModel()->setRotationDelta( -2 );
+                m_gameModel.getShipModel()->setRotationDelta( -2 );
             }
             else
             {
                 // if we are already rotating in this direction:
-                if ( HelperFunctions::Sgn(
-                         m_gameModel.ShipModel()->rotationDelta() ) == -1 )
+                if ( helperfunctions::Sgn(
+                         m_gameModel.getShipModel()->rotationDelta() ) == -1 )
                 {
-                    m_gameModel.ShipModel()->setRotationDelta( 0 );
+                    m_gameModel.getShipModel()->setRotationDelta( 0 );
                 }
             }
         } );
@@ -82,17 +82,17 @@ void Controller::RegisterControlHandlers()
         KeyControls::ACCELERATE, [&]( const bool isKeyDown ) {
             if ( isKeyDown )
             {
-                m_gameModel.ShipModel()->setIsAccelerating( true );
+                m_gameModel.getShipModel()->setIsAccelerating( true );
             }
             else
             {
-                m_gameModel.ShipModel()->setIsAccelerating( false );
+                m_gameModel.getShipModel()->setIsAccelerating( false );
             }
         } );
 
     // Brake
     m_graphicsAdapter.RegisterControlHandler(
-        KeyControls::BRAKE, [&]( const bool isKeyDown ) {
+        KeyControls::BRAKE, [&]( const bool /* isKeyDown */ ) {
             // TODO
         } );
 
@@ -166,7 +166,7 @@ void Controller::CollisionChecks()
         case GameShapeType::NEUTRAL:
             break;
         case GameShapeType::OBSTRUCTION:
-            m_gameModel.ShipModel()->setIsExploding( true );
+            m_gameModel.getShipModel()->setIsExploding( true );
             break;
         case GameShapeType::PRISONER:
             // currently an idea but not used

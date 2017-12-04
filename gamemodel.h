@@ -61,17 +61,23 @@ public:
 
     const std::vector<std::shared_ptr<GameShape>>&
     GetAllDynamicObjects() const;
-    
+
     const std::vector<std::shared_ptr<GameShape>>&
     GetAllStaticObjects() const;
 
-    std::shared_ptr<ShipModel> ShipModel() const;
+    std::shared_ptr<ShipModel> getShipModel() const;
 
     std::shared_ptr<GameShape> CollisionDetect() const;
 
     void Process();
 
     void UpdateStatistics( size_t millisecs );
+
+    void ProcessDynamicObjects( std::function<void( GameShape& )> ) override;
+
+    void ProcessStaticObjects( std::function<void( GameShape& )> ) override;
+
+    unsigned int GetRotation() const override;
 
 private:
     std::string m_dataPath { "" };
