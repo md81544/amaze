@@ -106,7 +106,7 @@ void GameModel::LevelLoad( size_t levelNum )
 
     Initialise( levelNum );
 
-    std::string filename = "Level" + std::to_string( levelNum ) + ".cfg";
+    std::string filename = "level" + std::to_string( levelNum ) + ".cfg";
     boost::filesystem::path levelFile( GetDataPath() );
     levelFile.append( filename );
 
