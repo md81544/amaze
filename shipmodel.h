@@ -4,7 +4,12 @@
 #include <memory>
 
 #include "gameshape.h"
-#include "IGraphicsAdapter.h"
+#include "igraphicsadapter.h"
+
+namespace marengo
+{
+namespace amaze
+{
 
 class ShipModel
 {
@@ -87,3 +92,6 @@ private:
     std::shared_ptr<GameShape> m_FlamesGameShape;
     std::shared_ptr<GameShape> m_ExplosionGameShape;
 };
+
+} // namespace amaze
+} // namespace marengo

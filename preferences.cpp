@@ -7,6 +7,11 @@
 #include <fstream>
 #include <sstream>
 
+namespace marengo
+{
+namespace amaze
+{
+
 Preferences::Preferences( const std::string& configFile )
 {
     m_filename = configFile;
@@ -91,3 +96,6 @@ void Preferences::SetLong( const std::string& sKey, long value )
 {
     keyValueMap[ sKey ] = std::to_string( value );
 }
+
+} // namespace amaze
+} // namespace marengo

@@ -7,6 +7,11 @@
 // functionality is no different between different shape
 // types this seems overkill.
 
+namespace marengo
+{
+namespace amaze
+{
+
 enum class GameShapeType
 {
     UNINITIALISED,
@@ -38,3 +43,5 @@ private:
     GameShapeType m_gameShapeType { GameShapeType::UNINITIALISED };
 };
 
+} // namespace amaze
+} // namespace marengo

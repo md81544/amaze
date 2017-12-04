@@ -10,6 +10,11 @@
 //
 // The "view" also includes other output, e.g. sounds.
 
+namespace marengo
+{
+namespace amaze
+{
+
 class View
 {
 public:
@@ -23,3 +28,6 @@ private:
     GameModel& m_Model;
     IGraphicsAdapter& m_GraphicsAdapter;
 };
+
+} // namespace amaze
+} // namespace marengo

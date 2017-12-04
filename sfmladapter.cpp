@@ -1,5 +1,10 @@
-#include "SfmlAdapter.h"
+#include "sfmladapter.h"
 #include "helperfunctions.h"
+
+namespace marengo
+{
+namespace amaze
+{
 
 SfmlAdapter::SfmlAdapter( int screenWidth, int screenHeight )
     : m_Window( sf::VideoMode( screenWidth, screenHeight ), "Amaze" ),
@@ -95,3 +100,6 @@ void SfmlAdapter::SoundFade( const std::string& key, const int msecs )
 {
     // TODO
 }
+
+} // namespace amaze
+} // namespace marengo

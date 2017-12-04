@@ -4,9 +4,9 @@
 #include <stdexcept>
 #include <typeinfo>
 
-namespace amaze
+namespace marengo
 {
-namespace exceptions
+namespace amaze
 {
 
 #ifdef __linux
@@ -84,5 +84,5 @@ public:
         AmazeBaseException( file, line, function, message ) {}
 };
 
-} // namespace exceptions
 } // namespace amaze
+} // namespace marengo

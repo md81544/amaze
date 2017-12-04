@@ -18,6 +18,11 @@
 // the physical window and scales the "units" to pixels
 // accordingly.
 
+namespace marengo
+{
+namespace amaze
+{
+
 class GameModel : public IModel
 {
 public:
@@ -95,3 +100,6 @@ private:
     std::vector<size_t> m_frameTimes;
     size_t m_averageFrameTime{ 0 };
 };
+
+} // namespace amaze
+} // namespace marengo

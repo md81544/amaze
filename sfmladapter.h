@@ -2,7 +2,7 @@
 
 // All SFML-specific code should go in this class
 
-#include "IGraphicsAdapter.h"
+#include "igraphicsadapter.h"
 
 #include "SFML/Graphics.hpp"
 #include "SFML/Audio.hpp"
@@ -12,6 +12,11 @@
 #include <memory>
 #include <functional>
 #include <string>
+
+namespace marengo
+{
+namespace amaze
+{
 
 // TODO: add support for whole shapes via sf::LineStrip
 // (add to IGraphicsAdapter)
@@ -56,3 +61,6 @@ private:
 
     std::map<KeyControls, std::function<void( const bool )>> m_ControlHandlers;
 };
+
+} // namespace amaze
+} // namespace marengo

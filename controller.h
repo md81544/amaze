@@ -3,10 +3,15 @@
 #include "gamemodel.h"
 #include "view.h"
 #include "preferences.h"
-#include "IGraphicsAdapter.h"
+#include "igraphicsadapter.h"
 
 // This class acts as the MVC "controller" - i.e. it contains
 // game logic, tests input, collisions, end events etc
+
+namespace marengo
+{
+namespace amaze
+{
 
 class Controller
 {
@@ -28,3 +33,6 @@ private:
     View&             m_view;
     IGraphicsAdapter& m_graphicsAdapter;
 };
+
+} // namespace amaze
+} // namespace marengo

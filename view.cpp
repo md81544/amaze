@@ -4,11 +4,16 @@
 
 #include <vector>
 
+namespace marengo
+{
+namespace amaze
+{
+
 View::View(
     GameModel& model,
     IGraphicsAdapter& gm
     )
-    : 
+    :
     m_Model( model ),
     m_GraphicsAdapter( gm )
 {
@@ -102,3 +107,6 @@ void View::DrawStaticShape( const GameShape& shape ) const
         // TODO use IGraphicsAdapter's drawLine function here
     }
 }
+
+} // namespace amaze
+} // namespace marengo

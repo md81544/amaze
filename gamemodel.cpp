@@ -7,6 +7,11 @@
 #include <sstream>
 #include <numeric>
 
+namespace marengo
+{
+namespace amaze
+{
+
 GameModel::GameModel()
 {
     m_shipModel = std::make_shared<ShipModel>(
@@ -366,3 +371,6 @@ void GameModel::UpdateStatistics( size_t millisecs )
         std::accumulate( m_frameTimes.begin(), m_frameTimes.end(), 0.0 ) );
     m_averageFrameTime = static_cast<size_t>( sum / count );
 }
+
+} // namespace amaze
+} // namespace marengo

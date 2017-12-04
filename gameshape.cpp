@@ -1,5 +1,10 @@
 #include "gameshape.h"
 
+namespace marengo
+{
+namespace amaze
+{
+
 GameShape::GameShape()
 {
 }
@@ -34,3 +39,6 @@ void GameShape::SetName( const std::string& name )
 {
     m_name = name;
 }
+
+} // namespace amaze
+} // namespace marengo

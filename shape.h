@@ -4,6 +4,11 @@
 #include <string>
 #include <memory>
 
+namespace marengo
+{
+namespace amaze
+{
+
 struct ShapeLine
 {
     double  x0;
@@ -68,3 +73,6 @@ protected:
     uint8_t m_A{255};
     void UpdateShapeSize( double x0, double y0, double x1, double y1 );
 };
+
+} // namespace amaze
+} // namespace marengo

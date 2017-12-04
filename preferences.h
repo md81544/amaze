@@ -2,6 +2,11 @@
 
 #include <map>
 
+namespace marengo
+{
+namespace amaze
+{
+
 class Preferences
 {
 public:
@@ -16,3 +21,6 @@ private:
     std::string m_filename;
     std::map<std::string, std::string> keyValueMap;
 };
+
+} // namespace amaze
+} // namespace marengo

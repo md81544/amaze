@@ -1,7 +1,12 @@
 #include "gamemodel.h"
-
 #include "helperfunctions.h"
+
 #include <cmath>
+
+namespace marengo
+{
+namespace amaze
+{
 
 ShipModel::ShipModel( std::shared_ptr<GameShape> ship,
     std::shared_ptr<GameShape> flames, std::shared_ptr<GameShape> explosion )
@@ -307,3 +312,6 @@ std::shared_ptr<GameShape> ShipModel::explosionGameShape() const
 {
     return m_ExplosionGameShape;
 }
+
+} // namespace amaze
+} // namespace marengo

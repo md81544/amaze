@@ -6,6 +6,11 @@
 #include <string>
 #include <cmath>
 
+namespace marengo
+{
+namespace amaze
+{
+
 Shape::Shape() {}
 
 Shape::~Shape() {}
@@ -27,7 +32,7 @@ void Shape::makeFromText(
     for ( const char& c : s )
     {
         double characterWidth = 0.0;
-        std::vector<int> vertices = vector_font::GetCharacter( c );
+        std::vector<int> vertices = vectorfont::getCharacter( c );
         size_t numVertices = vertices.size() / 2;
         if ( numVertices == 0 )
         {
@@ -329,3 +334,6 @@ void Shape::UpdateShapeSize( double x0, double y0, double x1, double y1 )
     m_Width = m_MaxX - m_MinX;
     m_Height = m_MaxY - m_MinY;
 }
+
+} // namespace amaze
+} // namespace marengo

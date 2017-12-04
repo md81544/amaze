@@ -32,6 +32,11 @@ int ClipFindRegion( const IGraphicsAdapter& gm, const int x, const int y )
 }
 }
 
+namespace marengo
+{
+namespace amaze
+{
+
 void HelperFunctions::CsvSplit(
     const std::string& s, char c, std::vector<std::string>& v )
 {
@@ -218,3 +223,6 @@ bool HelperFunctions::DoLinesIntersect(
     // if we get here, the lines either intersect or are collinear.
     return true;
 }
+
+} // namespace amaze
+} // namespace marengo

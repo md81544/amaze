@@ -1,4 +1,4 @@
-#include "SfmlAdapter.h"
+#include "sfmladapter.h"
 #include "preferences.h"
 
 #include "view.h"
@@ -29,7 +29,10 @@
 // related to the mechanics of the game BUT NOT logic related to actual
 // gameplay (which should be in the model).
 
-std::string FindDataDirectory( const char * const program )
+namespace
+{
+
+std::string findDataDirectory( const char * const program )
 {
     // Attempt to locate the data directory. We look in the
     // directory where the binary is located, its parent,
@@ -60,16 +63,18 @@ std::string FindDataDirectory( const char * const program )
     }
     return dir;
 }
+} // end anonymous namespace
 
 int main( int argc, char* argv[] )
 {
+    using namespace marengo::amaze
     try
     {
         srand(
             static_cast<unsigned int>( time( NULL ) ) ); // TODO random device
 
         // Locate our data directory:
-        std::string dataDir = FindDataDirectory( argv[0] );
+        std::string dataDir = findDataDirectory( argv[0] );
 
         int width = 800;
         SfmlAdapter graphicsManager( width, static_cast<int>( width * 0.75 ) );
@@ -86,6 +91,8 @@ int main( int argc, char* argv[] )
         controller.Run(); // main loop is in here
 
         // TODO model.preferencesSave();
+
+        return 0;
     }
     catch ( const amaze::exceptions::AmazeBaseException& ex )
     {
@@ -99,8 +106,6 @@ int main( int argc, char* argv[] )
     {
         // anything caught here is a terminal event
         std::cout << e.what() << std::endl;
-        return 1;
     }
-
-    return 0;
+    return 1;
 }

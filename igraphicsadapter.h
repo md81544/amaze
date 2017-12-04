@@ -3,7 +3,12 @@
 #include <functional>
 
 // Defines an adapter interface for the graphical toolkit
-// in use (currently SFMLAdapter implements this)
+// in use (currently SfmlAdapter implements this)
+
+namespace marengo
+{
+namespace amaze
+{
 
 enum class KeyControls
 {
@@ -63,3 +68,6 @@ public:
     virtual void SoundLoop( const std::string& key ) = 0;
     virtual void SoundFade( const std::string& key, const int msecs ) = 0;
 };
+
+} // namespace amaze
+} // namespace marengo
