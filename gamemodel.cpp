@@ -5,8 +5,9 @@
 #include <boost/filesystem.hpp>
 
 #include <cassert>
-#include <sstream>
+#include <fstream>
 #include <numeric>
+#include <sstream>
 
 namespace marengo
 {
