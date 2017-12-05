@@ -23,16 +23,16 @@ void View::PlaySounds()
 {
     if ( m_Model.getShipModel()->isAccelerating() )
     {
-        m_GraphicsAdapter.SoundLoop( "rocket" );
+        m_GraphicsAdapter.soundLoop( "rocket" );
     }
     else
     {
-        m_GraphicsAdapter.SoundFade( "rocket", 1000 );
+        m_GraphicsAdapter.soundFade( "rocket", 1000 );
     }
 
     if ( m_Model.getShipModel()->isExploding() )
     {
-        m_GraphicsAdapter.SoundPlay( "collision" );
+        m_GraphicsAdapter.soundPlay( "collision" );
     }
 }
 
@@ -70,9 +70,9 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
 {
     // We treat the viewport as representing 320 coordinates wide,
     // regardless of its physical dimensions:
-    double scale = m_GraphicsAdapter.GetScreenWidth() / 320.0;
-    double xOffset = m_GraphicsAdapter.GetScreenWidth() / 2;
-    double yOffset = m_GraphicsAdapter.GetScreenHeight() / 2;
+    double scale = m_GraphicsAdapter.getScreenWidth() / 320.0;
+    double xOffset = m_GraphicsAdapter.getScreenWidth() / 2;
+    double yOffset = m_GraphicsAdapter.getScreenHeight() / 2;
 
     for ( const auto& sl : shape.GetVec() )
     {
@@ -104,7 +104,7 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
 void View::DrawStaticShape( const GameShape& shape ) const
 {
     // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
-    double scale = m_GraphicsAdapter.GetScreenWidth() / 320.0;
+    double scale = m_GraphicsAdapter.getScreenWidth() / 320.0;
 
     for ( const auto& sl : shape.GetVec() )
     {

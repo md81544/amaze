@@ -27,32 +27,32 @@ class SfmlAdapter : public IGraphicsAdapter
 public:
     SfmlAdapter( int screenWidth, int screenHeight );
     ~SfmlAdapter();
-    virtual void Cls() override;
-    virtual void Redraw() override;
-    virtual int SetDrawColour(
+    virtual void cls() override;
+    virtual void redraw() override;
+    virtual int setDrawColour(
         uint8_t r, uint8_t g, uint8_t b, uint8_t a ) override;
-    virtual void DrawLine( int xFrom, int xTo, int yTo, int width ) override;
-    virtual void FillRectangle( int x, int y, int w, int h ) override;
-    virtual int GetScreenWidth() const override;
-    virtual int GetScreenHeight() const override;
-    virtual uint32_t GetTicks() const override;
-    virtual void Delay( uint32_t milliseconds ) const override;
-    virtual void LoopDelay( uint32_t previousTicks,
+    virtual void drawLine( int xFrom, int xTo, int yTo, int width ) override;
+    virtual void fillRectangle( int x, int y, int w, int h ) override;
+    virtual int getScreenWidth() const override;
+    virtual int getScreenHeight() const override;
+    virtual uint32_t getTicks() const override;
+    virtual void delay( uint32_t milliseconds ) const override;
+    virtual void loopDelay( uint32_t previousTicks,
         uint32_t totalLoopMilliseconds ) const override;
-    virtual void ImageDisplay(
+    virtual void imageDisplay(
         const std::string& fileName, int x, int y ) override;
     virtual size_t imageLoad( const std::string& fileName ) override;
-    virtual void ImageDisplay( size_t id, int x, int y ) override;
-    virtual void ImageUnload( size_t id ) override;
-    virtual void RegisterControlHandler( KeyControls key,
+    virtual void imageDisplay( size_t id, int x, int y ) override;
+    virtual void imageUnload( size_t id ) override;
+    virtual void registerControlHandler( KeyControls key,
         std::function<void( const bool )> controlHandler ) override;
     virtual void processInput() override;
     // Sound processing
-    virtual void SoundLoad(
+    virtual void soundLoad(
         const std::string& key, const std::string& filename ) override;
-    virtual void SoundPlay( const std::string& key ) override;
-    virtual void SoundLoop( const std::string& key ) override;
-    virtual void SoundFade( const std::string& key, const int msecs ) override;
+    virtual void soundPlay( const std::string& key ) override;
+    virtual void soundLoop( const std::string& key ) override;
+    virtual void soundFade( const std::string& key, const int msecs ) override;
 
 private:
     sf::RenderWindow m_window;

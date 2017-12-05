@@ -21,13 +21,13 @@ Controller::Controller(
     boost::filesystem::path dataPath( m_gameModel.getDataPath() );
 
     // Load sounds...
-    m_graphicsAdapter.SoundLoad(
+    m_graphicsAdapter.soundLoad(
         "rocket", ( dataPath / "rocket.wav" ).string() );
-    m_graphicsAdapter.SoundLoad(
+    m_graphicsAdapter.soundLoad(
         "collision", ( dataPath / "collision.wav" ).string() );
-    m_graphicsAdapter.SoundLoad(
+    m_graphicsAdapter.soundLoad(
         "collect", ( dataPath / "collect.wav" ).string() );
-    m_graphicsAdapter.SoundLoad(
+    m_graphicsAdapter.soundLoad(
         "success", ( dataPath / "success.wav" ).string() );
 }
 
@@ -44,7 +44,7 @@ void Controller::registerControlHandlers()
     // function objects.
 
     // Rotate Left
-    m_graphicsAdapter.RegisterControlHandler(
+    m_graphicsAdapter.registerControlHandler(
         KeyControls::LEFT, [&]( const bool isKeyDown ) {
             if ( isKeyDown )
             {
@@ -62,7 +62,7 @@ void Controller::registerControlHandlers()
         } );
 
     // Rotate Right
-    m_graphicsAdapter.RegisterControlHandler(
+    m_graphicsAdapter.registerControlHandler(
         KeyControls::RIGHT, [&]( const bool isKeyDown ) {
             if ( isKeyDown )
             {
@@ -80,7 +80,7 @@ void Controller::registerControlHandlers()
         } );
 
     // Accelerate
-    m_graphicsAdapter.RegisterControlHandler(
+    m_graphicsAdapter.registerControlHandler(
         KeyControls::ACCELERATE, [&]( const bool isKeyDown ) {
             if ( isKeyDown )
             {
@@ -93,13 +93,13 @@ void Controller::registerControlHandlers()
         } );
 
     // Brake
-    m_graphicsAdapter.RegisterControlHandler(
+    m_graphicsAdapter.registerControlHandler(
         KeyControls::BRAKE, [&]( const bool /* isKeyDown */ ) {
             // TODO
         } );
 
     // Quit
-    m_graphicsAdapter.RegisterControlHandler(
+    m_graphicsAdapter.registerControlHandler(
         KeyControls::QUIT, [&]( const bool isKeyDown ) {
             if ( isKeyDown )
             {
@@ -131,10 +131,12 @@ void Controller::run()
 
         collisionChecks(); // check input etc and updates model
         if ( m_gameModel.gameIsRunning() == false )
+        {
             break;
-        m_graphicsAdapter.Cls();
+        }
+        m_graphicsAdapter.cls();
         m_view.Update();
-        m_graphicsAdapter.Redraw();
+        m_graphicsAdapter.redraw();
         // m_GraphicsAdapter.loopDelay(loopStart, 20); // ensure loop lasts at
         // least n msecs
         auto loopEnd = std::chrono::system_clock::now();
@@ -154,11 +156,11 @@ void Controller::collisionChecks()
         switch ( collider->GetGameShapeType() )
         {
         case GameShapeType::EXIT:
-            m_graphicsAdapter.SoundPlay( "success" );
+            m_graphicsAdapter.soundPlay( "success" );
             m_gameModel.setGameIsRunning( false ); // TODO next Level etc
             break;
         case GameShapeType::FUEL:
-            m_graphicsAdapter.SoundPlay( "collect" );
+            m_graphicsAdapter.soundPlay( "collect" );
             collider->SetIsActive( false );
             // TODO - refuel
             break;

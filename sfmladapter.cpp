@@ -16,15 +16,15 @@ SfmlAdapter::SfmlAdapter( int screenWidth, int screenHeight )
 
 SfmlAdapter::~SfmlAdapter() {}
 
-int SfmlAdapter::GetScreenHeight() const { return m_screenHeight; }
+int SfmlAdapter::getScreenHeight() const { return m_screenHeight; }
 
-int SfmlAdapter::GetScreenWidth() const { return m_screenWidth; }
+int SfmlAdapter::getScreenWidth() const { return m_screenWidth; }
 
-void SfmlAdapter::Cls() { m_window.clear(); }
+void SfmlAdapter::cls() { m_window.clear(); }
 
-void SfmlAdapter::Redraw() { m_window.display(); }
+void SfmlAdapter::redraw() { m_window.display(); }
 
-int SfmlAdapter::SetDrawColour(
+int SfmlAdapter::setDrawColour(
     uint8_t, // r
     uint8_t, // g
     uint8_t, // b
@@ -35,7 +35,7 @@ int SfmlAdapter::SetDrawColour(
     return 0;
 }
 
-void SfmlAdapter::DrawLine(
+void SfmlAdapter::drawLine(
     int, // xFrom,
     int, // xTo,
     int, // yTo,
@@ -45,7 +45,7 @@ void SfmlAdapter::DrawLine(
     // TODO call SFML
 }
 
-void SfmlAdapter::FillRectangle(
+void SfmlAdapter::fillRectangle(
     int, // x,
     int, // y,
     int, // w,
@@ -55,17 +55,17 @@ void SfmlAdapter::FillRectangle(
     // TODO
 }
 
-uint32_t SfmlAdapter::GetTicks() const
+uint32_t SfmlAdapter::getTicks() const
 {
     return 0; // TODO
 }
 
-void SfmlAdapter::Delay( uint32_t /* milliseconds */ ) const
+void SfmlAdapter::delay( uint32_t /* milliseconds */ ) const
 {
     // TODO
 }
 
-void SfmlAdapter::LoopDelay(
+void SfmlAdapter::loopDelay(
     uint32_t, // previousTicks,
     uint32_t  // totalLoopMilliseconds
     ) const
@@ -78,7 +78,7 @@ size_t SfmlAdapter::imageLoad( const std::string& /* fileName */ )
     return 0; // TODO DELETE?
 }
 
-void SfmlAdapter::ImageDisplay(
+void SfmlAdapter::imageDisplay(
     size_t, // id,
     int,    // x,
     int     // y
@@ -87,12 +87,12 @@ void SfmlAdapter::ImageDisplay(
     // TODO - delete?
 }
 
-void SfmlAdapter::ImageUnload( size_t /* id */ )
+void SfmlAdapter::imageUnload( size_t /* id */ )
 {
     // TODO - delete?
 }
 
-void SfmlAdapter::ImageDisplay(
+void SfmlAdapter::imageDisplay(
     const std::string&, // fileName,
     int,                // x,
     int                 // y
@@ -101,7 +101,7 @@ void SfmlAdapter::ImageDisplay(
     // TODO - delete?
 }
 
-void SfmlAdapter::RegisterControlHandler(
+void SfmlAdapter::registerControlHandler(
     KeyControls key, std::function<void( const bool )> controlHandler )
 {
     m_ControlHandlers[ key ] = controlHandler;
@@ -112,7 +112,7 @@ void SfmlAdapter::processInput()
     return; // TODO
 }
 
-void SfmlAdapter::SoundLoad(
+void SfmlAdapter::soundLoad(
     const std::string&, // key,
     const std::string&  // filename
     )
@@ -120,11 +120,11 @@ void SfmlAdapter::SoundLoad(
     // TODO
 }
 
-void SfmlAdapter::SoundPlay( const std::string& /* key */ ) {}
+void SfmlAdapter::soundPlay( const std::string& /* key */ ) {}
 
-void SfmlAdapter::SoundLoop( const std::string& /* key */ ) {}
+void SfmlAdapter::soundLoop( const std::string& /* key */ ) {}
 
-void SfmlAdapter::SoundFade( const std::string& /* key */, const int /* msecs */)
+void SfmlAdapter::soundFade( const std::string& /* key */, const int /* msecs */)
 {
     // TODO
 }

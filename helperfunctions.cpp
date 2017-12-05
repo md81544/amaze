@@ -18,7 +18,7 @@ int ClipFindRegion(
     )
 {
     int rc = 0;
-    if ( y >= gm.GetScreenHeight() )
+    if ( y >= gm.getScreenHeight() )
     {
         rc |= 1; // top
     }
@@ -26,7 +26,7 @@ int ClipFindRegion(
     {
         rc |= 2; // bottom
     }
-    if ( x >= gm.GetScreenWidth() )
+    if ( x >= gm.getScreenWidth() )
     {
         rc |= 4; // right
     }
