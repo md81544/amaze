@@ -1,3 +1,4 @@
 *.o
 amaze
 tests/tests
+tags

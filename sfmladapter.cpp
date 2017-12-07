@@ -109,6 +109,26 @@ void SfmlAdapter::registerControlHandler(
 
 void SfmlAdapter::processInput()
 {
+    smf::Event event;
+
+    while ( m_window.pollEvent( event ) )
+    {
+        switch (event.type)
+        {
+            case sf::Event::KeyPressed:
+                if ( event.key.code == sf::Keyboard::Escape )
+                {
+                    m_ControlHandlers[ KeyControls::QUIT ]( true );
+                }
+                break;
+            case sf::Event::KeyReleased:
+                break;
+
+            // we don't process other types of events
+            default:
+                break;
+        }
+    }
     return; // TODO
 }
 

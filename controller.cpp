@@ -108,7 +108,7 @@ void Controller::registerControlHandlers()
         } );
 }
 
-void Controller::run()
+void Controller::mainLoop()
 {
     // This is the main game control structure, called from main().
     size_t gameLevel = 0;

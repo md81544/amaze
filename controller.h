@@ -22,7 +22,7 @@ public:
         View& v,
         IGraphicsAdapter& s
         );
-    void run();
+    void mainLoop();
     void collisionChecks();
     void registerControlHandlers();
     void splashScreen();

@@ -86,7 +86,7 @@ int main( int, char* argv[] )
 
         Controller controller( preferences, gameModel, view, graphicsManager );
         controller.splashScreen();
-        controller.run(); // main loop is in here
+        controller.mainLoop();
 
         // TODO model.preferencesSave();
 
