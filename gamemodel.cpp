@@ -16,7 +16,7 @@ namespace amaze
 
 GameModel::GameModel()
 {
-    m_shipModel = std::make_shared<ShipModel>(
+    m_shipModel = std::make_unique<ShipModel>(
         ShipModel( newGameShape(), newGameShape(), newGameShape() ) );
 }
 
@@ -291,9 +291,18 @@ GameModel::getAllStaticObjects() const
     return m_allStaticGameShapes;
 }
 
-std::shared_ptr<ShipModel> GameModel::getShipModel() const { return m_shipModel; }
+ShipModel* GameModel::getShipModel() const
+{
+    // TODO returning pointer to internals? Yuck.
+    // replace this with member functions which internally
+    // reference m_shipModel.
+    return m_shipModel.get();
+}
 
-bool GameModel::wasFuelOutWarned() const { return m_wasFuelOutWarned; }
+bool GameModel::wasFuelOutWarned() const
+{
+    return m_wasFuelOutWarned;
+}
 
 void GameModel::setWasFuelOutWarned( bool value )
 {

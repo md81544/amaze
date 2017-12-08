@@ -65,7 +65,8 @@ public:
     const std::vector<std::shared_ptr<GameShape>>&
     getAllStaticObjects() const;
 
-    std::shared_ptr<ShipModel> getShipModel() const;
+    // Returns a non-owning pointer to the ship model
+    ShipModel* getShipModel() const;
 
     std::shared_ptr<GameShape> collisionDetect() const;
 
@@ -101,7 +102,7 @@ private:
 
     std::shared_ptr<GameShape> m_staticInfoLine;
 
-    std::shared_ptr<ShipModel> m_shipModel;
+    std::unique_ptr<ShipModel> m_shipModel;
 
     std::vector<size_t> m_frameTimes;
     size_t m_averageFrameTime{ 0 };
