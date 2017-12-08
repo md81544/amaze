@@ -1,6 +1,5 @@
 PROJECT=amaze
-SOURCES=$(shell find . -maxdepth 1 -type f -name '*cpp') 
-LIB_TYPE=
+SOURCES=$(shell ls *cpp)
 INCPATHS=
 LIBPATHS=
 LDFLAGS=-lboost_system -lboost_filesystem \
