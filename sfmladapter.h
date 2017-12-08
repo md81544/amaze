@@ -5,10 +5,8 @@
 #include "igraphicsadapter.h"
 
 #include "SFML/Graphics.hpp"
-#include "SFML/Audio.hpp"
 
 #include <unordered_map>
-#include <map>
 #include <memory>
 #include <functional>
 #include <string>
@@ -59,7 +57,8 @@ private:
     int m_screenHeight;
     int m_screenWidth;
 
-    std::map<KeyControls, std::function<void( const bool )>> m_ControlHandlers;
+    std::unordered_map<KeyControls, std::function<void( const bool )>>
+        m_ControlHandlers;
 };
 
 } // namespace amaze
