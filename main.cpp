@@ -77,7 +77,7 @@ int main( int, char* argv[] )
         std::string dataDir = findDataDirectory( argv[0] );
 
         int width = 800;
-        SfmlAdapter graphicsManager( width, width * 0.75 );
+        SfmlAdapter graphicsManager( width, static_cast<int>( width * 0.75 ) );
 
         GameModel gameModel;
         gameModel.setDataPath( dataDir );

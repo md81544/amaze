@@ -37,8 +37,8 @@ public:
 
     void createStaticShapes();
 
-    int level() const;
-    void setLevel( int value );
+    size_t level() const;
+    void setLevel( size_t value );
 
     bool wasFuelOutWarned() const;
     void setWasFuelOutWarned( bool value );
@@ -49,7 +49,7 @@ public:
     int timeLimit() const;
     void setTimeLimit( int value );
 
-    double timeGetTenthBest( int levelNumber );
+    double timeGetTenthBest( size_t levelNumber );
 
     std::string levelDescription() const;
     void setLevelDescription( const std::string& value );
@@ -83,7 +83,7 @@ public:
 private:
     std::string m_dataPath { "" };
 
-    int m_level{ -1 };
+    size_t m_level{ 0 };
     std::string m_levelDescription;
     int m_timeLimit;
     bool m_wasFuelOutWarned{ false };

@@ -79,9 +79,9 @@ void GameModel::createStaticShapes()
     m_allStaticGameShapes.push_back( m_staticInfoLine );
 }
 
-int GameModel::level() const { return m_level; }
+size_t GameModel::level() const { return m_level; }
 
-void GameModel::setLevel( int value ) { m_level = value; }
+void GameModel::setLevel( size_t value ) { m_level = value; }
 
 // TODO - put this in the controller?
 void GameModel::levelLoad( size_t levelNum )
@@ -245,7 +245,7 @@ void GameModel::setDataPath( const std::string& dir ) { m_dataPath = dir; }
 
 const std::string GameModel::getDataPath() { return m_dataPath; }
 
-double GameModel::timeGetTenthBest( int levelNumber )
+double GameModel::timeGetTenthBest( size_t levelNumber )
 {
     (void)levelNumber;return 300; // TODO
     /*
