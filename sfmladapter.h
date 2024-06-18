@@ -29,7 +29,8 @@ public:
     virtual void redraw() override;
     virtual int setDrawColour(
         uint8_t r, uint8_t g, uint8_t b, uint8_t a ) override;
-    virtual void drawLine( int xFrom, int yFrom, int xTo, int yTo, int width ) override;
+    virtual void drawLine(
+        int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b ) override;
     virtual void fillRectangle( int x, int y, int w, int h ) override;
     virtual int getScreenWidth() const override;
     virtual int getScreenHeight() const override;

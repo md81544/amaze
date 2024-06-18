@@ -98,7 +98,10 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
             y0r / scale + yOffset,
             x1r / scale + xOffset,
             y1r / scale + yOffset,
-            1 // TODO?
+            1, // TODO?
+            sl.r,
+            sl.g,
+            sl.b
         );
     }
 }

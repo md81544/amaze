@@ -32,7 +32,8 @@ public:
         uint8_t b,
         uint8_t a
         ) = 0;
-    virtual void drawLine( int xFrom, int yFrom, int xTo, int yTo, int width ) = 0;
+    virtual void drawLine(
+        int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b ) = 0;
     virtual void fillRectangle( int x, int y, int w, int h ) = 0;
     virtual int getScreenWidth() const = 0;
     virtual int getScreenHeight() const = 0;

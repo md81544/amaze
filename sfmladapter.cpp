@@ -49,7 +49,10 @@ void SfmlAdapter::drawLine(
     int yFrom,
     int xTo,
     int yTo,
-    int width
+    int width,
+    int r,
+    int g,
+    int b
     )
 {
     // Note, apparently SFML uses a rectangle shape to draw a line with thickness
@@ -59,6 +62,8 @@ void SfmlAdapter::drawLine(
         sf::Vertex(sf::Vector2f(xFrom, yFrom)),
         sf::Vertex(sf::Vector2f(xTo, yTo))
     };
+    line[0].color = sf::Color(r,g,b);
+    line[1].color = sf::Color(r,g,b);
     m_window.draw(line, 2, sf::Lines);
 }
 
