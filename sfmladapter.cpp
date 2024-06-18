@@ -55,8 +55,8 @@ void SfmlAdapter::drawLine(
     int b
     )
 {
-    // Note, apparently SFML uses a rectangle shape to draw a line with thickness
-
+    // Note, apparently SFML uses a rectangle shape to draw a line with thickness, so this
+    // may need revisiting in future (TODO?)
     sf::Vertex line[] =
     {
         sf::Vertex(sf::Vector2f(xFrom, yFrom)),
@@ -131,12 +131,25 @@ void SfmlAdapter::processInput()
         switch (event.type)
         {
             case sf::Event::KeyPressed:
-                if ( event.key.code == sf::Keyboard::Escape )
-                {
-                    m_ControlHandlers[ KeyControls::QUIT ]( true );
+                switch(event.key.code) {
+                    case sf::Keyboard::Escape:
+                        m_ControlHandlers[ KeyControls::QUIT ]( true );
+                        break;
+                    case sf::Keyboard::Up:
+                        m_ControlHandlers[ KeyControls::ACCELERATE ]( true );
+                        break;
+                    default:
+                        break;
                 }
                 break;
             case sf::Event::KeyReleased:
+                switch(event.key.code) {
+                    case sf::Keyboard::Up:
+                        m_ControlHandlers[ KeyControls::ACCELERATE ]( false );
+                        break;
+                    default:
+                        break;
+                }
                 break;
 
             // we don't process other types of events
