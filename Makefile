@@ -4,8 +4,9 @@ INCPATHS=
 LIBPATHS=
 LDFLAGS=-lboost_system -lboost_filesystem \
 		-lsfml-graphics -lsfml-window -lsfml-system
-CFLAGS=-std=c++14 -c -Wall -Wextra -Werror -Wpedantic
-CC=g++
+#CFLAGS=-std=c++14 -c -Wall -Wextra -Werror -Wpedantic
+CFLAGS=-g -std=c++20 -c
+CC=clang++
 
 # Automatic generation of some important lists
 OBJECTS=$(SOURCES:.cpp=.o)

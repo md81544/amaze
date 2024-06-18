@@ -1,6 +1,6 @@
 #include "gamemodel.h"
-#include "helperfunctions.h"
 #include "exceptions.h"
+#include "helperfunctions.h"
 
 #include <boost/filesystem.hpp>
 
@@ -34,9 +34,9 @@ void GameModel::initialise( size_t levelNumber )
     std::shared_ptr<GameShape> bkg( new GameShape );
     for ( double n = 0; n <= 2000; n += 50 )
     {
-        ShapeLine sl1{n, 0, n, 2000, 0, 100, 0, 255, 1};
+        ShapeLine sl1{ n, 0, n, 2000, 0, 100, 0, 255, 1 };
         bkg->AddShapeLine( sl1 );
-        ShapeLine sl2{0, n, 20000, n, 0, 100, 0, 255, 1};
+        ShapeLine sl2{ 0, n, 20000, n, 0, 100, 0, 255, 1 };
         bkg->AddShapeLine( sl2 );
     }
     bkg->SetPos( 0, 0 );
@@ -61,13 +61,13 @@ void GameModel::createStaticShapes()
     // is 320x240 pixels, regardless of the physical size of the window.
 
     std::shared_ptr<GameShape> gauge( new GameShape );
-    ShapeLine sl1{0, 0, 6, 0, 64, 64, 64, 255, 1};
+    ShapeLine sl1{ 0, 0, 6, 0, 64, 64, 64, 255, 1 };
     gauge->AddShapeLine( sl1 );
-    ShapeLine sl2{6, 0, 6, 220, 64, 64, 64, 255, 1};
+    ShapeLine sl2{ 6, 0, 6, 220, 64, 64, 64, 255, 1 };
     gauge->AddShapeLine( sl2 );
-    ShapeLine sl3{6, 220, 0, 220, 64, 64, 64, 255, 1};
+    ShapeLine sl3{ 6, 220, 0, 220, 64, 64, 64, 255, 1 };
     gauge->AddShapeLine( sl3 );
-    ShapeLine sl4{0, 220, 0, 0, 64, 64, 64, 255, 1};
+    ShapeLine sl4{ 0, 220, 0, 0, 64, 64, 64, 255, 1 };
     gauge->AddShapeLine( sl4 );
     gauge->SetPos( 10, 10 );
     m_allStaticGameShapes.push_back( gauge );
@@ -114,8 +114,8 @@ void GameModel::levelLoad( size_t levelNum )
     std::ifstream in( levelFile.string() );
     if ( !in )
     {
-        THROWUP( AmazeRuntimeException,
-            "Failed to load Level file " + filename );
+        THROWUP(
+            AmazeRuntimeException, "Failed to load Level file " + filename );
     }
     std::string currentLine;
     std::unique_ptr<GameShape> obj( new GameShape );
@@ -214,14 +214,13 @@ void GameModel::levelLoad( size_t levelNum )
         case 'T':
             if ( obj != nullptr && vec.size() == 5 )
             {
-                obj->makeFromText( vec[ 1 ], stoi( vec[ 2 ] ),
-                    stoi( vec[ 3 ] ), stoi( vec[ 4 ] ), 255, 1 );
+                obj->makeFromText( vec[ 1 ], stoi( vec[ 2 ] ), stoi( vec[ 3 ] ),
+                    stoi( vec[ 4 ] ), 255, 1 );
             }
             if ( obj != nullptr && vec.size() == 6 )
             {
-                obj->makeFromText( vec[ 1 ], stoi( vec[ 2 ] ),
-                    stoi( vec[ 3 ] ), stoi( vec[ 4 ] ), 255,
-                    stoi( vec[ 5 ] ) );
+                obj->makeFromText( vec[ 1 ], stoi( vec[ 2 ] ), stoi( vec[ 3 ] ),
+                    stoi( vec[ 4 ] ), 255, stoi( vec[ 5 ] ) );
             }
             break;
         case 'C':
@@ -247,7 +246,8 @@ const std::string GameModel::getDataPath() { return m_dataPath; }
 
 double GameModel::timeGetTenthBest( size_t levelNumber )
 {
-    (void)levelNumber;return 300; // TODO
+    (void)levelNumber;
+    return 300; // TODO
     /*
     std::vector<double> v;
     std::ostringstream ss;
@@ -299,10 +299,7 @@ ShipModel* GameModel::getShipModel() const
     return m_shipModel.get();
 }
 
-bool GameModel::wasFuelOutWarned() const
-{
-    return m_wasFuelOutWarned;
-}
+bool GameModel::wasFuelOutWarned() const { return m_wasFuelOutWarned; }
 
 void GameModel::setWasFuelOutWarned( bool value )
 {
@@ -379,13 +376,14 @@ void GameModel::updateStatistics( size_t millisecs )
     m_averageFrameTime = static_cast<size_t>( sum / count );
 }
 
-void GameModel::processDynamicObjects( std::function<void( GameShape& )> )
+void GameModel::processDynamicObjects( std::function<void( GameShape&)> process)
 {
+    for (const auto& shape: m_allDynamicGameShapes) {
+        process(*shape);
+    }
 }
 
-void GameModel::processStaticObjects( std::function<void( GameShape& )> )
-{
-}
+void GameModel::processStaticObjects( std::function<void( GameShape& )> ) {}
 
 unsigned int GameModel::getRotation() const
 {

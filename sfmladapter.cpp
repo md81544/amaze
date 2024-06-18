@@ -1,6 +1,9 @@
 #include "sfmladapter.h"
 #include "helperfunctions.h"
 
+#include <chrono>
+#include <thread>
+
 namespace marengo
 {
 namespace amaze
@@ -17,6 +20,12 @@ SfmlAdapter::SfmlAdapter( int screenWidth, int screenHeight )
 SfmlAdapter::~SfmlAdapter() {}
 
 int SfmlAdapter::getScreenHeight() const { return m_screenHeight; }
+
+int SfmlAdapter::getTicks() const
+{
+    sf::Clock clock;
+    return clock.getElapsedTime().asMilliseconds();
+}
 
 int SfmlAdapter::getScreenWidth() const { return m_screenWidth; }
 
@@ -36,13 +45,21 @@ int SfmlAdapter::setDrawColour(
 }
 
 void SfmlAdapter::drawLine(
-    int, // xFrom,
-    int, // xTo,
-    int, // yTo,
-    int  // width
+    int xFrom,
+    int yFrom,
+    int xTo,
+    int yTo,
+    int width
     )
 {
-    // TODO call SFML
+    // Note, apparently SFML uses a rectangle shape to draw a line with thickness
+
+    sf::Vertex line[] =
+    {
+        sf::Vertex(sf::Vector2f(xFrom, yFrom)),
+        sf::Vertex(sf::Vector2f(xTo, yTo))
+    };
+    m_window.draw(line, 2, sf::Lines);
 }
 
 void SfmlAdapter::fillRectangle(
@@ -55,22 +72,15 @@ void SfmlAdapter::fillRectangle(
     // TODO
 }
 
-uint32_t SfmlAdapter::getTicks() const
-{
-    return 0; // TODO
-}
-
-void SfmlAdapter::delay( uint32_t /* milliseconds */ ) const
-{
-    // TODO
-}
-
 void SfmlAdapter::loopDelay(
-    uint32_t, // previousTicks,
-    uint32_t  // totalLoopMilliseconds
+    uint32_t previousTicks, // milliseconds
+    uint32_t totalLoopMilliseconds
     ) const
 {
-    // TODO
+    sf::Clock clock;
+    while( clock.getElapsedTime().asMilliseconds() < previousTicks + totalLoopMilliseconds ) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    }
 }
 
 size_t SfmlAdapter::imageLoad( const std::string& /* fileName */ )

@@ -12,6 +12,9 @@ namespace amaze
 #ifdef __linux
 #define THROWUP( ex, message ) \
 throw ex( __FILE__, __LINE__, __func__, message )
+#elif __APPLE__
+#define THROWUP( ex, message ) \
+throw ex( __FILE__, __LINE__, __PRETTY_FUNCTION__, message )
 #else
 #define THROWUP( ex, message ) \
 throw ex( __FILE__, __LINE__, __FUNCSIG__, message )

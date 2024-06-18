@@ -93,7 +93,13 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
         x1r = x1 * dCos - y1 * dSin;
         y1r = x1 * dSin + y1 * dCos;
         // now draw adjusted for physical screen coords
-        // TODO use IGraphicsAdapter's drawLine function here
+        m_GraphicsAdapter.drawLine(
+            x0r / scale + xOffset,
+            y0r / scale + yOffset,
+            x1r / scale + xOffset,
+            y1r / scale + yOffset,
+            1 // TODO?
+        );
 
         // TODO: remove the line below (it's only there to stop the
         // compiler complaining about unused variables)

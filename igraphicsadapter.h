@@ -32,12 +32,11 @@ public:
         uint8_t b,
         uint8_t a
         ) = 0;
-    virtual void drawLine( int xFrom, int xTo, int yTo, int width ) = 0;
+    virtual void drawLine( int xFrom, int yFrom, int xTo, int yTo, int width ) = 0;
     virtual void fillRectangle( int x, int y, int w, int h ) = 0;
     virtual int getScreenWidth() const = 0;
     virtual int getScreenHeight() const = 0;
-    virtual uint32_t getTicks() const = 0;
-    virtual void delay( uint32_t milliseconds ) const = 0;
+    virtual int getTicks() const = 0;
     // delay incorporating loop processing time:
     virtual void loopDelay(
         uint32_t previousTicks, uint32_t totalLoopMilliseconds ) const = 0;

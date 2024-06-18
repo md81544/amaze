@@ -121,7 +121,7 @@ void Controller::mainLoop()
     // Main game loop
     while ( true )
     {
-        auto loopStart = std::chrono::system_clock::now();
+        int loopStart = m_graphicsAdapter.getTicks();
 
         // Read any key presses and call any registered functions for those
         // keypresses
@@ -137,13 +137,7 @@ void Controller::mainLoop()
         m_graphicsAdapter.cls();
         m_view.Update();
         m_graphicsAdapter.redraw();
-        // m_GraphicsAdapter.loopDelay(loopStart, 20); // ensure loop lasts at
-        // least n msecs
-        auto loopEnd = std::chrono::system_clock::now();
-        auto millis = std::chrono::duration_cast<std::chrono::milliseconds>(
-            loopEnd -
-            loopStart ).count();
-        m_gameModel.updateStatistics( millis );
+        m_graphicsAdapter.loopDelay(loopStart, 20); // ensure loop lasts at least n msecs
     }
 }
 
