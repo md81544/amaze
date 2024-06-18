@@ -100,10 +100,6 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
             y1r / scale + yOffset,
             1 // TODO?
         );
-
-        // TODO: remove the line below (it's only there to stop the
-        // compiler complaining about unused variables)
-        (void)x0;(void)y0;(void)x1;(void)y1;(void)x0r;(void)y0r;(void)x1r;(void)y1r;(void)scale;(void)xOffset;(void)yOffset;
     }
 }
 
