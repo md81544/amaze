@@ -4,8 +4,8 @@
 
 #include "boost/filesystem.hpp"
 
-#include <memory>
 #include <chrono>
+#include <memory>
 
 namespace marengo
 {
@@ -31,9 +31,7 @@ Controller::Controller(
         "success", ( dataPath / "success.wav" ).string() );
 }
 
-void Controller::splashScreen()
-{
-}
+void Controller::splashScreen() {}
 
 void Controller::registerControlHandlers()
 {
@@ -44,8 +42,9 @@ void Controller::registerControlHandlers()
     // function objects.
 
     // Rotate Left
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::LEFT, [&]( const bool isKeyDown ) {
+    m_graphicsAdapter.registerControlHandler( KeyControls::LEFT,
+        [ & ]( const bool isKeyDown )
+        {
             if ( isKeyDown )
             {
                 m_gameModel.getShipModel()->setRotationDelta( 2 );
@@ -62,8 +61,9 @@ void Controller::registerControlHandlers()
         } );
 
     // Rotate Right
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::RIGHT, [&]( const bool isKeyDown ) {
+    m_graphicsAdapter.registerControlHandler( KeyControls::RIGHT,
+        [ & ]( const bool isKeyDown )
+        {
             if ( isKeyDown )
             {
                 m_gameModel.getShipModel()->setRotationDelta( -2 );
@@ -80,8 +80,9 @@ void Controller::registerControlHandlers()
         } );
 
     // Accelerate
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::ACCELERATE, [&]( const bool isKeyDown ) {
+    m_graphicsAdapter.registerControlHandler( KeyControls::ACCELERATE,
+        [ & ]( const bool isKeyDown )
+        {
             if ( isKeyDown )
             {
                 m_gameModel.getShipModel()->setIsAccelerating( true );
@@ -93,14 +94,16 @@ void Controller::registerControlHandlers()
         } );
 
     // Brake
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::BRAKE, [&]( const bool /* isKeyDown */ ) {
+    m_graphicsAdapter.registerControlHandler( KeyControls::BRAKE,
+        [ & ]( const bool /* isKeyDown */ )
+        {
             // TODO
         } );
 
     // Quit
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::QUIT, [&]( const bool isKeyDown ) {
+    m_graphicsAdapter.registerControlHandler( KeyControls::QUIT,
+        [ & ]( const bool isKeyDown )
+        {
             if ( isKeyDown )
             {
                 m_gameModel.setGameIsRunning( false );
@@ -129,7 +132,8 @@ void Controller::mainLoop()
 
         m_gameModel.process(); // perform all processing required per loop
 
-        collisionChecks(); // check input etc and updates model
+        collisionChecks();
+
         if ( m_gameModel.gameIsRunning() == false )
         {
             break;
@@ -137,7 +141,8 @@ void Controller::mainLoop()
         m_graphicsAdapter.cls();
         m_view.Update();
         m_graphicsAdapter.redraw();
-        m_graphicsAdapter.loopDelay(loopStart, 20); // ensure loop lasts at least n msecs
+        m_graphicsAdapter.loopDelay(
+            loopStart, 10 ); // ensure loop lasts at least n msecs
     }
 }
 

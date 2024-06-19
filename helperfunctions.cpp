@@ -1,5 +1,6 @@
 #include "helperfunctions.h"
 #include "igraphicsadapter.h"
+#include "log.h"
 
 #include "boost/math/constants/constants.hpp"
 
@@ -92,7 +93,7 @@ double Cosine( int degrees )
     std::call_once( initialised, [&]() {
         for ( size_t n = 0; n < 360; ++n )
         {
-            cosines[ n ] = std::cos( n / 360.0 ) * bmc::two_pi<double>();
+            cosines[ n ] = std::cos( n * ( bmc::two_pi<double>() / 360));
         }
     } );
     return cosines[ degrees ];
@@ -109,7 +110,7 @@ double Sine( int degrees )
     std::call_once( initialised, [&]() {
         for ( int n = 0; n < 360; ++n )
         {
-            sins[ n ] = std::sin( n / 360.0 ) * bmc::two_pi<double>();
+            sins[ n ] = std::sin( n * ( bmc::two_pi<double>() / 360.0));
         }
     } );
     return sins[ degrees ];

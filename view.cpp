@@ -94,10 +94,10 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
         y1r = x1 * dSin + y1 * dCos;
         // now draw adjusted for physical screen coords
         m_GraphicsAdapter.drawLine(
-            x0r / scale + xOffset,
-            y0r / scale + yOffset,
-            x1r / scale + xOffset,
-            y1r / scale + yOffset,
+            x0r * scale + xOffset,
+            y0r * scale + yOffset,
+            x1r * scale + xOffset,
+            y1r * scale + yOffset,
             1, // TODO?
             sl.r,
             sl.g,
@@ -113,8 +113,16 @@ void View::DrawStaticShape( const GameShape& shape ) const
 
     for ( const auto& sl : shape.GetVec() )
     {
-        (void)sl;(void)scale; // TODO remove this line (unused variable defeats)
-        // TODO use IGraphicsAdapter's drawLine function here
+        m_GraphicsAdapter.drawLine(
+            sl.x0 * scale + shape.GetPosX(),
+            sl.y0 * scale + shape.GetPosY(),
+            sl.x1 * scale + shape.GetPosX(),
+            sl.y1 * scale + shape.GetPosY(),
+            1, // TODO?
+            sl.r,
+            sl.g,
+            sl.b
+        );
     }
 }
 

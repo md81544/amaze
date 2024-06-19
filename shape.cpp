@@ -1,10 +1,13 @@
 #include "shape.h"
-#include "vectorfont.h"
 #include "helperfunctions.h"
+#include "log.h"
+#include "vectorfont.h"
 
-#include <vector>
-#include <string>
 #include <cmath>
+#include <format>
+#include <sstream>
+#include <string>
+#include <vector>
 
 namespace marengo
 {
@@ -15,14 +18,8 @@ Shape::Shape() {}
 
 Shape::~Shape() {}
 
-void Shape::makeFromText(
-    const std::string& s,
-    uint8_t r,
-    uint8_t g,
-    uint8_t b,
-    uint8_t a,
-    int lineThickness
-    )
+void Shape::makeFromText( const std::string& s, uint8_t r, uint8_t g, uint8_t b,
+    uint8_t a, int lineThickness )
 {
     m_ShapeLines.clear();
     double textWidth = 0;
@@ -46,7 +43,7 @@ void Shape::makeFromText(
             if ( prevX != -1 && prevY != -1 && x != -1 && y != -1 )
             {
                 ShapeLine sl{
-                    prevX, prevY, x + textWidth, y, r, g, b, a, lineThickness};
+                    prevX, prevY, x + textWidth, y, r, g, b, a, lineThickness };
                 AddShapeLine( sl );
             }
             prevX = x + textWidth;
@@ -59,8 +56,8 @@ void Shape::makeFromText(
         // new character:
         prevX = -1;
         prevY = -1;
-        textWidth += characterWidth +
-                     2; // add a bit of extra spacing between characters
+        textWidth +=
+            characterWidth + 2; // add a bit of extra spacing between characters
     }
 
     // Finally a bit of post-processing: the centre point of this shape will
@@ -90,7 +87,7 @@ void Shape::SetColour( uint8_t r, uint8_t g, uint8_t b, uint8_t a )
 
 void Shape::AddLine( double x0, double y0, double x1, double y1 )
 {
-    AddShapeLine( ShapeLine{x0, y0, x1, y1, m_R, m_G, m_B, m_A, 1} );
+    AddShapeLine( ShapeLine{ x0, y0, x1, y1, m_R, m_G, m_B, m_A, 1 } );
 }
 
 double Shape::GetWidth() const { return m_Width; }
@@ -137,7 +134,6 @@ void Shape::Rotate( int rotationDelta )
 
     for ( ShapeLine line : m_ShapeLines )
     {
-
         // adjust according to rotation
         double x0r = line.x0 * helperfunctions::Cosine( rd ) -
                      line.y0 * helperfunctions::Sine( rd );

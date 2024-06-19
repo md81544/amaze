@@ -73,7 +73,7 @@ void GameModel::createStaticShapes()
     m_allStaticGameShapes.push_back( gauge );
 
     m_staticInfoLine = std::make_shared<GameShape>();
-    m_staticInfoLine->SetPos( 200, 10 );
+    m_staticInfoLine->SetPos( 200, 20 );
     m_staticInfoLine->makeFromText( "Frame speed: 0 ms", 0, 175, 0, 255, 1 );
     m_staticInfoLine->SetScale( 0.25 );
     m_allStaticGameShapes.push_back( m_staticInfoLine );
@@ -86,6 +86,7 @@ void GameModel::setLevel( size_t value ) { m_level = value; }
 // TODO - put this in the controller?
 void GameModel::levelLoad( size_t levelNum )
 {
+    // TODO convert this format to YAML or JSON?
     // The file format is as follows:
     // The first line should be "!~<timelimit>~<fuel>~<x>~<y>~" followed by
     // the Level title (Description)
@@ -383,7 +384,12 @@ void GameModel::processDynamicObjects( std::function<void( GameShape&)> process)
     }
 }
 
-void GameModel::processStaticObjects( std::function<void( GameShape& )> ) {}
+void GameModel::processStaticObjects( std::function<void( GameShape& )> process)
+{
+    for (const auto& shape: m_allStaticGameShapes) {
+        process(*shape);
+    }
+}
 
 unsigned int GameModel::getRotation() const
 {

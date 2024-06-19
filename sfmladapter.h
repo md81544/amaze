@@ -5,6 +5,7 @@
 #include "igraphicsadapter.h"
 
 #include "SFML/Graphics.hpp"
+#include "SFML/Audio.hpp"
 
 #include <unordered_map>
 #include <memory>
@@ -59,6 +60,8 @@ private:
 
     std::unordered_map<KeyControls, std::function<void( const bool )>>
         m_ControlHandlers;
+    std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> m_SoundBuffers;
+    sf::Sound m_sound;
 };
 
 } // namespace amaze

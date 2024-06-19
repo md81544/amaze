@@ -4,6 +4,7 @@
 #include "view.h"
 #include "controller.h"
 #include "exceptions.h"
+#include "log.h"
 
 #include <boost/filesystem.hpp>
 
@@ -70,6 +71,8 @@ int main( int, char* argv[] )
     using namespace marengo::amaze;
     try
     {
+        INIT_MGOLOG("debug.log");
+
         srand(
             static_cast<unsigned int>( time( NULL ) ) ); // TODO random device
 

@@ -1,7 +1,7 @@
-This is a game I wrote about a decade ago. I've decided to get it working
-again, perhaps with a view to making it a mobile game.
+This is a game I wrote about 2005, originally for a hand-held open source games console. I've decided to get it working again for fun.
 
-Currently it won't compile let alone run :)
-
-So this is a complete work in progress and OLD CODE so please ignore for
-the time being.
+### TODO
+* Get it working
+* Splash screen
+* Menu?
+* Change level data file format to YAML or JSON?

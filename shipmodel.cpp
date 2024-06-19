@@ -87,10 +87,10 @@ void ShipModel::setRotation( int rotationDelta )
     }
     // The ship object needs to be rotated the other way to
     // ensure it stays upright while the world rotates around it
-    m_ShipGameShape->Rotate( -rotationDelta );
+    m_ShipGameShape->Rotate( -rotationDelta ); // MCD BUG HERE
 }
 
-int ShipModel::rotationDelta() const { return m_RotationDelta; }
+int ShipModel::rotationDelta() const {return m_RotationDelta; }
 
 void ShipModel::setRotationDelta( int value ) { m_RotationDelta = value; }
 
@@ -274,7 +274,7 @@ void ShipModel::buildExplosionShape()
             Cosine( ( n + 1 ) * 30 ) * 20 + ( rand() % 10 ) );
         uint8_t r = ( rand() % 128 ) + 96;
         m_ExplosionGameShape->AddShapeLine(
-            ShapeLine{x1, y1, x2, y2, r, r, r, 255, 4} );
+            ShapeLine{ x1, y1, x2, y2, r, r, r, 255, 4 } );
     }
     // flames
     for ( int n = 0; n < 60; ++n )
@@ -288,20 +288,20 @@ void ShipModel::buildExplosionShape()
         double x2 = static_cast<double>( Sine( n * 6 ) * 50 );
         double y2 = static_cast<double>( Cosine( n * 6 ) * 50 );
         m_ExplosionGameShape->AddShapeLine(
-            ShapeLine{x1, y1, x2, y2, 255, 255, 255, 255, 3} );
+            ShapeLine{ x1, y1, x2, y2, 255, 255, 255, 255, 3 } );
         x1 = static_cast<double>( Sine( n * 6 ) * 50 );
         y1 = static_cast<double>( Cosine( n * 6 ) * 50 );
         x2 = static_cast<double>( Sine( n * 6 ) * 60 );
         y2 = static_cast<double>( Cosine( n * 6 ) * 60 );
         m_ExplosionGameShape->AddShapeLine(
-            ShapeLine{x1, y1, x2, y2, 250, 214, 116, 255, 2} );
+            ShapeLine{ x1, y1, x2, y2, 250, 214, 116, 255, 2 } );
         int i = rand() % 50;
         x1 = static_cast<double>( Sine( n * 6 ) * 60 );
         y1 = static_cast<double>( Cosine( n * 6 ) * 60 );
         x2 = static_cast<double>( Sine( n * 6 ) * ( 70 + i ) );
         y2 = static_cast<double>( Cosine( n * 6 ) * ( 70 + i ) );
         m_ExplosionGameShape->AddShapeLine(
-            ShapeLine{x1, y1, x2, y2, 255, 0, 0, 255, 1} );
+            ShapeLine{ x1, y1, x2, y2, 255, 0, 0, 255, 1 } );
     }
     m_ExplosionGameShape->SetName( "Explosion" );
     m_ExplosionGameShape->SetVisible( false );
