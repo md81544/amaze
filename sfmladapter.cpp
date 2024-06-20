@@ -104,7 +104,7 @@ void SfmlAdapter::imageDisplay( const std::string&, // fileName,
 void SfmlAdapter::registerControlHandler(
     KeyControls key, std::function<void( const bool )> controlHandler )
 {
-    m_ControlHandlers[ key ] = controlHandler;
+    m_controlHandlers[ key ] = controlHandler;
 }
 
 void SfmlAdapter::processInput()
@@ -119,16 +119,16 @@ void SfmlAdapter::processInput()
             switch ( event.key.code )
             {
             case sf::Keyboard::Escape:
-                m_ControlHandlers[ KeyControls::QUIT ]( true );
+                m_controlHandlers[ KeyControls::QUIT ]( true );
                 break;
             case sf::Keyboard::Up:
-                m_ControlHandlers[ KeyControls::ACCELERATE ]( true );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( true );
                 break;
             case sf::Keyboard::Left:
-                m_ControlHandlers[ KeyControls::LEFT ]( true );
+                m_controlHandlers[ KeyControls::LEFT ]( true );
                 break;
             case sf::Keyboard::Right:
-                m_ControlHandlers[ KeyControls::RIGHT ]( true );
+                m_controlHandlers[ KeyControls::RIGHT ]( true );
                 break;
             default:
                 break;
@@ -138,13 +138,13 @@ void SfmlAdapter::processInput()
             switch ( event.key.code )
             {
             case sf::Keyboard::Up:
-                m_ControlHandlers[ KeyControls::ACCELERATE ]( false );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( false );
                 break;
             case sf::Keyboard::Left:
-                m_ControlHandlers[ KeyControls::LEFT ]( false );
+                m_controlHandlers[ KeyControls::LEFT ]( false );
                 break;
             case sf::Keyboard::Right:
-                m_ControlHandlers[ KeyControls::RIGHT ]( false );
+                m_controlHandlers[ KeyControls::RIGHT ]( false );
                 break;
             default:
                 break;
@@ -163,32 +163,43 @@ void SfmlAdapter::processInput()
 void SfmlAdapter::soundLoad(
     const std::string& key, const std::string& filename )
 {
-    std::shared_ptr<sf::SoundBuffer> buffer( new sf::SoundBuffer );
+    auto buffer = std::make_shared<sf::SoundBuffer>();
     if ( !buffer->loadFromFile( filename ) )
     {
         THROWUP( AmazeRuntimeException, "Sound file load error" );
     }
-    m_SoundBuffers[ key ] = buffer;
+    m_soundBuffers[ key ] = buffer;
+    auto sound = std::make_shared<sf::Sound>();
+    sound->setBuffer( *buffer );
+    m_sounds[ key ] = sound;
 }
 
 void SfmlAdapter::soundPlay( const std::string& key )
 {
-    // The sound object needs to not be a stack variable because as soon as it goes out
-    // of scope, the sound stops. We really need a set of sf::Sound objects, one for each
-    // buffer.
-    if (m_sound.getStatus() != sf::Sound::Playing)
+    m_sounds[ key ]->setVolume( 100.f );
+    if ( m_sounds[ key ]->getStatus() != sf::Sound::Playing )
     {
-        m_sound.setBuffer( *m_SoundBuffers[ key ] );
-        m_sound.play();
+        m_sounds[ key ]->play();
     }
 }
 
-void SfmlAdapter::soundLoop( const std::string& /* key */ ) {}
-
-void SfmlAdapter::soundFade(
-    const std::string& /* key */, const int /* msecs */ )
+void SfmlAdapter::soundLoop( const std::string& key )
 {
-    // TODO
+    m_sounds[ key ]->setVolume( 100.f );
+    if ( m_sounds[ key ]->getStatus() != sf::Sound::Playing )
+    {
+        m_sounds[ key ]->setLoop( true );
+        m_sounds[ key ]->play();
+    }
+}
+
+void SfmlAdapter::soundFade( const std::string& key, const int /* msecs */ )
+{
+    // We don't have a fadeOut() type function in SFML so we reduce a bit on each call
+    float newVolume = m_sounds[ key ]->getVolume() - 3.f;
+    if ( newVolume < 0.f )
+        newVolume = 0.f;
+    m_sounds[ key ]->setVolume( newVolume );
 }
 
 } // namespace amaze

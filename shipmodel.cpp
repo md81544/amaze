@@ -166,8 +166,8 @@ void ShipModel::updateShipPosition()
 
     if ( m_IsAccelerating )
     {
-        m_Dx = m_Dx + helperfunctions::Sine( m_Rotation ) * 0.08;
-        m_Dy = m_Dy + helperfunctions::Cosine( m_Rotation ) * 0.08;
+        m_Dx = m_Dx + helperfunctions::Sine( m_Rotation ) * 0.04;
+        m_Dy = m_Dy + helperfunctions::Cosine( m_Rotation ) * 0.04;
     }
 
     // calculate new position for ship

@@ -377,17 +377,21 @@ void GameModel::updateStatistics( size_t millisecs )
     m_averageFrameTime = static_cast<size_t>( sum / count );
 }
 
-void GameModel::processDynamicObjects( std::function<void( GameShape&)> process)
+void GameModel::processDynamicObjects(
+    std::function<void( GameShape& )> process )
 {
-    for (const auto& shape: m_allDynamicGameShapes) {
-        process(*shape);
+    for ( const auto& shape : m_allDynamicGameShapes )
+    {
+        process( *shape );
     }
 }
 
-void GameModel::processStaticObjects( std::function<void( GameShape& )> process)
+void GameModel::processStaticObjects(
+    std::function<void( GameShape& )> process )
 {
-    for (const auto& shape: m_allStaticGameShapes) {
-        process(*shape);
+    for ( const auto& shape : m_allStaticGameShapes )
+    {
+        process( *shape );
     }
 }
 

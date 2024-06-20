@@ -59,8 +59,9 @@ private:
     int m_screenWidth;
 
     std::unordered_map<KeyControls, std::function<void( const bool )>>
-        m_ControlHandlers;
-    std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> m_SoundBuffers;
+        m_controlHandlers;
+    std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> m_soundBuffers;
+    std::unordered_map<std::string, std::shared_ptr<sf::Sound>> m_sounds;
     sf::Sound m_sound;
 };
 
