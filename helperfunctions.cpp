@@ -19,7 +19,7 @@ int ClipFindRegion(
     )
 {
     int rc = 0;
-    if ( y >= gm.getScreenHeight() )
+    if ( y >= gm.getWindowHeight() )
     {
         rc |= 1; // top
     }
@@ -27,7 +27,7 @@ int ClipFindRegion(
     {
         rc |= 2; // bottom
     }
-    if ( x >= gm.getScreenWidth() )
+    if ( x >= gm.getWindoWidth() )
     {
         rc |= 4; // right
     }

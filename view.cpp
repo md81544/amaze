@@ -70,9 +70,9 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
 {
     // We treat the viewport as representing 320 coordinates wide,
     // regardless of its physical dimensions:
-    double scale = m_GraphicsAdapter.getScreenWidth() / 320.0;
-    double xOffset = m_GraphicsAdapter.getScreenWidth() / 2;
-    double yOffset = m_GraphicsAdapter.getScreenHeight() / 2;
+    double scale = m_GraphicsAdapter.getWindoWidth() / 320.0;
+    double xOffset = m_GraphicsAdapter.getWindoWidth() / 2;
+    double yOffset = m_GraphicsAdapter.getWindowHeight() / 2;
 
     for ( const auto& sl : shape.GetVec() )
     {
@@ -109,7 +109,7 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
 void View::DrawStaticShape( const GameShape& shape ) const
 {
     // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
-    double scale = m_GraphicsAdapter.getScreenWidth() / 320.0;
+    double scale = m_GraphicsAdapter.getWindoWidth() / 320.0;
 
     for ( const auto& sl : shape.GetVec() )
     {

@@ -35,8 +35,8 @@ public:
     virtual void drawLine(
         int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b ) = 0;
     virtual void fillRectangle( int x, int y, int w, int h ) = 0;
-    virtual int getScreenWidth() const = 0;
-    virtual int getScreenHeight() const = 0;
+    virtual int getWindoWidth() const = 0;
+    virtual int getWindowHeight() const = 0;
     virtual int getTicks() const = 0;
     // delay incorporating loop processing time:
     virtual void loopDelay(

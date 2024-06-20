@@ -1,10 +1,10 @@
-#include "sfmladapter.h"
 #include "preferences.h"
+#include "sfmladapter.h"
 
-#include "view.h"
 #include "controller.h"
 #include "exceptions.h"
 #include "log.h"
+#include "view.h"
 
 #include <boost/filesystem.hpp>
 
@@ -33,13 +33,13 @@
 namespace
 {
 
-std::string findDataDirectory( const char * const program )
+std::string findDataDirectory( const char* const program )
 {
     // Attempt to locate the data directory. We look in the
     // directory where the binary is located, its parent,
     // and its parent's parent. Throws if it cannot find a data directory.
     boost::filesystem::path searchDir( program );
-    std::string dir { "" };
+    std::string dir{ "" };
     searchDir = searchDir.parent_path();
     for ( int n = 0; n < 3; ++n )
     {
@@ -71,16 +71,24 @@ int main( int, char* argv[] )
     using namespace marengo::amaze;
     try
     {
-        INIT_MGOLOG("debug.log");
+        INIT_MGOLOG( "debug.log" );
 
         srand(
             static_cast<unsigned int>( time( NULL ) ) ); // TODO random device
 
         // Locate our data directory:
-        std::string dataDir = findDataDirectory( argv[0] );
+        std::string dataDir = findDataDirectory( argv[ 0 ] );
 
         int width = 800;
-        SfmlAdapter graphicsManager( width, static_cast<int>( width * 0.75 ) );
+        int screenWidth = SfmlAdapter::getPhysicalScreenWidth();
+        double screenProportion =
+            width /
+            static_cast<double>( SfmlAdapter::getPhysicalScreenWidth() );
+        int height = SfmlAdapter::getPhysicalScreenHeight() * screenProportion;
+        // TODO: screen dimensions' proportions should mirror the physical
+        // screen's dimensions so everything is in proportion if we go
+        // fullscreen
+        SfmlAdapter graphicsManager( width, static_cast<int>( height ) );
 
         GameModel gameModel;
         gameModel.setDataPath( dataDir );

@@ -350,7 +350,7 @@ void GameModel::process() // TODO more descriptive name
     {
         m_shipModel->setVisible( false );
         m_explosionIterationCount++;
-        if ( m_explosionIterationCount > 50 )
+        if ( m_explosionIterationCount > 150 )
         {
             setGameIsRunning( false );
         }
@@ -360,7 +360,7 @@ void GameModel::process() // TODO more descriptive name
     std::ostringstream ss;
     ss << "Frame speed: " << m_averageFrameTime << " ms";
     m_staticInfoLine->makeFromText( ss.str(), 0, 175, 0, 255, 1 );
-    m_staticInfoLine->SetScale( 0.25 );
+    m_staticInfoLine->SetScale( 0.4 );
 }
 
 void GameModel::updateStatistics( size_t millisecs )

@@ -19,7 +19,7 @@ SfmlAdapter::SfmlAdapter( int screenWidth, int screenHeight )
 
 SfmlAdapter::~SfmlAdapter() {}
 
-int SfmlAdapter::getScreenHeight() const { return m_screenHeight; }
+int SfmlAdapter::getWindowHeight() const { return m_screenHeight; }
 
 int SfmlAdapter::getTicks() const
 {
@@ -27,7 +27,7 @@ int SfmlAdapter::getTicks() const
     return clock.getElapsedTime().asMilliseconds();
 }
 
-int SfmlAdapter::getScreenWidth() const { return m_screenWidth; }
+int SfmlAdapter::getWindoWidth() const { return m_screenWidth; }
 
 void SfmlAdapter::cls() { m_window.clear(); }
 
@@ -62,6 +62,16 @@ void SfmlAdapter::fillRectangle( int, // x,
 )
 {
     // TODO
+}
+
+int SfmlAdapter::getPhysicalScreenWidth()
+{
+    return sf::VideoMode::getDesktopMode().width;
+}
+
+int SfmlAdapter::getPhysicalScreenHeight()
+{
+    return sf::VideoMode::getDesktopMode().height;
 }
 
 void SfmlAdapter::loopDelay( uint32_t previousTicks, // milliseconds
