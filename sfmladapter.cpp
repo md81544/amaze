@@ -130,7 +130,7 @@ void SfmlAdapter::processInput()
             m_controlHandlers[ KeyControls::LR_ANALOGUE ]( true, -x );
             // Right trigger
             float v = sf::Joystick::getAxisPosition( 0, sf::Joystick::Axis::V );
-            if ( v > 10.f )
+            if ( v > -90.f )
             {
                 m_controlHandlers[ KeyControls::ACCELERATE ]( true, 0.f );
             }

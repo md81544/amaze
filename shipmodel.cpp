@@ -135,8 +135,8 @@ void ShipModel::setIsBraking( bool value ) { m_IsBraking = value; }
 void ShipModel::updateShipPosition()
 {
     // atmospheric friction:
-    m_Dx *= 0.998;
-    m_Dy *= 0.998;
+    m_Dx *= 0.9985;
+    m_Dy *= 0.9985;
 
     m_Velocity = sqrt( ( m_Dx * m_Dx ) + ( m_Dy * m_Dy ) );
 
