@@ -66,12 +66,17 @@ std::string findDataDirectory( const char* const program )
 }
 } // end anonymous namespace
 
-int main( int, char* argv[] )
+int main( int argc, char* argv[] )
 {
     using namespace marengo::amaze;
     try
     {
         INIT_MGOLOG( "debug.log" );
+
+        int gameLevel = 0;
+        if (argc > 1) {
+            gameLevel = std::stoi(argv[1]);
+        }
 
         srand(
             static_cast<unsigned int>( time( NULL ) ) ); // TODO random device
@@ -96,7 +101,7 @@ int main( int, char* argv[] )
         View view( gameModel, graphicsManager );
 
         Controller controller( preferences, gameModel, view, graphicsManager );
-        controller.mainLoop();
+        controller.mainLoop(gameLevel);
 
         // TODO model.preferencesSave();
 

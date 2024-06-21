@@ -132,7 +132,7 @@ void SfmlAdapter::processInput()
             float v = sf::Joystick::getAxisPosition( 0, sf::Joystick::Axis::V );
             if ( v > -90.f )
             {
-                m_controlHandlers[ KeyControls::ACCELERATE ]( true, 0.f );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( true, (v + 100.f)/2.f );
             }
             else
             {

@@ -92,15 +92,16 @@ void Controller::registerControlHandlers()
 
     // Accelerate
     m_graphicsAdapter.registerControlHandler( KeyControls::ACCELERATE,
-        [ & ]( const bool isKeyDown, const float )
+        [ & ]( const bool isKeyDown, const float acceleration )
         {
             if ( isKeyDown )
             {
-                m_gameModel.getShipModel()->setIsAccelerating( true );
+                float accln = acceleration / 1000.f;
+                m_gameModel.getShipModel()->setIsAccelerating( true, accln );
             }
             else
             {
-                m_gameModel.getShipModel()->setIsAccelerating( false );
+                m_gameModel.getShipModel()->setIsAccelerating( false, 0.f );
             }
         } );
 
@@ -115,12 +116,11 @@ void Controller::registerControlHandlers()
         } );
 }
 
-void Controller::mainLoop()
+void Controller::mainLoop(int gameLevel)
 {
     // This is the main game control structure, called from main().
-    size_t gameLevel = 4;
 
-    // TODO splash screen
+    // TODO splash screen?
 
     m_gameModel.levelLoad( gameLevel );
     m_gameModel.setGameIsRunning( true );

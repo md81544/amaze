@@ -22,7 +22,7 @@ public:
         View& v,
         IGraphicsAdapter& s
         );
-    void mainLoop();
+    void mainLoop(int gameLevel);
     void collisionChecks();
     void registerControlHandlers();
 

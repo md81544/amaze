@@ -49,7 +49,7 @@ public:
     void setIsExploding( bool value );
 
     bool isAccelerating() const;
-    void setIsAccelerating( bool value );
+    void setIsAccelerating( bool value, float amount = 0.f );
     bool isBraking() const;
     void setIsBraking( bool value );
 
@@ -85,6 +85,7 @@ private:
     double m_MaxVelocity;
     bool m_IsExploding{false};
     bool m_IsAccelerating{false};
+    float m_AccelerationAmount{0.f};
     bool m_IsBraking{false};
 
     std::shared_ptr<GameShape> m_ShipGameShape;

@@ -126,7 +126,11 @@ void ShipModel::setIsExploding( bool value )
 
 bool ShipModel::isAccelerating() const { return m_IsAccelerating; }
 
-void ShipModel::setIsAccelerating( bool value ) { m_IsAccelerating = value; }
+void ShipModel::setIsAccelerating( bool value, float amount )
+{
+    m_IsAccelerating = value;
+    m_AccelerationAmount = amount;
+}
 
 bool ShipModel::isBraking() const { return m_IsBraking; }
 
@@ -157,8 +161,8 @@ void ShipModel::updateShipPosition()
 
     if ( m_IsAccelerating )
     {
-        m_Dx = m_Dx + helperfunctions::Sine( m_Rotation ) * 0.04;
-        m_Dy = m_Dy + helperfunctions::Cosine( m_Rotation ) * 0.04;
+        m_Dx = m_Dx + helperfunctions::Sine( m_Rotation ) * m_AccelerationAmount;
+        m_Dy = m_Dy + helperfunctions::Cosine( m_Rotation ) * m_AccelerationAmount;
     }
 
     // calculate new position for ship
