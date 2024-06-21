@@ -100,7 +100,7 @@ private:
     // version of the ship.
     std::vector<std::shared_ptr<GameShape>> m_allStaticGameShapes;
 
-    std::shared_ptr<GameShape> m_staticInfoLine;
+    // std::shared_ptr<GameShape> m_staticInfoLine;
 
     std::unique_ptr<ShipModel> m_shipModel;
 

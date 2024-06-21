@@ -25,7 +25,6 @@ public:
     void mainLoop();
     void collisionChecks();
     void registerControlHandlers();
-    void splashScreen();
 
 private:
     Preferences&      m_preferences;

@@ -123,6 +123,32 @@ void SfmlAdapter::processInput()
 
     while ( m_window.pollEvent( event ) )
     {
+        if (sf::Joystick::isConnected(0)) {
+            float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+            if (x > 50.f)
+            {
+                m_controlHandlers[ KeyControls::RIGHT](true);
+            }
+            else if (x < -50.f)
+            {
+                m_controlHandlers[ KeyControls::LEFT ](true);
+            }
+            else
+            {
+                m_controlHandlers[ KeyControls::RIGHT ] (false);
+                m_controlHandlers[ KeyControls::LEFT ] (false);
+            }
+            // Right trigger
+            float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
+            if (v > 10.f)
+            {
+                m_controlHandlers[ KeyControls::ACCELERATE ]( true );
+            }
+            else
+            {
+                m_controlHandlers[ KeyControls::ACCELERATE ]( false );
+            }
+        }
         switch ( event.type )
         {
         case sf::Event::KeyPressed:

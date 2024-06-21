@@ -31,8 +31,6 @@ Controller::Controller(
         "success", ( dataPath / "success.wav" ).string() );
 }
 
-void Controller::splashScreen() {}
-
 void Controller::registerControlHandlers()
 {
     // We register callbacks with the graphics manager to avoid us
@@ -47,7 +45,7 @@ void Controller::registerControlHandlers()
         {
             if ( isKeyDown )
             {
-                m_gameModel.getShipModel()->setRotationDelta( 2 );
+                m_gameModel.getShipModel()->setRotationDelta( 1 );
             }
             else
             {
@@ -66,7 +64,7 @@ void Controller::registerControlHandlers()
         {
             if ( isKeyDown )
             {
-                m_gameModel.getShipModel()->setRotationDelta( -2 );
+                m_gameModel.getShipModel()->setRotationDelta( -1 );
             }
             else
             {
@@ -114,9 +112,9 @@ void Controller::registerControlHandlers()
 void Controller::mainLoop()
 {
     // This is the main game control structure, called from main().
-    size_t gameLevel = 0;
+    size_t gameLevel = 4;
 
-    splashScreen();
+    // TODO splash screen
 
     m_gameModel.levelLoad( gameLevel );
     m_gameModel.setGameIsRunning( true );

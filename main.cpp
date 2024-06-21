@@ -96,7 +96,6 @@ int main( int, char* argv[] )
         View view( gameModel, graphicsManager );
 
         Controller controller( preferences, gameModel, view, graphicsManager );
-        controller.splashScreen();
         controller.mainLoop();
 
         // TODO model.preferencesSave();

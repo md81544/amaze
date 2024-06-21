@@ -72,11 +72,11 @@ void GameModel::createStaticShapes()
     gauge->SetPos( 10, 10 );
     m_allStaticGameShapes.push_back( gauge );
 
-    m_staticInfoLine = std::make_shared<GameShape>();
-    m_staticInfoLine->SetPos( 200, 20 );
-    m_staticInfoLine->makeFromText( "Frame speed: 0 ms", 0, 175, 0, 255, 1 );
-    m_staticInfoLine->SetScale( 0.25 );
-    m_allStaticGameShapes.push_back( m_staticInfoLine );
+    // m_staticInfoLine = std::make_shared<GameShape>();
+    // m_staticInfoLine->SetPos( 200, 20 );
+    // m_staticInfoLine->makeFromText( "Frame speed: 0 ms", 0, 175, 0, 255, 1 );
+    // m_staticInfoLine->SetScale( 0.25 );
+    // m_allStaticGameShapes.push_back( m_staticInfoLine );
 }
 
 size_t GameModel::level() const { return m_level; }
@@ -357,10 +357,10 @@ void GameModel::process() // TODO more descriptive name
     }
     m_shipModel->process();
 
-    std::ostringstream ss;
-    ss << "Frame speed: " << m_averageFrameTime << " ms";
-    m_staticInfoLine->makeFromText( ss.str(), 0, 175, 0, 255, 1 );
-    m_staticInfoLine->SetScale( 0.4 );
+    // std::ostringstream ss;
+    // ss << "Frame speed: " << m_averageFrameTime << " ms";
+    // m_staticInfoLine->makeFromText( ss.str(), 0, 175, 0, 255, 1 );
+    // m_staticInfoLine->SetScale( 0.4 );
 }
 
 void GameModel::updateStatistics( size_t millisecs )
