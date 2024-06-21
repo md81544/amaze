@@ -91,13 +91,6 @@ void Controller::registerControlHandlers()
             }
         } );
 
-    // Brake
-    m_graphicsAdapter.registerControlHandler( KeyControls::BRAKE,
-        [ & ]( const bool /* isKeyDown */ )
-        {
-            // TODO
-        } );
-
     // Quit
     m_graphicsAdapter.registerControlHandler( KeyControls::QUIT,
         [ & ]( const bool isKeyDown )

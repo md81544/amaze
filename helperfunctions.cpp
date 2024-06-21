@@ -85,35 +85,13 @@ void CsvSplit(
 double Cosine( int degrees )
 {
     namespace bmc = boost::math::constants;
-    // fast, cached lookup table implementation
-    // for integer degrees. Thread safe initialisation.
-    static std::once_flag initialised;
-    degrees = std::abs( degrees % 360 );
-    static double cosines[ 360 ];
-    std::call_once( initialised, [&]() {
-        for ( size_t n = 0; n < 360; ++n )
-        {
-            cosines[ n ] = std::cos( n * ( bmc::two_pi<double>() / 360));
-        }
-    } );
-    return cosines[ degrees ];
+    return std::cos( degrees * ( bmc::two_pi<double>() / 360.0));
 }
 
 double Sine( int degrees )
 {
     namespace bmc = boost::math::constants;
-    // fast, cached lookup table implementation
-    // for integer degrees. Thread safe initialisation.
-    static std::once_flag initialised;
-    degrees = std::abs( degrees % 360 );
-    static double sins[ 360 ];
-    std::call_once( initialised, [&]() {
-        for ( int n = 0; n < 360; ++n )
-        {
-            sins[ n ] = std::sin( n * ( bmc::two_pi<double>() / 360.0));
-        }
-    } );
-    return sins[ degrees ];
+    return std::sin( degrees * ( bmc::two_pi<double>() / 360.0));
 }
 
 int Sgn( int x )
