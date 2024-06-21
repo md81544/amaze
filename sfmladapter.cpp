@@ -148,7 +148,7 @@ void SfmlAdapter::processInput()
                 m_controlHandlers[ KeyControls::QUIT ]( true, 0.f );
                 break;
             case sf::Keyboard::Up:
-                m_controlHandlers[ KeyControls::ACCELERATE ]( true, 0.f );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( true, 25.f );
                 break;
             case sf::Keyboard::Left:
                 m_controlHandlers[ KeyControls::LEFT ]( true, 0.f );

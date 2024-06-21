@@ -16,8 +16,7 @@ enum class KeyControls
     RIGHT,
     ACCELERATE,
     QUIT,
-    LR_ANALOGUE, // for game controller
-    ACCEL_ANALOGUE
+    LR_ANALOGUE // for game controller
 };
 
 class IGraphicsAdapter
