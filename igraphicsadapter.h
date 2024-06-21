@@ -15,7 +15,8 @@ enum class KeyControls
     LEFT,
     RIGHT,
     ACCELERATE,
-    QUIT
+    QUIT,
+    LR_ANALOGUE, // for game controller
 };
 
 class IGraphicsAdapter
@@ -37,7 +38,7 @@ public:
         uint32_t previousTicks, uint32_t totalLoopMilliseconds ) const = 0;
 
     virtual void registerControlHandler(
-        KeyControls key, std::function<void( const bool )> controlHandler ) = 0;
+        KeyControls key, std::function<void( const bool, const float )> controlHandler ) = 0;
     virtual void processInput() = 0;
 
     // Images

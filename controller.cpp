@@ -1,6 +1,7 @@
 #include "controller.h"
 #include "gameshape.h"
 #include "helperfunctions.h"
+#include "log.h"
 
 #include "boost/filesystem.hpp"
 
@@ -41,7 +42,7 @@ void Controller::registerControlHandlers()
 
     // Rotate Left
     m_graphicsAdapter.registerControlHandler( KeyControls::LEFT,
-        [ & ]( const bool isKeyDown )
+        [ & ]( const bool isKeyDown, float )
         {
             if ( isKeyDown )
             {
@@ -58,9 +59,21 @@ void Controller::registerControlHandlers()
             }
         } );
 
+    // Rotate with analogue stick
+    m_graphicsAdapter.registerControlHandler( KeyControls::LR_ANALOGUE,
+        [ & ]( const bool isKeyDown, const float value )
+        {
+            double rotationDelta = value / 50.0;
+            if (std::abs(rotationDelta) < 0.25)
+            {
+                rotationDelta = 0.0;
+            }
+            m_gameModel.getShipModel()->setRotationDelta( rotationDelta );
+        } );
+
     // Rotate Right
     m_graphicsAdapter.registerControlHandler( KeyControls::RIGHT,
-        [ & ]( const bool isKeyDown )
+        [ & ]( const bool isKeyDown, const float )
         {
             if ( isKeyDown )
             {
@@ -79,7 +92,7 @@ void Controller::registerControlHandlers()
 
     // Accelerate
     m_graphicsAdapter.registerControlHandler( KeyControls::ACCELERATE,
-        [ & ]( const bool isKeyDown )
+        [ & ]( const bool isKeyDown, const float )
         {
             if ( isKeyDown )
             {
@@ -93,7 +106,7 @@ void Controller::registerControlHandlers()
 
     // Quit
     m_graphicsAdapter.registerControlHandler( KeyControls::QUIT,
-        [ & ]( const bool isKeyDown )
+        [ & ]( const bool isKeyDown, const float )
         {
             if ( isKeyDown )
             {

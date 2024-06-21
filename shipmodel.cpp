@@ -42,9 +42,8 @@ ShipModel::ShipModel( std::shared_ptr<GameShape> ship,
 void ShipModel::initialise()
 {
     // Resets the ship model to a state ready for a new Level
-    m_Rotation = 0;
-    m_RotationDelta = 0;
-    m_SlowRotation = true;
+    m_Rotation = 0.0;
+    m_RotationDelta = 0.0;
     m_Dx = 0.0;
     m_Dy = 0.0;
     m_Velocity = 0.0;
@@ -78,7 +77,7 @@ void ShipModel::setShipY( double value ) { m_ShipY = value; }
 
 double ShipModel::rotation() const { return m_Rotation; }
 
-void ShipModel::setRotation( int rotationDelta )
+void ShipModel::setRotation( double rotationDelta )
 {
     m_Rotation = std::fmod( m_Rotation + rotationDelta, 360.0 );
     // The ship object needs to be rotated the other way to
@@ -86,13 +85,9 @@ void ShipModel::setRotation( int rotationDelta )
     m_ShipGameShape->Rotate( -rotationDelta );
 }
 
-int ShipModel::rotationDelta() const {return m_RotationDelta; }
+double ShipModel::rotationDelta() const { return m_RotationDelta; }
 
-void ShipModel::setRotationDelta( int value ) { m_RotationDelta = value; }
-
-bool ShipModel::slowRotation() const { return m_SlowRotation; }
-
-void ShipModel::setSlowRotation( bool value ) { m_SlowRotation = value; }
+void ShipModel::setRotationDelta( double value ) { m_RotationDelta = value; }
 
 double ShipModel::dX() const { return m_Dx; }
 
@@ -244,7 +239,7 @@ void ShipModel::drawFlames()
 
     // Ensure that the flames have the same rotation
     // and position as the ship:
-    m_FlamesGameShape->Rotate( std::fmod( 360 - m_Rotation, 360 ));
+    m_FlamesGameShape->Rotate( std::fmod( 360 - m_Rotation, 360 ) );
     m_FlamesGameShape->SetPos( m_ShipX, m_ShipY );
 }
 

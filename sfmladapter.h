@@ -46,7 +46,7 @@ public:
     virtual void imageDisplay( size_t id, int x, int y ) override;
     virtual void imageUnload( size_t id ) override;
     virtual void registerControlHandler( KeyControls key,
-        std::function<void( const bool )> controlHandler ) override;
+        std::function<void( const bool, const float )> controlHandler ) override;
     virtual void processInput() override;
     // Sound processing
     virtual void soundLoad(
@@ -60,7 +60,7 @@ private:
     int m_screenHeight;
     int m_screenWidth;
 
-    std::unordered_map<KeyControls, std::function<void( const bool )>>
+    std::unordered_map<KeyControls, std::function<void( const bool, const float )>>
         m_controlHandlers;
     std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> m_soundBuffers;
     std::unordered_map<std::string, std::shared_ptr<sf::Sound>> m_sounds;

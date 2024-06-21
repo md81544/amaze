@@ -1,6 +1,7 @@
 #include "sfmladapter.h"
 #include "exceptions.h"
 #include "helperfunctions.h"
+#include "log.h"
 
 #include <chrono>
 #include <thread>
@@ -111,8 +112,8 @@ void SfmlAdapter::imageDisplay( const std::string&, // fileName,
     // TODO - delete?
 }
 
-void SfmlAdapter::registerControlHandler(
-    KeyControls key, std::function<void( const bool )> controlHandler )
+void SfmlAdapter::registerControlHandler( KeyControls key,
+    std::function<void( const bool, const float val )> controlHandler )
 {
     m_controlHandlers[ key ] = controlHandler;
 }
@@ -123,30 +124,19 @@ void SfmlAdapter::processInput()
 
     while ( m_window.pollEvent( event ) )
     {
-        if (sf::Joystick::isConnected(0)) {
-            float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
-            if (x > 50.f)
-            {
-                m_controlHandlers[ KeyControls::RIGHT](true);
-            }
-            else if (x < -50.f)
-            {
-                m_controlHandlers[ KeyControls::LEFT ](true);
-            }
-            else
-            {
-                m_controlHandlers[ KeyControls::RIGHT ] (false);
-                m_controlHandlers[ KeyControls::LEFT ] (false);
-            }
+        if ( sf::Joystick::isConnected( 0 ) )
+        {
+            float x = sf::Joystick::getAxisPosition( 0, sf::Joystick::Axis::X );
+            m_controlHandlers[ KeyControls::LR_ANALOGUE ]( true, -x );
             // Right trigger
-            float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
-            if (v > 10.f)
+            float v = sf::Joystick::getAxisPosition( 0, sf::Joystick::Axis::V );
+            if ( v > 10.f )
             {
-                m_controlHandlers[ KeyControls::ACCELERATE ]( true );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( true, 0.f );
             }
             else
             {
-                m_controlHandlers[ KeyControls::ACCELERATE ]( false );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( false, 0.f );
             }
         }
         switch ( event.type )
@@ -155,16 +145,16 @@ void SfmlAdapter::processInput()
             switch ( event.key.code )
             {
             case sf::Keyboard::Escape:
-                m_controlHandlers[ KeyControls::QUIT ]( true );
+                m_controlHandlers[ KeyControls::QUIT ]( true, 0.f );
                 break;
             case sf::Keyboard::Up:
-                m_controlHandlers[ KeyControls::ACCELERATE ]( true );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( true, 0.f );
                 break;
             case sf::Keyboard::Left:
-                m_controlHandlers[ KeyControls::LEFT ]( true );
+                m_controlHandlers[ KeyControls::LEFT ]( true, 0.f );
                 break;
             case sf::Keyboard::Right:
-                m_controlHandlers[ KeyControls::RIGHT ]( true );
+                m_controlHandlers[ KeyControls::RIGHT ]( true, 0.f );
                 break;
             default:
                 break;
@@ -174,13 +164,13 @@ void SfmlAdapter::processInput()
             switch ( event.key.code )
             {
             case sf::Keyboard::Up:
-                m_controlHandlers[ KeyControls::ACCELERATE ]( false );
+                m_controlHandlers[ KeyControls::ACCELERATE ]( false, 0.f );
                 break;
             case sf::Keyboard::Left:
-                m_controlHandlers[ KeyControls::LEFT ]( false );
+                m_controlHandlers[ KeyControls::LEFT ]( false, 0.f );
                 break;
             case sf::Keyboard::Right:
-                m_controlHandlers[ KeyControls::RIGHT ]( false );
+                m_controlHandlers[ KeyControls::RIGHT ]( false, 0.f );
                 break;
             default:
                 break;
@@ -231,7 +221,8 @@ void SfmlAdapter::soundLoop( const std::string& key )
 
 void SfmlAdapter::soundFade( const std::string& key, const int /* msecs */ )
 {
-    // We don't have a fadeOut() type function in SFML so we reduce a bit on each call
+    // We don't have a fadeOut() type function in SFML so we reduce a bit on
+    // each call
     float newVolume = m_sounds[ key ]->getVolume() - 3.f;
     if ( newVolume < 0.f )
         newVolume = 0.f;
