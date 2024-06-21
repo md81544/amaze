@@ -87,7 +87,7 @@ void ShipModel::setRotation( int rotationDelta )
     }
     // The ship object needs to be rotated the other way to
     // ensure it stays upright while the world rotates around it
-    m_ShipGameShape->Rotate( -rotationDelta ); // MCD BUG HERE
+    m_ShipGameShape->Rotate( -rotationDelta );
 }
 
 int ShipModel::rotationDelta() const {return m_RotationDelta; }
