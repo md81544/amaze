@@ -36,7 +36,7 @@ void GameModel::initialise( size_t levelNumber )
     {
         ShapeLine sl1{ n, 0, n, 2000, 0, 100, 0, 255, 1 };
         bkg->AddShapeLine( sl1 );
-        ShapeLine sl2{ 0, n, 20000, n, 0, 100, 0, 255, 1 };
+        ShapeLine sl2{ 0, n, 2000, n, 0, 100, 0, 255, 1 };
         bkg->AddShapeLine( sl2 );
     }
     bkg->SetPos( 0, 0 );

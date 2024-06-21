@@ -68,9 +68,9 @@ void View::Update()
 
 void View::RotateAndDrawShape( const GameShape& shape ) const
 {
-    // We treat the viewport as representing 320 coordinates wide,
+    // We treat the viewport as representing 480 coordinate units wide,
     // regardless of its physical dimensions:
-    double scale = m_GraphicsAdapter.getWindoWidth() / 320.0;
+    double scale = m_GraphicsAdapter.getWindoWidth() / 480.0;
     double xOffset = m_GraphicsAdapter.getWindoWidth() / 2;
     double yOffset = m_GraphicsAdapter.getWindowHeight() / 2;
 
