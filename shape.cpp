@@ -110,7 +110,7 @@ void Shape::SetVisible( bool b ) { m_IsVisible = b; }
 
 double Shape::GetScale() const { return m_Scale; }
 
-void Shape::Rotate( int rotationDelta )
+void Shape::Rotate( double rotationDelta )
 {
     // This is not related to the rotation of the entire "world" around
     // the ship - this will simply cause a shape to rotate around its centre
@@ -122,15 +122,7 @@ void Shape::Rotate( int rotationDelta )
     std::vector<ShapeLine> tmp;
     tmp.reserve( m_ShapeLines.size() );
 
-    int rd = rotationDelta;
-    while ( rd < 0 )
-    {
-        rd += 360;
-    }
-    while ( rd > 359 )
-    {
-        rd -= 360;
-    }
+    double rd = std::fmod(rotationDelta, 360.0);
 
     for ( ShapeLine line : m_ShapeLines )
     {

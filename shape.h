@@ -38,7 +38,7 @@ public:
     bool    IsVisible() const;
     void    SetVisible( bool b );
     double  GetScale() const;
-    void    Rotate( int rotationDelta );
+    void    Rotate( double rotationDelta );
     void    SetScale( double scale );
     void    makeFromText(
                 const std::string& s,

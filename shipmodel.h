@@ -24,7 +24,7 @@ public:
     double fuel() const;
     void setFuel( double value );
 
-    int rotation() const;
+    double rotation() const;
     void setRotation( int rotationDelta );
 
     int rotationDelta() const;
@@ -75,8 +75,8 @@ public:
 
 private:
     double m_Fuel;
-    int m_Rotation{0};
-    int m_RotationDelta{0};
+    double m_Rotation{0.0};
+    double m_RotationDelta{0.0};
     bool m_SlowRotation{false};
     double m_ShipX;
     double m_ShipY;

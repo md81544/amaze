@@ -25,14 +25,9 @@ public:
     virtual ~IGraphicsAdapter() {}
     virtual void cls() = 0;
     virtual void redraw() = 0;
-    virtual int setDrawColour(
-        uint8_t r,
-        uint8_t g,
-        uint8_t b,
-        uint8_t a
-        ) = 0;
-    virtual void drawLine(
-        int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b ) = 0;
+    virtual int setDrawColour( uint8_t r, uint8_t g, uint8_t b, uint8_t a ) = 0;
+    virtual void drawLine( int xFrom, int yFrom, int xTo, int yTo, int width,
+        int r, int g, int b ) = 0;
     virtual void fillRectangle( int x, int y, int w, int h ) = 0;
     virtual int getWindoWidth() const = 0;
     virtual int getWindowHeight() const = 0;
@@ -42,9 +37,7 @@ public:
         uint32_t previousTicks, uint32_t totalLoopMilliseconds ) const = 0;
 
     virtual void registerControlHandler(
-        KeyControls key,
-        std::function<void( const bool )> controlHandler
-        ) = 0;
+        KeyControls key, std::function<void( const bool )> controlHandler ) = 0;
     virtual void processInput() = 0;
 
     // Images

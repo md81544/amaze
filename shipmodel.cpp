@@ -76,15 +76,11 @@ double ShipModel::y() const { return m_ShipY; }
 
 void ShipModel::setShipY( double value ) { m_ShipY = value; }
 
-int ShipModel::rotation() const { return m_Rotation; }
+double ShipModel::rotation() const { return m_Rotation; }
 
 void ShipModel::setRotation( int rotationDelta )
 {
-    m_Rotation = ( m_Rotation + rotationDelta ) % 360;
-    while ( m_Rotation < 0 )
-    {
-        m_Rotation = m_Rotation + 360;
-    }
+    m_Rotation = std::fmod( m_Rotation + rotationDelta, 360.0 );
     // The ship object needs to be rotated the other way to
     // ensure it stays upright while the world rotates around it
     m_ShipGameShape->Rotate( -rotationDelta );
@@ -248,7 +244,7 @@ void ShipModel::drawFlames()
 
     // Ensure that the flames have the same rotation
     // and position as the ship:
-    m_FlamesGameShape->Rotate( ( 360 - m_Rotation ) % 360 );
+    m_FlamesGameShape->Rotate( std::fmod( 360 - m_Rotation, 360 ));
     m_FlamesGameShape->SetPos( m_ShipX, m_ShipY );
 }
 
@@ -265,13 +261,13 @@ void ShipModel::buildExplosionShape()
             continue;
         }
         double x1 =
-            static_cast<double>( Sine( n * 30 ) * 20 + ( rand() % 10 ) );
+            static_cast<double>( Sine( n * 30.0 ) * 20 + ( rand() % 10 ) );
         double y1 =
-            static_cast<double>( Cosine( n * 30 ) * 20 + ( rand() % 10 ) );
+            static_cast<double>( Cosine( n * 30.0 ) * 20 + ( rand() % 10 ) );
         double x2 = static_cast<double>(
-            Sine( ( n + 1 ) * 30 ) * 20 + ( rand() % 10 ) );
+            Sine( ( n + 1 ) * 30.0 ) * 20 + ( rand() % 10 ) );
         double y2 = static_cast<double>(
-            Cosine( ( n + 1 ) * 30 ) * 20 + ( rand() % 10 ) );
+            Cosine( ( n + 1 ) * 30.0 ) * 20 + ( rand() % 10 ) );
         uint8_t r = ( rand() % 128 ) + 96;
         m_ExplosionGameShape->AddShapeLine(
             ShapeLine{ x1, y1, x2, y2, r, r, r, 255, 4 } );
@@ -283,23 +279,23 @@ void ShipModel::buildExplosionShape()
         {
             continue;
         }
-        double x1 = static_cast<double>( Sine( n * 6 ) * 40 );
-        double y1 = static_cast<double>( Cosine( n * 6 ) * 40 );
-        double x2 = static_cast<double>( Sine( n * 6 ) * 50 );
-        double y2 = static_cast<double>( Cosine( n * 6 ) * 50 );
+        double x1 = static_cast<double>( Sine( n * 6.0 ) * 40 );
+        double y1 = static_cast<double>( Cosine( n * 6.0 ) * 40 );
+        double x2 = static_cast<double>( Sine( n * 6.0 ) * 50 );
+        double y2 = static_cast<double>( Cosine( n * 6.0 ) * 50 );
         m_ExplosionGameShape->AddShapeLine(
             ShapeLine{ x1, y1, x2, y2, 255, 255, 255, 255, 3 } );
-        x1 = static_cast<double>( Sine( n * 6 ) * 50 );
-        y1 = static_cast<double>( Cosine( n * 6 ) * 50 );
-        x2 = static_cast<double>( Sine( n * 6 ) * 60 );
-        y2 = static_cast<double>( Cosine( n * 6 ) * 60 );
+        x1 = static_cast<double>( Sine( n * 6.0 ) * 50 );
+        y1 = static_cast<double>( Cosine( n * 6.0 ) * 50 );
+        x2 = static_cast<double>( Sine( n * 6.0 ) * 60 );
+        y2 = static_cast<double>( Cosine( n * 6.0 ) * 60 );
         m_ExplosionGameShape->AddShapeLine(
             ShapeLine{ x1, y1, x2, y2, 250, 214, 116, 255, 2 } );
         int i = rand() % 50;
-        x1 = static_cast<double>( Sine( n * 6 ) * 60 );
-        y1 = static_cast<double>( Cosine( n * 6 ) * 60 );
-        x2 = static_cast<double>( Sine( n * 6 ) * ( 70 + i ) );
-        y2 = static_cast<double>( Cosine( n * 6 ) * ( 70 + i ) );
+        x1 = static_cast<double>( Sine( n * 6.0 ) * 60 );
+        y1 = static_cast<double>( Cosine( n * 6.0 ) * 60 );
+        x2 = static_cast<double>( Sine( n * 6.0 ) * ( 70 + i ) );
+        y2 = static_cast<double>( Cosine( n * 6.0 ) * ( 70 + i ) );
         m_ExplosionGameShape->AddShapeLine(
             ShapeLine{ x1, y1, x2, y2, 255, 0, 0, 255, 1 } );
     }

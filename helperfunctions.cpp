@@ -82,13 +82,13 @@ void CsvSplit(
     }
 }
 
-double Cosine( int degrees )
+double Cosine( double degrees )
 {
     namespace bmc = boost::math::constants;
     return std::cos( degrees * ( bmc::two_pi<double>() / 360.0));
 }
 
-double Sine( int degrees )
+double Sine( double degrees )
 {
     namespace bmc = boost::math::constants;
     return std::sin( degrees * ( bmc::two_pi<double>() / 360.0));
