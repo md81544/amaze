@@ -50,6 +50,7 @@ public:
 
     bool isAccelerating() const;
     void setIsAccelerating( bool value, float amount = 0.f );
+    float accelerationAmount() const;
     bool isBraking() const;
     void setIsBraking( bool value );
 

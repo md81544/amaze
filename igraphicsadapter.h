@@ -58,7 +58,7 @@ public:
     virtual void soundLoad(
         const std::string& key, const std::string& filename ) = 0;
     virtual void soundPlay( const std::string& key ) = 0;
-    virtual void soundLoop( const std::string& key ) = 0;
+    virtual void soundLoop( const std::string& key, float volume ) = 0;
     virtual void soundFade( const std::string& key, const int msecs ) = 0;
 };
 

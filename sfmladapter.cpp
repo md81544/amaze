@@ -209,9 +209,9 @@ void SfmlAdapter::soundPlay( const std::string& key )
     }
 }
 
-void SfmlAdapter::soundLoop( const std::string& key )
+void SfmlAdapter::soundLoop( const std::string& key, float volume )
 {
-    m_sounds[ key ]->setVolume( 100.f );
+    m_sounds[ key ]->setVolume( volume );
     if ( m_sounds[ key ]->getStatus() != sf::Sound::Playing )
     {
         m_sounds[ key ]->setLoop( true );

@@ -132,6 +132,11 @@ void ShipModel::setIsAccelerating( bool value, float amount )
     m_AccelerationAmount = amount;
 }
 
+float ShipModel::accelerationAmount() const
+{
+    return m_AccelerationAmount;
+}
+
 bool ShipModel::isBraking() const { return m_IsBraking; }
 
 void ShipModel::setIsBraking( bool value ) { m_IsBraking = value; }
