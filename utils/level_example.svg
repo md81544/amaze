@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="2000"
+   height="2000"
+   viewBox="0 0 2000 2000"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   sodipodi:docname="test_level1.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="px"
+     inkscape:zoom="0.44"
+     inkscape:cx="7.6e+02"
+     inkscape:cy="19"
+     inkscape:window-width="1440"
+     inkscape:window-height="788"
+     inkscape:window-x="0"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showgrid="true">
+    <inkscape:grid
+       id="grid2"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="100"
+       spacingy="100"
+       empcolor="#0099e5"
+       empopacity="0.3"
+       color="#0099e5"
+       opacity="0.15"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.89081;stroke-dasharray:none;stroke-opacity:1"
+       d="M 100,100 H 1400 L 1900,690 V 1200 L 1700,1700 1400,1800 H 690 400 V 1900 H 160 V 1600 L 370,1700 H 380 L 800,1600 1200,1700 1300,1400 H 1600 L 1700,1300 800,1200 750,640 1600,690 1300,210 H 97 Z"
+       id="path6" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:3.89081;stroke-dasharray:none;stroke-opacity:1"
+       d="M 910,780 H 1700 L 1800,1100 H 960 Z"
+       id="path7" />
+    <circle
+       style="fill:#ffffff;stroke:#000000;stroke-width:1.44567"
+       id="exit"
+       cx="240"
+       cy="1800"
+       inkscape:label="lblExit"
+       r="1" />
+    <circle
+       style="fill:#ffffff;stroke:#000000;stroke-width:2.89134"
+       id="start"
+       cx="2.4e+02"
+       cy="1.7e+02"
+       inkscape:label="lblStart"
+       r="2" />
+  </g>
+</svg>
