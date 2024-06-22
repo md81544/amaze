@@ -178,7 +178,6 @@ void SfmlAdapter::processInput()
             break;
 
         // we don't process other types of events currently
-        // TODO - game controller support
         default:
             break;
         }
