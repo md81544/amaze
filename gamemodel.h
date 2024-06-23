@@ -2,8 +2,8 @@
 
 #include <memory>
 
-#include "imodel.h"
 #include "gameshape.h"
+#include "imodel.h"
 #include "shipmodel.h"
 
 // This class acts as the MVC "model" for the game.
@@ -18,52 +18,47 @@
 // the physical window and scales the "units" to pixels
 // accordingly.
 
-namespace marengo
-{
-namespace amaze
-{
+namespace marengo {
+namespace amaze {
 
-class GameModel : public IModel
-{
+class GameModel : public IModel {
 public:
     GameModel();
 
     // Reset the model to a state ready for a new Level:
-    void initialise( size_t level_number );
-    void levelLoad( size_t levelNum );
+    void initialise(size_t level_number);
+    void levelLoad(size_t levelNum);
 
-    void setDataPath( const std::string& dir );
+    void setDataPath(const std::string& dir);
     const std::string getDataPath();
 
     void createStaticShapes();
 
     size_t level() const;
-    void setLevel( size_t value );
+    void setLevel(size_t value);
 
     bool wasFuelOutWarned() const;
-    void setWasFuelOutWarned( bool value );
+    void setWasFuelOutWarned(bool value);
 
     bool wasTimeoutWarned() const;
-    void setWasTimeoutWarned( bool value );
+    void setWasTimeoutWarned(bool value);
 
     int timeLimit() const;
-    void setTimeLimit( int value );
+    void setTimeLimit(int value);
 
-    double timeGetTenthBest( size_t levelNumber );
+    double timeGetTenthBest(size_t levelNumber);
 
     std::string levelDescription() const;
-    void setLevelDescription( const std::string& value );
+    void setLevelDescription(const std::string& value);
 
     bool gameIsRunning() const;
-    void setGameIsRunning( bool value );
+    void setGameIsRunning(bool value);
 
     std::shared_ptr<GameShape> newGameShape();
 
-    const std::vector<std::shared_ptr<GameShape>>&
-    getAllDynamicObjects() const;
+    const std::vector<std::shared_ptr<GameShape>>& getAllDynamicObjects() const;
 
-    const std::vector<std::shared_ptr<GameShape>>&
-    getAllStaticObjects() const;
+    const std::vector<std::shared_ptr<GameShape>>& getAllStaticObjects() const;
 
     // Returns a non-owning pointer to the ship model
     ShipModel* getShipModel() const;
@@ -72,25 +67,25 @@ public:
 
     void process();
 
-    void updateStatistics( size_t millisecs );
+    void updateStatistics(size_t millisecs);
 
-    void processDynamicObjects( std::function<void( GameShape& )> ) override;
+    void processDynamicObjects(std::function<void(GameShape&)>) override;
 
-    void processStaticObjects( std::function<void( GameShape& )> ) override;
+    void processStaticObjects(std::function<void(GameShape&)>) override;
 
     unsigned int getRotation() const override;
 
 private:
     std::string m_dataPath { "" };
 
-    size_t m_level{ 0 };
+    size_t m_level { 0 };
     std::string m_levelDescription;
     int m_timeLimit;
-    bool m_wasFuelOutWarned{ false };
-    bool m_wasTimeoutWarned{ false };
-    bool m_gameIsRunning{ false };
+    bool m_wasFuelOutWarned { false };
+    bool m_wasTimeoutWarned { false };
+    bool m_gameIsRunning { false };
 
-    int m_explosionIterationCount{0};
+    int m_explosionIterationCount { 0 };
 
     // Container for all GameShapes in the game:
     std::vector<std::shared_ptr<GameShape>> m_allDynamicGameShapes;
@@ -105,7 +100,7 @@ private:
     std::unique_ptr<ShipModel> m_shipModel;
 
     std::vector<size_t> m_frameTimes;
-    size_t m_averageFrameTime{ 0 };
+    size_t m_averageFrameTime { 0 };
 };
 
 } // namespace amaze

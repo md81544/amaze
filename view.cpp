@@ -5,31 +5,26 @@
 
 #include <vector>
 
-namespace marengo
-{
-namespace amaze
-{
+namespace marengo {
+namespace amaze {
 
-View::View( GameModel& model, IGraphicsAdapter& gm )
-    : m_Model( model ), m_GraphicsAdapter( gm )
+View::View(GameModel& model, IGraphicsAdapter& gm)
+    : m_Model(model)
+    , m_GraphicsAdapter(gm)
 {
 }
 
 void View::PlaySounds()
 {
-    if ( m_Model.getShipModel()->isAccelerating() )
-    {
+    if (m_Model.getShipModel()->isAccelerating()) {
         float vol = m_Model.getShipModel()->accelerationAmount() * 1000.f;
-        m_GraphicsAdapter.soundLoop( "rocket", vol );
-    }
-    else
-    {
-        m_GraphicsAdapter.soundFade( "rocket", 1000 );
+        m_GraphicsAdapter.soundLoop("rocket", vol);
+    } else {
+        m_GraphicsAdapter.soundFade("rocket", 1000);
     }
 
-    if ( m_Model.getShipModel()->isExploding() )
-    {
-        m_GraphicsAdapter.soundPlay( "collision" );
+    if (m_Model.getShipModel()->isExploding()) {
+        m_GraphicsAdapter.soundPlay("collision");
     }
 }
 
@@ -45,27 +40,21 @@ void View::Update()
     PlaySounds();
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
-    m_Model.processDynamicObjects(
-        [ & ]( GameShape& shape )
-        {
-            if ( shape.IsVisible() && shape.IsActive() )
-            {
-                RotateAndDrawShape( shape );
-            }
-        } );
+    m_Model.processDynamicObjects([&](GameShape& shape) {
+        if (shape.IsVisible() && shape.IsActive()) {
+            RotateAndDrawShape(shape);
+        }
+    });
 
     // Static shapes (i.e. items which don't move on screen, e.g. the gauges)
-    m_Model.processStaticObjects(
-        [ & ]( GameShape& shape )
-        {
-            if ( shape.IsVisible() )
-            {
-                DrawStaticShape( const_cast<const GameShape&>( shape ) );
-            }
-        } );
+    m_Model.processStaticObjects([&](GameShape& shape) {
+        if (shape.IsVisible()) {
+            DrawStaticShape(const_cast<const GameShape&>(shape));
+        }
+    });
 }
 
-void View::RotateAndDrawShape( const GameShape& shape ) const
+void View::RotateAndDrawShape(const GameShape& shape) const
 {
     // We treat the viewport as representing 480 coordinate units wide,
     // regardless of its physical dimensions:
@@ -73,8 +62,7 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
     double xOffset = m_GraphicsAdapter.getWindoWidth() / 2;
     double yOffset = m_GraphicsAdapter.getWindowHeight() / 2;
 
-    for ( const auto& sl : shape.GetVec() )
-    {
+    for (const auto& sl : shape.GetVec()) {
         // ShapeLine sl = shape.GetVec()[ line ];
         double x0 = sl.x0 + shape.GetPosX() - m_Model.getShipModel()->x();
         double y0 = sl.y0 + shape.GetPosY() - m_Model.getShipModel()->y();
@@ -83,35 +71,31 @@ void View::RotateAndDrawShape( const GameShape& shape ) const
         // OK, when we get here, we have a line expressed
         // relative to the origin of the ship.  We can apply the
         // rotate now (unless the shape is marked "don't rotate")...
-        double dCos =
-            helperfunctions::Cosine( m_Model.getShipModel()->rotation() );
-        double dSin =
-            helperfunctions::Sine( m_Model.getShipModel()->rotation() );
+        double dCos = helperfunctions::Cosine(m_Model.getShipModel()->rotation());
+        double dSin = helperfunctions::Sine(m_Model.getShipModel()->rotation());
         double x0r, y0r, x1r, y1r;
         x0r = x0 * dCos - y0 * dSin;
         y0r = x0 * dSin + y0 * dCos;
         x1r = x1 * dCos - y1 * dSin;
         y1r = x1 * dSin + y1 * dCos;
         // now draw adjusted for physical screen coords
-        m_GraphicsAdapter.drawLine( x0r * scale + xOffset,
-            y0r * scale + yOffset, x1r * scale + xOffset, y1r * scale + yOffset,
+        m_GraphicsAdapter.drawLine(x0r * scale + xOffset, y0r * scale + yOffset,
+            x1r * scale + xOffset, y1r * scale + yOffset,
             1, // TODO?
-            sl.r, sl.g, sl.b );
+            sl.r, sl.g, sl.b);
     }
 }
 
-void View::DrawStaticShape( const GameShape& shape ) const
+void View::DrawStaticShape(const GameShape& shape) const
 {
     // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
     double scale = m_GraphicsAdapter.getWindoWidth() / 320.0;
 
-    for ( const auto& sl : shape.GetVec() )
-    {
-        m_GraphicsAdapter.drawLine( sl.x0 * scale + shape.GetPosX(),
-            sl.y0 * scale + shape.GetPosY(), sl.x1 * scale + shape.GetPosX(),
-            sl.y1 * scale + shape.GetPosY(),
+    for (const auto& sl : shape.GetVec()) {
+        m_GraphicsAdapter.drawLine(sl.x0 * scale + shape.GetPosX(), sl.y0 * scale + shape.GetPosY(),
+            sl.x1 * scale + shape.GetPosX(), sl.y1 * scale + shape.GetPosY(),
             1, // TODO?
-            sl.r, sl.g, sl.b );
+            sl.r, sl.g, sl.b);
     }
 }
 

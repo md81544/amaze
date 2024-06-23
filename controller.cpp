@@ -110,7 +110,7 @@ void Controller::mainLoop(int gameLevel)
 
         m_gameModel.process(); // perform all processing required per loop
 
-        // collisionChecks();
+        collisionChecks();
 
         if (m_gameModel.gameIsRunning() == false) {
             break;

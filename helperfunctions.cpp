@@ -4,12 +4,11 @@
 
 #include "boost/math/constants/constants.hpp"
 
+#include <mutex>
 #include <string>
 #include <thread>
-#include <mutex>
 
-namespace
-{
+namespace {
 
 /* // TODO: remove?
 int ClipFindRegion(
@@ -39,76 +38,62 @@ int ClipFindRegion(
 }*/
 }
 
-namespace marengo
-{
-namespace amaze
-{
-namespace helperfunctions
-{
+namespace marengo {
+namespace amaze {
+namespace helperfunctions {
 
-void CsvSplit(
-    const std::string& s, char c, std::vector<std::string>& v )
+void CsvSplit(const std::string& s, char c, std::vector<std::string>& v)
 {
-    size_t j = s.find( c );
-    if ( j == std::string::npos )
-    {
+    size_t j = s.find(c);
+    if (j == std::string::npos) {
         // no separators found
-        v.push_back( s );
-    }
-    else
-    {
+        v.push_back(s);
+    } else {
         size_t i = 0;
-        while ( j != std::string::npos )
-        {
-            v.push_back( s.substr( i, j - i ) );
+        while (j != std::string::npos) {
+            v.push_back(s.substr(i, j - i));
             i = ++j;
-            j = s.find( c, j );
-            if ( j == std::string::npos )
-            {
-                v.push_back( s.substr( i, s.length() ) );
+            j = s.find(c, j);
+            if (j == std::string::npos) {
+                v.push_back(s.substr(i, s.length()));
             }
         }
     }
 }
 
-void CsvSplit(
-    const std::string& s, char c, std::vector<double>& v )
+void CsvSplit(const std::string& s, char c, std::vector<double>& v)
 {
     std::vector<std::string> items;
-    CsvSplit( s, c, items );
-    for ( const std::string& item : items )
-    {
-        v.push_back( std::stod( item ) );
+    CsvSplit(s, c, items);
+    for (const std::string& item : items) {
+        v.push_back(std::stod(item));
     }
 }
 
-double Cosine( double degrees )
+double Cosine(double degrees)
 {
     namespace bmc = boost::math::constants;
-    return std::cos( degrees * ( bmc::two_pi<double>() / 360.0));
+    return std::cos(degrees * (bmc::two_pi<double>() / 360.0));
 }
 
-double Sine( double degrees )
+double Sine(double degrees)
 {
     namespace bmc = boost::math::constants;
-    return std::sin( degrees * ( bmc::two_pi<double>() / 360.0));
+    return std::sin(degrees * (bmc::two_pi<double>() / 360.0));
 }
 
-int Sgn( int x )
+int Sgn(int x)
 {
-    if ( x > 0 )
-    {
+    if (x > 0) {
         return 1;
     }
-    if ( x < 0 )
-    {
+    if (x < 0) {
         return -1;
     }
     return 0;
 }
 
-bool DoLinesIntersect(
-    long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4 )
+bool DoLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4)
 {
 
     long Ax, Bx, Cx, Ay, By, Cy, d, e, f;
@@ -117,27 +102,19 @@ bool DoLinesIntersect(
     Ax = x2 - x1;
     Bx = x3 - x4;
 
-    if ( Ax < 0 )
-    {
+    if (Ax < 0) {
         x1lo = (short)x2;
         x1hi = (short)x1;
-    }
-    else
-    {
+    } else {
         x1hi = (short)x2;
         x1lo = (short)x1;
     }
-    if ( Bx > 0 )
-    {
-        if ( x1hi < (short)x4 || (short)x3 < x1lo )
-        {
+    if (Bx > 0) {
+        if (x1hi < (short)x4 || (short)x3 < x1lo) {
             return false;
         }
-    }
-    else
-    {
-        if ( x1hi < (short)x3 || (short)x4 < x1lo )
-        {
+    } else {
+        if (x1hi < (short)x3 || (short)x4 < x1lo) {
             return false;
         }
     }
@@ -145,27 +122,19 @@ bool DoLinesIntersect(
     Ay = y2 - y1;
     By = y3 - y4;
 
-    if ( Ay < 0 )
-    {
+    if (Ay < 0) {
         y1lo = (short)y2;
         y1hi = (short)y1;
-    }
-    else
-    {
+    } else {
         y1hi = (short)y2;
         y1lo = (short)y1;
     }
-    if ( By > 0 )
-    {
-        if ( y1hi < (short)y4 || (short)y3 < y1lo )
-        {
+    if (By > 0) {
+        if (y1hi < (short)y4 || (short)y3 < y1lo) {
             return false;
         }
-    }
-    else
-    {
-        if ( y1hi < (short)y3 || (short)y4 < y1lo )
-        {
+    } else {
+        if (y1hi < (short)y3 || (short)y4 < y1lo) {
             return false;
         }
     }
@@ -175,34 +144,24 @@ bool DoLinesIntersect(
     d = By * Cx - Bx * Cy; // alpha numerator
     f = Ay * Bx - Ax * By; // both denominator
     // alpha tests
-    if ( f > 0 )
-    {
-        if ( d < 0 || d > f )
-        {
+    if (f > 0) {
+        if (d < 0 || d > f) {
             return false;
         }
-    }
-    else
-    {
-        if ( d > 0 || d < f )
-        {
+    } else {
+        if (d > 0 || d < f) {
             return false;
         }
     }
 
     e = Ax * Cy - Ay * Cx; // beta numerator
     // beta tests
-    if ( f > 0 )
-    {
-        if ( e < 0 || e > f )
-        {
+    if (f > 0) {
+        if (e < 0 || e > f) {
             return false;
         }
-    }
-    else
-    {
-        if ( e > 0 || e < f )
-        {
+    } else {
+        if (e > 0 || e < f) {
             return false;
         }
     }

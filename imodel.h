@@ -17,23 +17,20 @@
 // the physical window and scales the "units" to pixels
 // accordingly.
 
-namespace marengo
-{
-namespace amaze
-{
+namespace marengo {
+namespace amaze {
 
-class IModel
-{
+class IModel {
 public:
     // Perform an action against each dynamic object held.
     // Usually used to display them.
-    virtual void processDynamicObjects( std::function<void( GameShape& )> ) = 0;
+    virtual void processDynamicObjects(std::function<void(GameShape&)>) = 0;
 
     // Perform an action against each "static" object held.
     // Usually used to display them.
     // NB "Static" objects don't rotate - typically screen items like
     // points / fuel gauges / timer etc
-    virtual void processStaticObjects( std::function<void( GameShape& )> ) = 0;
+    virtual void processStaticObjects(std::function<void(GameShape&)>) = 0;
 
     // Get what the current "world" rotation is for this model
     virtual unsigned int getRotation() const = 0;

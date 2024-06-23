@@ -10,18 +10,15 @@
 //
 // The "view" also includes other output, e.g. sounds.
 
-namespace marengo
-{
-namespace amaze
-{
+namespace marengo {
+namespace amaze {
 
-class View
-{
+class View {
 public:
-    View( GameModel& model, IGraphicsAdapter& gm );
+    View(GameModel& model, IGraphicsAdapter& gm);
     void Update(); // this is called once per game loop iteration
-    void RotateAndDrawShape( const GameShape& shape ) const;
-    void DrawStaticShape( const GameShape& shape ) const;
+    void RotateAndDrawShape(const GameShape& shape) const;
+    void DrawStaticShape(const GameShape& shape) const;
     void PlaySounds();
 
 private:
