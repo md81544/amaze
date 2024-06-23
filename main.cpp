@@ -83,6 +83,10 @@ int main(int argc, char* argv[])
         double screenProportion
             = width / static_cast<double>(SfmlAdapter::getPhysicalScreenWidth());
         int height = SfmlAdapter::getPhysicalScreenHeight() * screenProportion;
+        // There is a bug in SFML 2.x which means there are no full-screen modes available on Apple
+        // high-resolution ("retina") displays. If we see this we use a window rather than full
+        // screen. The user can always press Fn-F to use MacOS's full screen mode instead.
+        // My bug report: https://github.com/SFML/SFML/issues/2300
         std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
         bool useFullScreen = !modes.empty();
         if (useFullScreen) {
