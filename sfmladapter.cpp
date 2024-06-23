@@ -10,7 +10,7 @@ namespace marengo {
 namespace amaze {
 
 SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight)
-    : m_window(sf::VideoMode(screenWidth, screenHeight), "Amaze", sf::Style::Fullscreen)
+    : m_window(sf::VideoMode(screenWidth, screenHeight), "Amaze")
     , m_screenHeight(screenHeight)
     , m_screenWidth(screenWidth)
 {
