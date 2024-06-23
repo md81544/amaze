@@ -21,7 +21,7 @@ namespace amaze {
 class SfmlAdapter : public IGraphicsAdapter {
 
 public:
-    SfmlAdapter(int screenWidth, int screenHeight);
+    SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen);
     ~SfmlAdapter();
     virtual void cls() override;
     virtual void redraw() override;
