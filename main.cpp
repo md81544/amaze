@@ -83,9 +83,8 @@ int main(int argc, char* argv[])
         double screenProportion
             = width / static_cast<double>(SfmlAdapter::getPhysicalScreenWidth());
         int height = SfmlAdapter::getPhysicalScreenHeight() * screenProportion;
-        std::vector<sf::VideoMode> modes = sf::VideoMode::getFullscreenModes();
-        bool useFullScreen = !modes.empty();
-        if (useFullScreen) {
+        bool useFullScreen = !SfmlAdapter::isRetina();
+        if (useFullScreen){
             width = SfmlAdapter::getPhysicalScreenWidth();
             height = SfmlAdapter::getPhysicalScreenHeight();
         }

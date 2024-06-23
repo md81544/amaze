@@ -10,7 +10,8 @@ namespace marengo {
 namespace amaze {
 
 SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
-    : m_window(sf::VideoMode(screenWidth, screenHeight), "Amaze", useFullScreen?sf::Style::Fullscreen:sf::Style::Default)
+    : m_window(sf::VideoMode(screenWidth, screenHeight), "Amaze",
+          useFullScreen ? sf::Style::Fullscreen : sf::Style::Default)
     , m_screenHeight(screenHeight)
     , m_screenWidth(screenWidth)
 {
@@ -204,6 +205,12 @@ void SfmlAdapter::soundFade(const std::string& key, const int /* msecs */)
     if (newVolume < 0.f)
         newVolume = 0.f;
     m_sounds[key]->setVolume(newVolume);
+}
+
+bool SfmlAdapter::isRetina()
+{
+    // This is a hack to work around the SFML (at least 2.x) bug around 'retina' displays
+    return sf::VideoMode::getFullscreenModes().empty();
 }
 
 } // namespace amaze
