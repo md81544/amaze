@@ -76,15 +76,8 @@ int main(int argc, char* argv[])
         // Locate our data directory:
         std::string dataDir = findDataDirectory(argv[0]);
 
-        int width = 800;
-        int screenWidth = SfmlAdapter::getPhysicalScreenWidth();
-        double screenProportion
-            = width / static_cast<double>(SfmlAdapter::getPhysicalScreenWidth());
-        int height = SfmlAdapter::getPhysicalScreenHeight() * screenProportion;
-        // TODO: screen dimensions' proportions should mirror the physical
-        // screen's dimensions so everything is in proportion if we go
-        // fullscreen
-        SfmlAdapter graphicsManager(width, static_cast<int>(height));
+        SfmlAdapter graphicsManager(
+            SfmlAdapter::getPhysicalScreenWidth(), SfmlAdapter::getPhysicalScreenHeight());
 
         GameModel gameModel;
         gameModel.setDataPath(dataDir);
