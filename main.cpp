@@ -88,7 +88,7 @@ int main(int argc, char* argv[])
         // screen. The user can always press Fn-F to use MacOS's full screen mode instead.
         // My bug report: https://github.com/SFML/SFML/issues/2300
         bool useFullScreen = !SfmlAdapter::isRetina();
-        if (useFullScreen){
+        if (useFullScreen) {
             width = SfmlAdapter::getPhysicalScreenWidth();
             height = SfmlAdapter::getPhysicalScreenHeight();
         }
