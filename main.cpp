@@ -9,6 +9,7 @@
 
 #include <boost/filesystem.hpp>
 
+#include <filesystem>
 #include <iostream>
 
 // MVC intentions
@@ -33,8 +34,14 @@
 
 namespace {
 
+std::string findConfigFile(const char* const argv0)
+{
+    std::filesystem::path p(argv0);
+    return p.string() + ".cfg";
+}
 std::string findDataDirectory(const char* const program)
 {
+    // TODO replace boost with std
     // Attempt to locate the data directory. We look in the
     // directory where the binary is located, its parent,
     // and its parent's parent. Throws if it cannot find a data directory.
@@ -67,7 +74,7 @@ int main(int argc, char* argv[])
     try {
         INIT_MGOLOG("debug.log");
 
-        mgo::ConfigReader config("amaze.cfg");
+        mgo::ConfigReader config(findConfigFile(argv[0]));
 
         int gameLevel = 0;
         if (argc > 1) {
