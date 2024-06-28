@@ -43,13 +43,13 @@ AlignTrailingComments:
   Kind:            Never
   OverEmptyLines:  0
 AllowAllArgumentsOnNextLine: true
-AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: false
 AllowBreakBeforeNoexceptSpecifier: Never
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortCompoundRequirementOnASingleLine: true
-AllowShortEnumsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: All
+AllowShortEnumsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: false
@@ -59,8 +59,8 @@ AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: MultiLine
 AttributeMacros:
   - __capability
-BinPackArguments: true
-BinPackParameters: true
+BinPackArguments: false
+BinPackParameters: false
 BitFieldColonSpacing: Both
 BraceWrapping:
   AfterCaseLabel:  false
@@ -128,8 +128,8 @@ IncludeCategories:
 IncludeIsMainRegex: '(Test)?$'
 IncludeIsMainSourceRegex: ''
 IndentAccessModifiers: false
-IndentCaseBlocks: false
-IndentCaseLabels: false
+IndentCaseBlocks: true
+IndentCaseLabels: true
 IndentExternBlock: AfterExternBlock
 IndentGotoLabels: true
 IndentPPDirectives: None

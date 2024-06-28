@@ -1,6 +1,7 @@
 #include "preferences.h"
 #include "sfmladapter.h"
 
+#include "configreader.h"
 #include "controller.h"
 #include "exceptions.h"
 #include "log.h"
@@ -66,6 +67,8 @@ int main(int argc, char* argv[])
     try {
         INIT_MGOLOG("debug.log");
 
+        mgo::ConfigReader config("amaze.cfg");
+
         int gameLevel = 0;
         if (argc > 1) {
             gameLevel = std::stoi(argv[1]);
@@ -78,21 +81,10 @@ int main(int argc, char* argv[])
 
         // The window's dimensions' proportions should mirror the physical screen's dimensions so
         // everything is in proportion if we go fullscreen
-        int width = 800;
-        int screenWidth = SfmlAdapter::getPhysicalScreenWidth();
-        double screenProportion
-            = width / static_cast<double>(SfmlAdapter::getPhysicalScreenWidth());
-        int height = SfmlAdapter::getPhysicalScreenHeight() * screenProportion;
-        // There is a bug in SFML 2.x which means there are no full-screen modes available on Apple
-        // high-resolution ("retina") displays. If we see this we use a window rather than full
-        // screen. The user can always press Fn-F to use MacOS's full screen mode instead.
-        // My bug report: https://github.com/SFML/SFML/issues/2300
-        bool useFullScreen = !SfmlAdapter::isRetina();
-        if (useFullScreen) {
-            width = SfmlAdapter::getPhysicalScreenWidth();
-            height = SfmlAdapter::getPhysicalScreenHeight();
-        }
-        SfmlAdapter graphicsManager(width, static_cast<int>(height), useFullScreen);
+        int width = config.readLong("WindowWidth", 800);
+        int height = config.readLong("WindowHeight", 500);
+        bool useFullScreen = config.readBool("FullScreen", false);
+        SfmlAdapter graphicsManager(width, height, useFullScreen);
 
         GameModel gameModel;
         gameModel.setDataPath(dataDir);

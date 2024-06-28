@@ -207,11 +207,5 @@ void SfmlAdapter::soundFade(const std::string& key, const int /* msecs */)
     m_sounds[key]->setVolume(newVolume);
 }
 
-bool SfmlAdapter::isRetina()
-{
-    // This is a hack to work around the SFML (at least 2.x) bug around 'retina' displays
-    return sf::VideoMode::getFullscreenModes().empty();
-}
-
 } // namespace amaze
 } // namespace marengo
