@@ -10,7 +10,8 @@ namespace marengo {
 namespace amaze {
 
 SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
-    : m_window(sf::VideoMode(screenWidth, screenHeight), "Amaze",
+    : m_window(sf::VideoMode(screenWidth, screenHeight),
+          "Amaze",
           useFullScreen ? sf::Style::Fullscreen : sf::Style::Default)
     , m_screenHeight(screenHeight)
     , m_screenWidth(screenWidth)
@@ -20,7 +21,10 @@ SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
 
 SfmlAdapter::~SfmlAdapter() { }
 
-int SfmlAdapter::getWindowHeight() const { return m_screenHeight; }
+int SfmlAdapter::getWindowHeight() const
+{
+    return m_screenHeight;
+}
 
 int SfmlAdapter::getTicks() const
 {
@@ -28,11 +32,20 @@ int SfmlAdapter::getTicks() const
     return clock.getElapsedTime().asMilliseconds();
 }
 
-int SfmlAdapter::getWindoWidth() const { return m_screenWidth; }
+int SfmlAdapter::getWindoWidth() const
+{
+    return m_screenWidth;
+}
 
-void SfmlAdapter::cls() { m_window.clear(); }
+void SfmlAdapter::cls()
+{
+    m_window.clear();
+}
 
-void SfmlAdapter::redraw() { m_window.display(); }
+void SfmlAdapter::redraw()
+{
+    m_window.display();
+}
 
 int SfmlAdapter::setDrawColour(uint8_t, // r
     uint8_t, // g
@@ -64,9 +77,15 @@ void SfmlAdapter::fillRectangle(int, // x,
     // TODO
 }
 
-int SfmlAdapter::getPhysicalScreenWidth() { return sf::VideoMode::getDesktopMode().width; }
+int SfmlAdapter::getPhysicalScreenWidth()
+{
+    return sf::VideoMode::getDesktopMode().width;
+}
 
-int SfmlAdapter::getPhysicalScreenHeight() { return sf::VideoMode::getDesktopMode().height; }
+int SfmlAdapter::getPhysicalScreenHeight()
+{
+    return sf::VideoMode::getDesktopMode().height;
+}
 
 void SfmlAdapter::loopDelay(uint32_t previousTicks, // milliseconds
     uint32_t totalLoopMilliseconds) const
@@ -103,8 +122,8 @@ void SfmlAdapter::imageDisplay(const std::string&, // fileName,
     // TODO - delete?
 }
 
-void SfmlAdapter::registerControlHandler(
-    KeyControls key, std::function<void(const bool, const float val)> controlHandler)
+void SfmlAdapter::registerControlHandler(KeyControls key,
+    std::function<void(const bool, const float val)> controlHandler)
 {
     m_controlHandlers[key] = controlHandler;
 }
@@ -126,43 +145,43 @@ void SfmlAdapter::processInput()
             }
         }
         switch (event.type) {
-        case sf::Event::KeyPressed:
-            switch (event.key.code) {
-            case sf::Keyboard::Escape:
-                m_controlHandlers[KeyControls::QUIT](true, 0.f);
+            case sf::Event::KeyPressed:
+                switch (event.key.code) {
+                    case sf::Keyboard::Escape:
+                        m_controlHandlers[KeyControls::QUIT](true, 0.f);
+                        break;
+                    case sf::Keyboard::Up:
+                        m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+                        break;
+                    case sf::Keyboard::Left:
+                        m_controlHandlers[KeyControls::LEFT](true, 0.f);
+                        break;
+                    case sf::Keyboard::Right:
+                        m_controlHandlers[KeyControls::RIGHT](true, 0.f);
+                        break;
+                    default:
+                        break;
+                }
                 break;
-            case sf::Keyboard::Up:
-                m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+            case sf::Event::KeyReleased:
+                switch (event.key.code) {
+                    case sf::Keyboard::Up:
+                        m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                        break;
+                    case sf::Keyboard::Left:
+                        m_controlHandlers[KeyControls::LEFT](false, 0.f);
+                        break;
+                    case sf::Keyboard::Right:
+                        m_controlHandlers[KeyControls::RIGHT](false, 0.f);
+                        break;
+                    default:
+                        break;
+                }
                 break;
-            case sf::Keyboard::Left:
-                m_controlHandlers[KeyControls::LEFT](true, 0.f);
-                break;
-            case sf::Keyboard::Right:
-                m_controlHandlers[KeyControls::RIGHT](true, 0.f);
-                break;
-            default:
-                break;
-            }
-            break;
-        case sf::Event::KeyReleased:
-            switch (event.key.code) {
-            case sf::Keyboard::Up:
-                m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
-                break;
-            case sf::Keyboard::Left:
-                m_controlHandlers[KeyControls::LEFT](false, 0.f);
-                break;
-            case sf::Keyboard::Right:
-                m_controlHandlers[KeyControls::RIGHT](false, 0.f);
-                break;
-            default:
-                break;
-            }
-            break;
 
-        // we don't process other types of events currently
-        default:
-            break;
+            // we don't process other types of events currently
+            default:
+                break;
         }
     }
     return;
@@ -205,6 +224,11 @@ void SfmlAdapter::soundFade(const std::string& key, const int /* msecs */)
     if (newVolume < 0.f)
         newVolume = 0.f;
     m_sounds[key]->setVolume(newVolume);
+}
+
+bool SfmlAdapter::isFullScreenSafe()
+{
+    return !sf::VideoMode::getFullscreenModes().empty();
 }
 
 } // namespace amaze

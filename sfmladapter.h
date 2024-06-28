@@ -47,6 +47,7 @@ public:
     virtual void soundPlay(const std::string& key) override;
     virtual void soundLoop(const std::string& key, float volume) override;
     virtual void soundFade(const std::string& key, const int msecs) override;
+    static bool isFullScreenSafe();
 
 private:
     sf::RenderWindow m_window;
