@@ -151,12 +151,15 @@ void SfmlAdapter::processInput()
                         m_controlHandlers[KeyControls::QUIT](true, 0.f);
                         break;
                     case sf::Keyboard::Up:
+                    case sf::Keyboard::Space:
                         m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
                         break;
                     case sf::Keyboard::Left:
+                    case sf::Keyboard::A:
                         m_controlHandlers[KeyControls::LEFT](true, 0.f);
                         break;
                     case sf::Keyboard::Right:
+                    case sf::Keyboard::D:
                         m_controlHandlers[KeyControls::RIGHT](true, 0.f);
                         break;
                     default:
@@ -166,12 +169,15 @@ void SfmlAdapter::processInput()
             case sf::Event::KeyReleased:
                 switch (event.key.code) {
                     case sf::Keyboard::Up:
+                    case sf::Keyboard::Space:
                         m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                         break;
                     case sf::Keyboard::Left:
+                    case sf::Keyboard::A:
                         m_controlHandlers[KeyControls::LEFT](false, 0.f);
                         break;
                     case sf::Keyboard::Right:
+                    case sf::Keyboard::D:
                         m_controlHandlers[KeyControls::RIGHT](false, 0.f);
                         break;
                     default:

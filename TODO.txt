@@ -3,6 +3,5 @@
 * Menu?
 * Next level when level complete
 * Change level data file format to YAML or JSON?
-* Implement SVG converter (Python?) for level designer
-  (plus reverse engineer existing levels?)
 * Keyboard controls don't work properly if joystick is attached
+* Maybe instead of fuel we should need to collect keys to get into the exit?
