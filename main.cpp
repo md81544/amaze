@@ -77,10 +77,22 @@ int main(int argc, char* argv[])
         mgo::ConfigReader config(findConfigFile(argv[0]));
 
         int gameLevel = 0;
-        if (argc > 1) {
-            gameLevel = std::stoi(argv[1]);
-        }
 
+        // For a reason I cannot find an answer to, MacOS starts our window with no focus
+        // if a parameter (e.g. just the number 3) is supplied. If it sees a hyphen (i.e. flags)
+        // then it doesn't. So rather than supporting flags fully, I just iterate over all
+        // parameters and set the level required to the last parameter which can successfully be
+        // converted to an int with stoi. This allows me to type "./amaze -- 3" (say) which
+        // defeats MacOS's focus-losing behaviour. This doesn't seem to happen on older versions
+        // of MacOS but has been replicated on two separate machines running Sonoma (MacOS 14.x)
+        if (argc > 1) {
+            for (int n = 1; n < argc; ++n) {
+                try {
+                    gameLevel = std::stoi(argv[1]);
+                } catch (...) {
+                }
+            }
+        }
         srand(static_cast<unsigned int>(time(NULL))); // TODO random device
 
         // Locate our data directory:
