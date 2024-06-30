@@ -84,11 +84,12 @@ int main(int argc, char* argv[])
         // parameters and set the level required to the last parameter which can successfully be
         // converted to an int with stoi. This allows me to type "./amaze -- 3" (say) which
         // defeats MacOS's focus-losing behaviour. This doesn't seem to happen on older versions
-        // of MacOS but has been replicated on two separate machines running Sonoma (MacOS 14.x)
+        // of MacOS but has been replicated on two separate machines running Sonoma (MacOS 14.x).
+        // This still doesn't seem to work if we specify full screen however :/
         if (argc > 1) {
             for (int n = 1; n < argc; ++n) {
                 try {
-                    gameLevel = std::stoi(argv[1]);
+                    gameLevel = std::stoi(argv[n]);
                 } catch (...) {
                 }
             }

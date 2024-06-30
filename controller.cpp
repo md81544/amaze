@@ -50,7 +50,7 @@ void Controller::registerControlHandlers()
 
     // Rotate with analogue stick
     m_graphicsAdapter.registerControlHandler(
-        KeyControls::LR_ANALOGUE, [&](const bool isKeyDown, const float value) {
+        KeyControls::LR_ANALOGUE, [&](const bool /* isKeyDown */, const float value) {
             double rotationDelta = value / 50.0;
             if (std::abs(rotationDelta) < 0.25) {
                 rotationDelta = 0.0;
@@ -128,30 +128,30 @@ void Controller::collisionChecks()
     std::shared_ptr<GameShape> collider = m_gameModel.collisionDetect();
     if (collider) {
         switch (collider->GetGameShapeType()) {
-        case GameShapeType::EXIT:
-            m_graphicsAdapter.soundPlay("success");
-            m_gameModel.setGameIsRunning(false); // TODO next Level etc
-            break;
-        case GameShapeType::FUEL:
-            m_graphicsAdapter.soundPlay("collect");
-            collider->SetIsActive(false);
-            // TODO - refuel
-            break;
-        case GameShapeType::KEY:
-            // currently an idea but not used
-            break;
-        case GameShapeType::NEUTRAL:
-            break;
-        case GameShapeType::OBSTRUCTION:
-            m_gameModel.getShipModel()->setIsExploding(true);
-            break;
-        case GameShapeType::PRISONER:
-            // currently an idea but not used
-            break;
-        case GameShapeType::UNINITIALISED:
-            break;
-        default:
-            break;
+            case GameShapeType::EXIT:
+                m_graphicsAdapter.soundPlay("success");
+                m_gameModel.setGameIsRunning(false); // TODO next Level etc
+                break;
+            case GameShapeType::FUEL:
+                m_graphicsAdapter.soundPlay("collect");
+                collider->SetIsActive(false);
+                // TODO - refuel
+                break;
+            case GameShapeType::KEY:
+                // currently an idea but not used
+                break;
+            case GameShapeType::NEUTRAL:
+                break;
+            case GameShapeType::OBSTRUCTION:
+                m_gameModel.getShipModel()->setIsExploding(true);
+                break;
+            case GameShapeType::PRISONER:
+                // currently an idea but not used
+                break;
+            case GameShapeType::UNINITIALISED:
+                break;
+            default:
+                break;
         }
     }
 }

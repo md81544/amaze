@@ -57,7 +57,14 @@ int SfmlAdapter::setDrawColour(uint8_t, // r
     return 0;
 }
 
-void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b)
+void SfmlAdapter::drawLine(int xFrom,
+    int yFrom,
+    int xTo,
+    int yTo,
+    int /*width*/,
+    int r,
+    int g,
+    int b)
 {
     // Note, apparently SFML uses a rectangle shape to draw a line with
     // thickness, so this may need revisiting in future (TODO?)
@@ -90,8 +97,10 @@ int SfmlAdapter::getPhysicalScreenHeight()
 void SfmlAdapter::loopDelay(uint32_t previousTicks, // milliseconds
     uint32_t totalLoopMilliseconds) const
 {
+    // TODO we could use the simpler SFML setFramerateLimit
     sf::Clock clock;
-    while (clock.getElapsedTime().asMilliseconds() < previousTicks + totalLoopMilliseconds) {
+    while (clock.getElapsedTime().asMilliseconds()
+        < static_cast<int>(previousTicks + totalLoopMilliseconds)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
