@@ -20,6 +20,7 @@ public:
     void RotateAndDrawShape(const GameShape& shape) const;
     void DrawStaticShape(const GameShape& shape) const;
     void PlaySounds();
+    void stopSounds();
 
 private:
     GameModel& m_Model;

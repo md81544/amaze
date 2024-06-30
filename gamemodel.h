@@ -75,6 +75,9 @@ public:
 
     unsigned int getRotation() const override;
 
+    void togglePause();
+    bool getPausedState(); // returns true if paused
+
 private:
     std::string m_dataPath { "" };
 
@@ -101,6 +104,8 @@ private:
 
     std::vector<size_t> m_frameTimes;
     size_t m_averageFrameTime { 0 };
+
+    bool m_paused{false};
 };
 
 } // namespace amaze

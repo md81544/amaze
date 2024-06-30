@@ -137,7 +137,7 @@ void SfmlAdapter::registerControlHandler(KeyControls key,
     m_controlHandlers[key] = controlHandler;
 }
 
-void SfmlAdapter::processInput()
+void SfmlAdapter::processInput(bool paused)
 {
     sf::Event event;
 
@@ -161,15 +161,26 @@ void SfmlAdapter::processInput()
                         break;
                     case sf::Keyboard::Up:
                     case sf::Keyboard::Space:
-                        m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+                        if (!paused) {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+                        }
                         break;
                     case sf::Keyboard::Left:
                     case sf::Keyboard::A:
-                        m_controlHandlers[KeyControls::LEFT](true, 0.f);
+                    case sf::Keyboard::Comma:
+                        if (!paused) {
+                            m_controlHandlers[KeyControls::LEFT](true, 0.f);
+                        }
                         break;
                     case sf::Keyboard::Right:
                     case sf::Keyboard::D:
+                    case sf::Keyboard::Period:
                         m_controlHandlers[KeyControls::RIGHT](true, 0.f);
+                        if (!paused) {
+                            break;
+                        }
+                    case sf::Keyboard::P:
+                        m_controlHandlers[KeyControls::PAUSE](true, 0.f);
                         break;
                     default:
                         break;
@@ -183,10 +194,12 @@ void SfmlAdapter::processInput()
                         break;
                     case sf::Keyboard::Left:
                     case sf::Keyboard::A:
+                    case sf::Keyboard::Comma:
                         m_controlHandlers[KeyControls::LEFT](false, 0.f);
                         break;
                     case sf::Keyboard::Right:
                     case sf::Keyboard::D:
+                    case sf::Keyboard::Period:
                         m_controlHandlers[KeyControls::RIGHT](false, 0.f);
                         break;
                     default:
@@ -236,8 +249,9 @@ void SfmlAdapter::soundFade(const std::string& key, const int /* msecs */)
     // We don't have a fadeOut() type function in SFML so we reduce a bit on
     // each call
     float newVolume = m_sounds[key]->getVolume() - 3.f;
-    if (newVolume < 0.f)
+    if (newVolume < 0.f) {
         newVolume = 0.f;
+    }
     m_sounds[key]->setVolume(newVolume);
 }
 

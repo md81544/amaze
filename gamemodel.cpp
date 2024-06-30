@@ -385,5 +385,15 @@ unsigned int GameModel::getRotation() const
     return 0; // TODO
 }
 
+void GameModel::togglePause()
+{
+    m_paused = !m_paused;
+}
+
+bool GameModel::getPausedState()
+{
+    return m_paused;
+}
+
 } // namespace amaze
 } // namespace marengo

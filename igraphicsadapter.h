@@ -13,7 +13,8 @@ enum class KeyControls {
     RIGHT,
     ACCELERATE,
     QUIT,
-    LR_ANALOGUE // for game controller
+    LR_ANALOGUE, // for game controller
+    PAUSE
 };
 
 class IGraphicsAdapter {
@@ -32,10 +33,10 @@ public:
     // delay incorporating loop processing time:
     virtual void loopDelay(uint32_t previousTicks, uint32_t totalLoopMilliseconds) const = 0;
 
-    virtual void registerControlHandler(
-        KeyControls key, std::function<void(const bool, const float)> controlHandler)
+    virtual void registerControlHandler(KeyControls key,
+        std::function<void(const bool, const float)> controlHandler)
         = 0;
-    virtual void processInput() = 0;
+    virtual void processInput(bool paused) = 0;
 
     // Images
     // Load & display an image; any resources should be immediately discarded

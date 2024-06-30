@@ -82,6 +82,14 @@ void Controller::registerControlHandlers()
             }
         });
 
+    // Pause
+    m_graphicsAdapter.registerControlHandler(
+        KeyControls::PAUSE, [&](const bool isKeyDown, const float) {
+            if (isKeyDown) {
+                m_gameModel.togglePause();
+            }
+        });
+
     // Quit
     m_graphicsAdapter.registerControlHandler(
         KeyControls::QUIT, [&](const bool isKeyDown, const float) {
@@ -106,18 +114,23 @@ void Controller::mainLoop(int gameLevel)
 
         // Read any key presses and call any registered functions for those
         // keypresses
-        m_graphicsAdapter.processInput();
+        m_graphicsAdapter.processInput(m_gameModel.getPausedState());
 
-        m_gameModel.process(); // perform all processing required per loop
+        if (m_gameModel.getPausedState()) {
+            m_view.stopSounds();
+        } else {
 
-        collisionChecks();
+            m_gameModel.process(); // perform all processing required per loop
 
-        if (m_gameModel.gameIsRunning() == false) {
-            break;
+            collisionChecks();
+
+            if (m_gameModel.gameIsRunning() == false) {
+                break;
+            }
+            m_graphicsAdapter.cls();
+            m_view.Update();
+            m_graphicsAdapter.redraw();
         }
-        m_graphicsAdapter.cls();
-        m_view.Update();
-        m_graphicsAdapter.redraw();
         m_graphicsAdapter.loopDelay(loopStart, 10); // ensure loop lasts at least n msecs
     }
 }
