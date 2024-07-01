@@ -44,8 +44,6 @@ void GameModel::initialise(size_t levelNumber)
     m_allDynamicGameShapes.push_back(m_shipModel->explosionGameShape());
 
     m_level = levelNumber;
-    m_wasFuelOutWarned = false;
-    m_wasTimeoutWarned = false;
 
     m_shipModel->initialise();
 }
@@ -112,14 +110,8 @@ void GameModel::levelLoad(size_t levelNum)
             continue;
         }
         char c = vec[0][0];
-        long bestTime;
         switch (c) {
-            case '!': // timelimit, fuel, ship x, ship y, description
-                m_timeLimit = stoi(vec[1]);
-                bestTime = static_cast<long>(timeGetTenthBest(levelNum));
-                if (m_timeLimit > bestTime) {
-                    m_timeLimit = bestTime;
-                }
+            case '!': // timelimit (unused), fuel, ship x, ship y, description
                 m_shipModel->setFuel(stod(vec[2]));
                 m_shipModel->setShipX(stod(vec[3]));
                 m_shipModel->setShipY(stod(vec[4]));
@@ -204,21 +196,6 @@ const std::string GameModel::getDataPath()
     return m_dataPath;
 }
 
-double GameModel::timeGetTenthBest(size_t levelNumber)
-{
-    (void)levelNumber;
-    return 300; // TODO
-    /*
-    std::vector<double> v;
-    std::ostringstream ss;
-    ss << "LEVEL" << levelNumber << "_BESTIMES";
-    std::string s =
-    prefs_.getString(ss.str(),"300,300,300,300,300,300,300,300,300,300");
-    helperfunctions::CsvSplit(s, ',' ,v);
-    return v[9];
-    */
-}
-
 std::string GameModel::levelDescription() const
 {
     return m_levelDescription;
@@ -254,16 +231,6 @@ ShipModel* GameModel::getShipModel() const
     return m_shipModel.get();
 }
 
-bool GameModel::wasFuelOutWarned() const
-{
-    return m_wasFuelOutWarned;
-}
-
-void GameModel::setWasFuelOutWarned(bool value)
-{
-    m_wasFuelOutWarned = value;
-}
-
 bool GameModel::wasTimeoutWarned() const
 {
     return m_wasTimeoutWarned;
@@ -272,16 +239,6 @@ bool GameModel::wasTimeoutWarned() const
 void GameModel::setWasTimeoutWarned(bool value)
 {
     m_wasTimeoutWarned = value;
-}
-
-int GameModel::timeLimit() const
-{
-    return m_timeLimit;
-}
-
-void GameModel::setTimeLimit(int value)
-{
-    m_timeLimit = value;
 }
 
 std::shared_ptr<GameShape> GameModel::collisionDetect() const
