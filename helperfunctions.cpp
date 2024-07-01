@@ -8,36 +8,6 @@
 #include <string>
 #include <thread>
 
-namespace {
-
-/* // TODO: remove?
-int ClipFindRegion(
-    const marengo::amaze::IGraphicsAdapter& gm,
-    const int x,
-    const int y
-    )
-{
-    int rc = 0;
-    if ( y >= gm.getWindowHeight() )
-    {
-        rc |= 1; // top
-    }
-    else if ( y < 0 )
-    {
-        rc |= 2; // bottom
-    }
-    if ( x >= gm.getWindoWidth() )
-    {
-        rc |= 4; // right
-    }
-    else if ( x < 0 )
-    {
-        rc |= 8; // left
-    }
-    return ( rc );
-}*/
-}
-
 namespace marengo {
 namespace amaze {
 namespace helperfunctions {
