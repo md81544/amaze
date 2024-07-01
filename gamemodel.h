@@ -56,10 +56,6 @@ public:
 
     std::shared_ptr<GameShape> newGameShape();
 
-    const std::vector<std::shared_ptr<GameShape>>& getAllDynamicObjects() const;
-
-    const std::vector<std::shared_ptr<GameShape>>& getAllStaticObjects() const;
-
     // Returns a non-owning pointer to the ship model
     ShipModel* getShipModel() const;
 
@@ -94,11 +90,8 @@ private:
     std::vector<std::shared_ptr<GameShape>> m_allDynamicGameShapes;
 
     // Container for all "static" items - these are items which do not rotate
-    // and stay in  on screen, e.g. fuel gauge and also, the "display"
-    // version of the ship.
+    // and stay in  on screen
     std::vector<std::shared_ptr<GameShape>> m_allStaticGameShapes;
-
-    // std::shared_ptr<GameShape> m_staticInfoLine;
 
     std::unique_ptr<ShipModel> m_shipModel;
 

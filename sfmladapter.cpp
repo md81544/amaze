@@ -10,7 +10,8 @@ namespace marengo {
 namespace amaze {
 
 SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
-    : m_window(sf::VideoMode(screenWidth, screenHeight),
+    : m_window(
+          sf::VideoMode(screenWidth, screenHeight),
           "Amaze",
           useFullScreen ? sf::Style::Fullscreen : sf::Style::Default)
     , m_screenHeight(screenHeight)
@@ -47,7 +48,8 @@ void SfmlAdapter::redraw()
     m_window.display();
 }
 
-int SfmlAdapter::setDrawColour(uint8_t, // r
+int SfmlAdapter::setDrawColour(
+    uint8_t, // r
     uint8_t, // g
     uint8_t, // b
     uint8_t // a
@@ -57,25 +59,32 @@ int SfmlAdapter::setDrawColour(uint8_t, // r
     return 0;
 }
 
-void SfmlAdapter::drawLine(int xFrom,
-    int yFrom,
-    int xTo,
-    int yTo,
-    int /*width*/,
-    int r,
-    int g,
-    int b)
+void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b)
 {
-    // Note, apparently SFML uses a rectangle shape to draw a line with
-    // thickness, so this may need revisiting in future (TODO?)
-    sf::Vertex line[]
-        = { sf::Vertex(sf::Vector2f(xFrom, yFrom)), sf::Vertex(sf::Vector2f(xTo, yTo)) };
-    line[0].color = sf::Color(r, g, b);
-    line[1].color = sf::Color(r, g, b);
-    m_window.draw(line, 2, sf::Lines);
+    sf::Vector2f point1 { static_cast<float>(xFrom), static_cast<float>(yFrom) };
+    sf::Vector2f point2 { static_cast<float>(xTo), static_cast<float>(yTo) };
+    sf::Vertex vertices[4];
+
+    sf::Vector2f direction = point2 - point1;
+    sf::Vector2f unitDirection
+        = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
+
+    sf::Vector2f offset = (width / 2.f) * unitPerpendicular;
+
+    vertices[0].position = point1 + offset;
+    vertices[1].position = point2 + offset;
+    vertices[2].position = point2 - offset;
+    vertices[3].position = point1 - offset;
+
+    for (int i = 0; i < 4; ++i) {
+        vertices[i].color = sf::Color(r, g, b);
+    }
+    m_window.draw(vertices,4,sf::Quads);
 }
 
-void SfmlAdapter::fillRectangle(int, // x,
+void SfmlAdapter::fillRectangle(
+    int, // x,
     int, // y,
     int, // w,
     int // h
@@ -94,13 +103,14 @@ int SfmlAdapter::getPhysicalScreenHeight()
     return sf::VideoMode::getDesktopMode().height;
 }
 
-void SfmlAdapter::loopDelay(uint32_t previousTicks, // milliseconds
+void SfmlAdapter::loopDelay(
+    uint32_t previousTicks, // milliseconds
     uint32_t totalLoopMilliseconds) const
 {
     // TODO we could use the simpler SFML setFramerateLimit
     sf::Clock clock;
     while (clock.getElapsedTime().asMilliseconds()
-        < static_cast<int>(previousTicks + totalLoopMilliseconds)) {
+           < static_cast<int>(previousTicks + totalLoopMilliseconds)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 }
@@ -110,7 +120,8 @@ size_t SfmlAdapter::imageLoad(const std::string& /* fileName */)
     return 0; // TODO DELETE?
 }
 
-void SfmlAdapter::imageDisplay(size_t, // id,
+void SfmlAdapter::imageDisplay(
+    size_t, // id,
     int, // x,
     int // y
 )
@@ -123,7 +134,8 @@ void SfmlAdapter::imageUnload(size_t /* id */)
     // TODO - delete?
 }
 
-void SfmlAdapter::imageDisplay(const std::string&, // fileName,
+void SfmlAdapter::imageDisplay(
+    const std::string&, // fileName,
     int, // x,
     int // y
 )
@@ -131,7 +143,8 @@ void SfmlAdapter::imageDisplay(const std::string&, // fileName,
     // TODO - delete?
 }
 
-void SfmlAdapter::registerControlHandler(KeyControls key,
+void SfmlAdapter::registerControlHandler(
+    KeyControls key,
     std::function<void(const bool, const float val)> controlHandler)
 {
     m_controlHandlers[key] = controlHandler;
@@ -143,14 +156,19 @@ void SfmlAdapter::processInput(bool paused)
 
     while (m_window.pollEvent(event)) {
         if (sf::Joystick::isConnected(0)) {
-            float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
-            m_controlHandlers[KeyControls::LR_ANALOGUE](true, -x);
-            // Right trigger
-            float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
-            if (v > -90.f) {
-                m_controlHandlers[KeyControls::ACCELERATE](true, (v + 100.f) / 2.f);
-            } else {
-                m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+            if (!paused) {
+                float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
+                m_controlHandlers[KeyControls::LR_ANALOGUE](true, -x);
+                // Right trigger
+                float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
+                if (v > -90.f) {
+                    m_controlHandlers[KeyControls::ACCELERATE](true, (v + 100.f) / 2.f);
+                } else {
+                    m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                }
+            }
+            if (sf::Joystick::isButtonPressed(0, 9)) {
+                m_controlHandlers[KeyControls::PAUSE](true, 0.f);
             }
         }
         switch (event.type) {

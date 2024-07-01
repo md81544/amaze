@@ -56,24 +56,6 @@ void GameModel::createStaticShapes()
 {
     // Note static shapes' coodinates are expressed as if the viewport
     // is 320x240 pixels, regardless of the physical size of the window.
-
-    // std::shared_ptr<GameShape> gauge(new GameShape);
-    // ShapeLine sl1 { 0, 0, 6, 0, 64, 64, 64, 255, 1 };
-    // gauge->AddShapeLine(sl1);
-    // ShapeLine sl2 { 6, 0, 6, 220, 64, 64, 64, 255, 1 };
-    // gauge->AddShapeLine(sl2);
-    // ShapeLine sl3 { 6, 220, 0, 220, 64, 64, 64, 255, 1 };
-    // gauge->AddShapeLine(sl3);
-    // ShapeLine sl4 { 0, 220, 0, 0, 64, 64, 64, 255, 1 };
-    // gauge->AddShapeLine(sl4);
-    // gauge->SetPos(10, 10);
-    // m_allStaticGameShapes.push_back(gauge);
-
-    // m_staticInfoLine = std::make_shared<GameShape>();
-    // m_staticInfoLine->SetPos( 200, 20 );
-    // m_staticInfoLine->makeFromText( "Frame speed: 0 ms", 0, 175, 0, 255, 1 );
-    // m_staticInfoLine->SetScale( 0.25 );
-    // m_allStaticGameShapes.push_back( m_staticInfoLine );
 }
 
 size_t GameModel::level() const
@@ -266,18 +248,6 @@ std::shared_ptr<GameShape> GameModel::newGameShape()
     return (gameShape);
 }
 
-const std::vector<std::shared_ptr<GameShape>>& GameModel::getAllDynamicObjects() const
-{
-    // TODO returning references to internals? Yuck.
-    return m_allDynamicGameShapes;
-}
-
-const std::vector<std::shared_ptr<GameShape>>& GameModel::getAllStaticObjects() const
-{
-    // TODO returning references to internals? Yuck.
-    return m_allStaticGameShapes;
-}
-
 ShipModel* GameModel::getShipModel() const
 {
     // TODO returning pointer to internals? Yuck.
@@ -347,11 +317,6 @@ void GameModel::process() // TODO more descriptive name
         }
     }
     m_shipModel->process();
-
-    // std::ostringstream ss;
-    // ss << "Frame speed: " << m_averageFrameTime << " ms";
-    // m_staticInfoLine->makeFromText( ss.str(), 0, 175, 0, 255, 1 );
-    // m_staticInfoLine->SetScale( 0.4 );
 }
 
 void GameModel::updateStatistics(size_t millisecs)

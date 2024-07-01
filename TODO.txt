@@ -1,4 +1,6 @@
 * Write "Paused" on the screen when paused
+* Need to be able to pause from the controller too
+* Maybe three lives? If you die you start from where you were a few seconds ago?
 * Splash screen
 * Menu?
 * Next level when level complete

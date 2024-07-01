@@ -89,7 +89,7 @@ void View::RotateAndDrawShape(const GameShape& shape) const
             y0r * scale + yOffset,
             x1r * scale + xOffset,
             y1r * scale + yOffset,
-            1, // TODO?
+            3, // width
             sl.r,
             sl.g,
             sl.b);
