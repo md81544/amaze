@@ -26,7 +26,6 @@ void GameModel::initialise(size_t levelNumber)
     createStaticShapes();
 
     // Grid lines on the background
-    // graphicsManager_->setDrawColour(0, 100, 0, 255);
     std::shared_ptr<GameShape> bkg(new GameShape);
     for (double n = 0; n <= 2000; n += 50) {
         ShapeLine sl1 { n, 0, n, 2000, 0, 100, 0, 255, 1 };

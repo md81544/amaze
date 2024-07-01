@@ -37,16 +37,8 @@ public:
     size_t level() const;
     void setLevel(size_t value);
 
-    bool wasFuelOutWarned() const;
-    void setWasFuelOutWarned(bool value);
-
     bool wasTimeoutWarned() const;
     void setWasTimeoutWarned(bool value);
-
-    int timeLimit() const;
-    void setTimeLimit(int value);
-
-    double timeGetTenthBest(size_t levelNumber);
 
     std::string levelDescription() const;
     void setLevelDescription(const std::string& value);
@@ -79,9 +71,6 @@ private:
 
     size_t m_level { 0 };
     std::string m_levelDescription;
-    int m_timeLimit;
-    bool m_wasFuelOutWarned { false };
-    bool m_wasTimeoutWarned { false };
     bool m_gameIsRunning { false };
 
     int m_explosionIterationCount { 0 };
