@@ -2,8 +2,6 @@
 #include "exceptions.h"
 #include "helperfunctions.h"
 
-#include <boost/filesystem.hpp>
-
 #include <cassert>
 #include <fstream>
 #include <numeric>
@@ -94,7 +92,7 @@ void GameModel::levelLoad(size_t levelNum)
     initialise(levelNum);
 
     std::string filename = "level" + std::to_string(levelNum) + ".cfg";
-    boost::filesystem::path levelFile(getDataPath());
+    std::filesystem::path levelFile(getDataPath());
     levelFile.append(filename);
 
     std::ifstream in(levelFile.string());

@@ -7,8 +7,6 @@
 #include "log.h"
 #include "view.h"
 
-#include <boost/filesystem.hpp>
-
 #include <filesystem>
 #include <iostream>
 
@@ -41,20 +39,19 @@ std::string findConfigFile(const char* const argv0)
 }
 std::string findDataDirectory(const char* const program)
 {
-    // TODO replace boost with std
     // Attempt to locate the data directory. We look in the
     // directory where the binary is located, its parent,
     // and its parent's parent. Throws if it cannot find a data directory.
-    boost::filesystem::path searchDir(program);
+    std::filesystem::path searchDir(program);
     std::string dir { "" };
     searchDir = searchDir.parent_path();
     for (int n = 0; n < 3; ++n) {
         auto tryDir = searchDir;
         tryDir.append("data");
-        if (boost::filesystem::is_directory(tryDir)) {
+        if (std::filesystem::is_directory(tryDir)) {
             auto tryFile = tryDir;
             tryFile.append("level0.cfg");
-            if (boost::filesystem::exists(tryFile)) {
+            if (std::filesystem::exists(tryFile)) {
                 dir = tryDir.string();
                 break;
             }

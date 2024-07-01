@@ -2,8 +2,7 @@ PROJECT=amaze
 SOURCES=$(shell ls *cpp)
 INCPATHS=
 LIBPATHS=
-LDFLAGS=-lboost_system -lboost_filesystem \
-		-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+LDFLAGS=-lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 CFLAGS=-std=c++20 -c -Wall -Wextra -Werror -Wpedantic
 CC=clang++
 

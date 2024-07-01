@@ -3,8 +3,6 @@
 #include "helperfunctions.h"
 #include "log.h"
 
-#include "boost/filesystem.hpp"
-
 #include <chrono>
 #include <memory>
 
@@ -19,7 +17,7 @@ Controller::Controller(Preferences& p, GameModel& m, View& v, IGraphicsAdapter& 
 {
     registerControlHandlers();
 
-    boost::filesystem::path dataPath(m_gameModel.getDataPath());
+    std::filesystem::path dataPath(m_gameModel.getDataPath());
 
     // Load sounds...
     m_graphicsAdapter.soundLoad("rocket", (dataPath / "rocket.wav").string());
