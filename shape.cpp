@@ -17,7 +17,12 @@ Shape::Shape() { }
 Shape::~Shape() { }
 
 void Shape::makeFromText(
-    const std::string& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a, int lineThickness)
+    const std::string& s,
+    uint8_t r,
+    uint8_t g,
+    uint8_t b,
+    uint8_t a,
+    int lineThickness)
 {
     m_ShapeLines.clear();
     double textWidth = 0;
@@ -75,14 +80,20 @@ void Shape::SetColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     m_A = a;
 }
 
-void Shape::AddLine(double x0, double y0, double x1, double y1)
+void Shape::AddLine(double x0, double y0, double x1, double y1, uint8_t thickness)
 {
-    AddShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, 1 });
+    AddShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, thickness });
 }
 
-double Shape::GetWidth() const { return m_Width; }
+double Shape::GetWidth() const
+{
+    return m_Width;
+}
 
-double Shape::GetHeight() const { return m_Height; }
+double Shape::GetHeight() const
+{
+    return m_Height;
+}
 
 void Shape::SetPos(double x, double y)
 {
@@ -90,15 +101,30 @@ void Shape::SetPos(double x, double y)
     m_Y = y;
 }
 
-double Shape::GetPosX() const { return m_X; }
+double Shape::GetPosX() const
+{
+    return m_X;
+}
 
-double Shape::GetPosY() const { return m_Y; }
+double Shape::GetPosY() const
+{
+    return m_Y;
+}
 
-bool Shape::IsVisible() const { return m_IsVisible; }
+bool Shape::IsVisible() const
+{
+    return m_IsVisible;
+}
 
-void Shape::SetVisible(bool b) { m_IsVisible = b; }
+void Shape::SetVisible(bool b)
+{
+    m_IsVisible = b;
+}
 
-double Shape::GetScale() const { return m_Scale; }
+double Shape::GetScale() const
+{
+    return m_Scale;
+}
 
 void Shape::Rotate(double rotationDelta)
 {
@@ -250,27 +276,38 @@ bool Shape::IntersectCheck(std::shared_ptr<Shape> s) const
     return false;
 }
 
-const std::vector<ShapeLine>& Shape::GetVec() const { return m_ShapeLines; }
+const std::vector<ShapeLine>& Shape::GetVec() const
+{
+    return m_ShapeLines;
+}
 
 void Shape::UpdateShapeSize(double x0, double y0, double x1, double y1)
 {
     // update the size of the shape:
-    if (x0 < m_MinX)
+    if (x0 < m_MinX) {
         m_MinX = x0;
-    if (x0 > m_MaxX)
+    }
+    if (x0 > m_MaxX) {
         m_MaxX = x0;
-    if (x1 < m_MinX)
+    }
+    if (x1 < m_MinX) {
         m_MinX = x1;
-    if (x1 > m_MaxX)
+    }
+    if (x1 > m_MaxX) {
         m_MaxX = x1;
-    if (y0 < m_MinY)
+    }
+    if (y0 < m_MinY) {
         m_MinY = y0;
-    if (y0 > m_MaxY)
+    }
+    if (y0 > m_MaxY) {
         m_MaxY = y0;
-    if (y1 < m_MinY)
+    }
+    if (y1 < m_MinY) {
         m_MinY = y1;
-    if (y1 > m_MaxY)
+    }
+    if (y1 > m_MaxY) {
         m_MaxY = y1;
+    }
 
     m_Width = m_MaxX - m_MinX;
     m_Height = m_MaxY - m_MinY;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
@@ -25,7 +26,7 @@ public:
     virtual ~Shape();
     void AddShapeLine(ShapeLine sl);
     void SetColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-    void AddLine(double x0, double y0, double x1, double y1);
+    void AddLine(double x0, double y0, double x1, double y1, uint8_t thickness = 1);
     double GetWidth() const;
     double GetHeight() const;
     void SetPos(double x, double y);
@@ -37,7 +38,12 @@ public:
     void Rotate(double rotationDelta);
     void SetScale(double scale);
     void makeFromText(
-        const std::string& s, uint8_t r, uint8_t g, uint8_t b, uint8_t a, int lineThickness);
+        const std::string& s,
+        uint8_t r,
+        uint8_t g,
+        uint8_t b,
+        uint8_t a,
+        int lineThickness);
     void Clear();
     bool IntersectCheck(std::shared_ptr<Shape>) const;
     const std::vector<ShapeLine>& GetVec() const; // TODO returning internals??

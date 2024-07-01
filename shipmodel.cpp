@@ -6,28 +6,30 @@
 namespace marengo {
 namespace amaze {
 
-ShipModel::ShipModel(std::shared_ptr<GameShape> ship, std::shared_ptr<GameShape> flames,
+ShipModel::ShipModel(
+    std::shared_ptr<GameShape> ship,
+    std::shared_ptr<GameShape> flames,
     std::shared_ptr<GameShape> explosion)
     : m_ShipGameShape(ship)
     , m_FlamesGameShape(flames)
     , m_ExplosionGameShape(explosion)
 {
     m_ShipGameShape->SetColour(192, 192, 255, 255);
-    m_ShipGameShape->AddLine(0, -20, 6, -11);
-    m_ShipGameShape->AddLine(6, -11, 6, 1);
-    m_ShipGameShape->AddLine(6, 1, 12, 7);
-    m_ShipGameShape->AddLine(12, 7, 12, 19);
-    m_ShipGameShape->AddLine(12, 19, 6, 13);
-    m_ShipGameShape->AddLine(6, 13, 2, 13);
-    m_ShipGameShape->AddLine(2, 13, 6, 16);
-    m_ShipGameShape->AddLine(6, 16, -6, 16);
-    m_ShipGameShape->AddLine(-6, 16, -2, 13);
-    m_ShipGameShape->AddLine(-2, 13, -6, 13);
-    m_ShipGameShape->AddLine(-6, 13, -12, 19);
-    m_ShipGameShape->AddLine(-12, 19, -12, 7);
-    m_ShipGameShape->AddLine(-12, 7, -6, 1);
-    m_ShipGameShape->AddLine(-6, 1, -6, -11);
-    m_ShipGameShape->AddLine(-6, -11, 0, -20);
+    m_ShipGameShape->AddLine(0, -20, 6, -11, 3);
+    m_ShipGameShape->AddLine(6, -11, 6, 1, 3);
+    m_ShipGameShape->AddLine(6, 1, 12, 7, 3);
+    m_ShipGameShape->AddLine(12, 7, 12, 19, 3);
+    m_ShipGameShape->AddLine(12, 19, 6, 13, 3);
+    m_ShipGameShape->AddLine(6, 13, 2, 13, 3);
+    m_ShipGameShape->AddLine(2, 13, 6, 16, 3);
+    m_ShipGameShape->AddLine(6, 16, -6, 16, 3);
+    m_ShipGameShape->AddLine(-6, 16, -2, 13, 3);
+    m_ShipGameShape->AddLine(-2, 13, -6, 13, 3);
+    m_ShipGameShape->AddLine(-6, 13, -12, 19, 3);
+    m_ShipGameShape->AddLine(-12, 19, -12, 7, 3);
+    m_ShipGameShape->AddLine(-12, 7, -6, 1, 3);
+    m_ShipGameShape->AddLine(-6, 1, -6, -11, 3);
+    m_ShipGameShape->AddLine(-6, -11, 0, -20, 3);
     m_ShipGameShape->SetName("Ship");
     m_ShipGameShape->SetVisible(true);
 
@@ -52,7 +54,10 @@ void ShipModel::initialise()
     m_IsBraking = false;
 }
 
-double ShipModel::fuel() const { return m_Fuel; }
+double ShipModel::fuel() const
+{
+    return m_Fuel;
+}
 
 void ShipModel::setFuel(double value)
 {
@@ -63,15 +68,30 @@ void ShipModel::setFuel(double value)
     }
 }
 
-double ShipModel::x() const { return m_ShipX; }
+double ShipModel::x() const
+{
+    return m_ShipX;
+}
 
-void ShipModel::setShipX(double value) { m_ShipX = value; }
+void ShipModel::setShipX(double value)
+{
+    m_ShipX = value;
+}
 
-double ShipModel::y() const { return m_ShipY; }
+double ShipModel::y() const
+{
+    return m_ShipY;
+}
 
-void ShipModel::setShipY(double value) { m_ShipY = value; }
+void ShipModel::setShipY(double value)
+{
+    m_ShipY = value;
+}
 
-double ShipModel::rotation() const { return m_Rotation; }
+double ShipModel::rotation() const
+{
+    return m_Rotation;
+}
 
 void ShipModel::setRotation(double rotationDelta)
 {
@@ -81,19 +101,40 @@ void ShipModel::setRotation(double rotationDelta)
     m_ShipGameShape->Rotate(-rotationDelta);
 }
 
-double ShipModel::rotationDelta() const { return m_RotationDelta; }
+double ShipModel::rotationDelta() const
+{
+    return m_RotationDelta;
+}
 
-void ShipModel::setRotationDelta(double value) { m_RotationDelta = value; }
+void ShipModel::setRotationDelta(double value)
+{
+    m_RotationDelta = value;
+}
 
-double ShipModel::dX() const { return m_Dx; }
+double ShipModel::dX() const
+{
+    return m_Dx;
+}
 
-void ShipModel::setDx(double value) { m_Dx = value; }
+void ShipModel::setDx(double value)
+{
+    m_Dx = value;
+}
 
-double ShipModel::dY() const { return m_Dy; }
+double ShipModel::dY() const
+{
+    return m_Dy;
+}
 
-void ShipModel::setDy(double value) { m_Dy = value; }
+void ShipModel::setDy(double value)
+{
+    m_Dy = value;
+}
 
-double ShipModel::velocity() const { return m_Velocity; }
+double ShipModel::velocity() const
+{
+    return m_Velocity;
+}
 
 void ShipModel::setVelocity(double value)
 {
@@ -106,11 +147,20 @@ void ShipModel::setVelocity(double value)
     m_Velocity = value;
 }
 
-double ShipModel::maxVelocity() const { return m_MaxVelocity; }
+double ShipModel::maxVelocity() const
+{
+    return m_MaxVelocity;
+}
 
-void ShipModel::setMaxVelocity(double value) { m_MaxVelocity = value; }
+void ShipModel::setMaxVelocity(double value)
+{
+    m_MaxVelocity = value;
+}
 
-bool ShipModel::isExploding() const { return m_IsExploding; }
+bool ShipModel::isExploding() const
+{
+    return m_IsExploding;
+}
 
 void ShipModel::setIsExploding(bool value)
 {
@@ -118,7 +168,10 @@ void ShipModel::setIsExploding(bool value)
     m_IsExploding = value;
 }
 
-bool ShipModel::isAccelerating() const { return m_IsAccelerating; }
+bool ShipModel::isAccelerating() const
+{
+    return m_IsAccelerating;
+}
 
 void ShipModel::setIsAccelerating(bool value, float amount)
 {
@@ -126,11 +179,20 @@ void ShipModel::setIsAccelerating(bool value, float amount)
     m_AccelerationAmount = amount;
 }
 
-float ShipModel::accelerationAmount() const { return m_AccelerationAmount; }
+float ShipModel::accelerationAmount() const
+{
+    return m_AccelerationAmount;
+}
 
-bool ShipModel::isBraking() const { return m_IsBraking; }
+bool ShipModel::isBraking() const
+{
+    return m_IsBraking;
+}
 
-void ShipModel::setIsBraking(bool value) { m_IsBraking = value; }
+void ShipModel::setIsBraking(bool value)
+{
+    m_IsBraking = value;
+}
 
 void ShipModel::updateShipPosition()
 {
@@ -164,11 +226,20 @@ void ShipModel::updateShipPosition()
     m_ShipGameShape->SetPos(m_ShipX, m_ShipY);
 }
 
-void ShipModel::setVisible(bool value) { m_ShipGameShape->SetVisible(value); }
+void ShipModel::setVisible(bool value)
+{
+    m_ShipGameShape->SetVisible(value);
+}
 
-std::shared_ptr<GameShape> ShipModel::shipGameShape() const { return m_ShipGameShape; }
+std::shared_ptr<GameShape> ShipModel::shipGameShape() const
+{
+    return m_ShipGameShape;
+}
 
-std::shared_ptr<GameShape> ShipModel::flamesGameShape() const { return m_FlamesGameShape; }
+std::shared_ptr<GameShape> ShipModel::flamesGameShape() const
+{
+    return m_FlamesGameShape;
+}
 
 void ShipModel::process()
 {
@@ -197,19 +268,19 @@ void ShipModel::drawFlames()
     m_FlamesGameShape->Clear();
     for (int n = 0; n < 8; ++n) {
         m_FlamesGameShape->SetColour(180, 0, 0, 255);
-        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 10 - rand() % 20, 80 + rand() % 20);
+        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 10 - rand() % 20, 80 + rand() % 20, 3);
     }
     for (int n = 0; n < 10; ++n) {
         m_FlamesGameShape->SetColour(255, 0, 0, 255);
-        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 15 - rand() % 30, 40 + rand() % 30);
+        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 15 - rand() % 30, 40 + rand() % 30, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_FlamesGameShape->SetColour(250, 214, 116, 255);
-        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 10 - rand() % 20, 35 + rand() % 20);
+        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 10 - rand() % 20, 35 + rand() % 20, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_FlamesGameShape->SetColour(255, 255, 255, 255);
-        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 4 - rand() % 8, 20 + rand() % 10);
+        m_FlamesGameShape->AddLine(4 - rand() % 8, 17, 4 - rand() % 8, 20 + rand() % 10, 3);
     }
 
     // Ensure that the flames have the same rotation
@@ -262,7 +333,10 @@ void ShipModel::buildExplosionShape()
     m_ExplosionGameShape->SetScale(0.1);
 }
 
-std::shared_ptr<GameShape> ShipModel::explosionGameShape() const { return m_ExplosionGameShape; }
+std::shared_ptr<GameShape> ShipModel::explosionGameShape() const
+{
+    return m_ExplosionGameShape;
+}
 
 } // namespace amaze
 } // namespace marengo

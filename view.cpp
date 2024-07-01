@@ -85,11 +85,12 @@ void View::RotateAndDrawShape(const GameShape& shape) const
         x1r = x1 * dCos - y1 * dSin;
         y1r = x1 * dSin + y1 * dCos;
         // now draw adjusted for physical screen coords
-        m_GraphicsAdapter.drawLine(x0r * scale + xOffset,
+        m_GraphicsAdapter.drawLine(
+            x0r * scale + xOffset,
             y0r * scale + yOffset,
             x1r * scale + xOffset,
             y1r * scale + yOffset,
-            3, // width
+            sl.lineThickness,
             sl.r,
             sl.g,
             sl.b);
@@ -102,11 +103,12 @@ void View::DrawStaticShape(const GameShape& shape) const
     double scale = m_GraphicsAdapter.getWindoWidth() / 320.0;
 
     for (const auto& sl : shape.GetVec()) {
-        m_GraphicsAdapter.drawLine(sl.x0 * scale + shape.GetPosX(),
+        m_GraphicsAdapter.drawLine(
+            sl.x0 * scale + shape.GetPosX(),
             sl.y0 * scale + shape.GetPosY(),
             sl.x1 * scale + shape.GetPosX(),
             sl.y1 * scale + shape.GetPosY(),
-            1, // TODO?
+            sl.lineThickness,
             sl.r,
             sl.g,
             sl.b);

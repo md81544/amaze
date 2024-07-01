@@ -158,7 +158,7 @@ void GameModel::levelLoad(size_t levelNum)
                         static_cast<uint8_t>(stoi(vec[6])), // g
                         static_cast<uint8_t>(stoi(vec[7])), // b
                         255, // alpha
-                        1 // thickness
+                        stoi(vec[5]) // thickness
                     };
                     if (vec.size() == 9) {
                         sl1.lineThickness = stoi(vec[8]);
