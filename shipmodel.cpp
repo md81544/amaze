@@ -54,20 +54,6 @@ void ShipModel::initialise()
     m_IsBraking = false;
 }
 
-double ShipModel::fuel() const
-{
-    return m_Fuel;
-}
-
-void ShipModel::setFuel(double value)
-{
-    if (value > maxFuel) {
-        m_Fuel = maxFuel;
-    } else {
-        m_Fuel = value;
-    }
-}
-
 double ShipModel::x() const
 {
     return m_ShipX;
@@ -202,8 +188,7 @@ void ShipModel::updateShipPosition()
 
     m_Velocity = sqrt((m_Dx * m_Dx) + (m_Dy * m_Dy));
 
-    if (m_IsBraking && m_Fuel > 0) {
-        m_Fuel = m_Fuel - m_Velocity;
+    if (m_IsBraking) {
         m_Dx *= 0.9;
         if (abs(m_Dx) < 0.01) {
             m_Dx = 0;

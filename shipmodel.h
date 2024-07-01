@@ -17,9 +17,6 @@ public:
     // Reset the ship model to a state ready for a new Level:
     void initialise();
 
-    double fuel() const;
-    void setFuel(double value);
-
     double rotation() const;
     void setRotation(double rotationDelta);
 
@@ -50,8 +47,6 @@ public:
     bool isBraking() const;
     void setIsBraking(bool value);
 
-    const double maxFuel { 300.0 };
-
     double x() const;
     void setShipX(double value);
 
@@ -71,7 +66,6 @@ public:
     void buildExplosionShape();
 
 private:
-    double m_Fuel;
     double m_Rotation { 0.0 };
     double m_RotationDelta { 0.0 };
     double m_ShipX;

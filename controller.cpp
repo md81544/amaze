@@ -146,7 +146,6 @@ void Controller::collisionChecks()
             case GameShapeType::FUEL:
                 m_graphicsAdapter.soundPlay("collect");
                 collider->SetIsActive(false);
-                // TODO - refuel
                 break;
             case GameShapeType::KEY:
                 // currently an idea but not used

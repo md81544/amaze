@@ -110,8 +110,7 @@ void GameModel::levelLoad(size_t levelNum)
         }
         char c = vec[0][0];
         switch (c) {
-            case '!': // timelimit (unused), fuel, ship x, ship y, description
-                m_shipModel->setFuel(stod(vec[2]));
+            case '!': // timelimit (unused), fuel (unused), ship x, ship y, description (unused)
                 m_shipModel->setShipX(stod(vec[3]));
                 m_shipModel->setShipY(stod(vec[4]));
                 m_levelDescription = vec[5];
@@ -228,16 +227,6 @@ ShipModel* GameModel::getShipModel() const
     // replace this with member functions which internally
     // reference m_shipModel.
     return m_shipModel.get();
-}
-
-bool GameModel::wasTimeoutWarned() const
-{
-    return m_wasTimeoutWarned;
-}
-
-void GameModel::setWasTimeoutWarned(bool value)
-{
-    m_wasTimeoutWarned = value;
 }
 
 std::shared_ptr<GameShape> GameModel::collisionDetect() const
