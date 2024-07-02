@@ -23,6 +23,7 @@ class SfmlAdapter : public IGraphicsAdapter {
 public:
     SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen);
     ~SfmlAdapter();
+    virtual void setFrameRate(unsigned int fr) override;
     virtual void cls() override;
     virtual void redraw() override;
     virtual int setDrawColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
@@ -58,6 +59,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> m_soundBuffers;
     std::unordered_map<std::string, std::shared_ptr<sf::Sound>> m_sounds;
     sf::Sound m_sound;
+    sf::Clock m_clock;
 };
 
 } // namespace amaze

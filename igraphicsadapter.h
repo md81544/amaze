@@ -21,6 +21,7 @@ class IGraphicsAdapter {
 public:
     // TODO - make all functions const where possible
     virtual ~IGraphicsAdapter() { }
+    virtual void setFrameRate(unsigned int fr) = 0;
     virtual void cls() = 0;
     virtual void redraw() = 0;
     virtual int setDrawColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) = 0;

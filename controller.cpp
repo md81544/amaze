@@ -83,8 +83,11 @@ void Controller::registerControlHandlers()
     // Pause
     m_graphicsAdapter.registerControlHandler(
         KeyControls::PAUSE, [&](const bool isKeyDown, const float) {
-            if (isKeyDown && !m_gameModel.getShipModel()->isExploding()) {
+            int now = m_graphicsAdapter.getTicks();
+            if (isKeyDown && !m_gameModel.getShipModel()->isExploding()
+                && now > m_lastPause + 500) {
                 m_gameModel.togglePause();
+                m_lastPause = m_graphicsAdapter.getTicks();
             }
         });
 
@@ -105,11 +108,10 @@ void Controller::mainLoop(int gameLevel)
 
     m_gameModel.levelLoad(gameLevel);
     m_gameModel.setGameIsRunning(true);
+    m_graphicsAdapter.setFrameRate(100);
 
     // Main game loop
     while (true) {
-        int loopStart = m_graphicsAdapter.getTicks();
-
         // Read any key presses and call any registered functions for those
         // keypresses
         m_graphicsAdapter.processInput(m_gameModel.getPausedState());
@@ -129,7 +131,6 @@ void Controller::mainLoop(int gameLevel)
         m_graphicsAdapter.cls();
         m_view.Update();
         m_graphicsAdapter.redraw();
-        m_graphicsAdapter.loopDelay(loopStart, 10); // ensure loop lasts at least n msecs
     }
 }
 

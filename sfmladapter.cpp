@@ -22,6 +22,11 @@ SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
 
 SfmlAdapter::~SfmlAdapter() { }
 
+void SfmlAdapter::setFrameRate(unsigned int fr)
+{
+    m_window.setFramerateLimit(fr);
+}
+
 int SfmlAdapter::getWindowHeight() const
 {
     return m_screenHeight;
@@ -29,8 +34,7 @@ int SfmlAdapter::getWindowHeight() const
 
 int SfmlAdapter::getTicks() const
 {
-    sf::Clock clock;
-    return clock.getElapsedTime().asMilliseconds();
+    return m_clock.getElapsedTime().asMilliseconds();
 }
 
 int SfmlAdapter::getWindoWidth() const

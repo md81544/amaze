@@ -55,6 +55,7 @@ void GameModel::createStaticShapes()
     m_pauseMessage->makeFromText("PAUSED", 241, 252, 33, 255, 6);
     m_pauseMessage->SetPos(240, 100);
     m_pauseMessage->SetVisible(false);
+    m_pauseMessage->SetName("gameModel::m_pauseMessage"); // useful for debugging only
     m_allStaticGameShapes.push_back(m_pauseMessage);
 }
 
