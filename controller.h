@@ -23,7 +23,7 @@ private:
     GameModel& m_gameModel;
     View& m_view;
     IGraphicsAdapter& m_graphicsAdapter;
-    int m_lastPause{0};
+    int m_lastPause { 0 };
 };
 
 } // namespace amaze

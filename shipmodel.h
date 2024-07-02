@@ -11,7 +11,9 @@ namespace amaze {
 
 class ShipModel {
 public:
-    ShipModel(std::shared_ptr<GameShape> ship, std::shared_ptr<GameShape> flames,
+    ShipModel(
+        std::shared_ptr<GameShape> ship,
+        std::shared_ptr<GameShape> flames,
         std::shared_ptr<GameShape> explosion);
 
     // Reset the ship model to a state ready for a new Level:

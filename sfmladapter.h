@@ -27,8 +27,8 @@ public:
     virtual void cls() override;
     virtual void redraw() override;
     virtual int setDrawColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
-    virtual void drawLine(
-        int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b) override;
+    virtual void
+    drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b) override;
     virtual void fillRectangle(int x, int y, int w, int h) override;
     static int getPhysicalScreenWidth();
     static int getPhysicalScreenHeight();
@@ -41,7 +41,8 @@ public:
     virtual void imageDisplay(size_t id, int x, int y) override;
     virtual void imageUnload(size_t id) override;
     virtual void registerControlHandler(
-        KeyControls key, std::function<void(const bool, const float)> controlHandler) override;
+        KeyControls key,
+        std::function<void(const bool, const float)> controlHandler) override;
     virtual void processInput(bool paused) override;
     // Sound processing
     virtual void soundLoad(const std::string& key, const std::string& filename) override;

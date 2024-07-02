@@ -32,7 +32,9 @@ extern Logger* g_logger;
         if (marengo::g_logger) {                                                                   \
             marengo::g_logger->Log(                                                                \
                 static_cast<std::ostringstream&>(std::ostringstream().flush() << Message_).str(),  \
-                __FUNCTION__, __FILE__, __LINE__);                                                 \
+                __FUNCTION__,                                                                      \
+                __FILE__,                                                                          \
+                __LINE__);                                                                         \
         }                                                                                          \
     } while (0)
 

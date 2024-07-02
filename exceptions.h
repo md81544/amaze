@@ -17,8 +17,11 @@ namespace amaze {
 
 class AmazeBaseException : public std::exception {
 public:
-    AmazeBaseException(const char* exceptionFile, const unsigned int exceptionLine,
-        const char* exceptionFunction, const std::string& message)
+    AmazeBaseException(
+        const char* exceptionFile,
+        const unsigned int exceptionLine,
+        const char* exceptionFunction,
+        const std::string& message)
         : fileName(exceptionFile)
         , lineNumber(exceptionLine)
         , functionSignature(exceptionFunction)
@@ -27,10 +30,22 @@ public:
     }
     virtual ~AmazeBaseException() {};
 
-    virtual const char* what() const noexcept override { return details.c_str(); }
-    std::string file() const { return fileName; }
-    std::string function() const { return functionSignature; }
-    unsigned int line() const { return lineNumber; }
+    virtual const char* what() const noexcept override
+    {
+        return details.c_str();
+    }
+    std::string file() const
+    {
+        return fileName;
+    }
+    std::string function() const
+    {
+        return functionSignature;
+    }
+    unsigned int line() const
+    {
+        return lineNumber;
+    }
 
 private:
     std::string fileName;
@@ -43,7 +58,10 @@ private:
 class AmazeStartupException : public AmazeBaseException {
 public:
     AmazeStartupException(
-        const char* file, unsigned int line, const char* function, const std::string& message)
+        const char* file,
+        unsigned int line,
+        const char* function,
+        const std::string& message)
         : AmazeBaseException(file, line, function, message)
     {
     }
@@ -53,7 +71,10 @@ public:
 class AmazeRuntimeException : public AmazeBaseException {
 public:
     AmazeRuntimeException(
-        const char* file, unsigned int line, const char* function, const std::string& message)
+        const char* file,
+        unsigned int line,
+        const char* function,
+        const std::string& message)
         : AmazeBaseException(file, line, function, message)
     {
     }

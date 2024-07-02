@@ -10,7 +10,15 @@
 namespace marengo {
 namespace amaze {
 
-enum class GameShapeType { UNINITIALISED, NEUTRAL, OBSTRUCTION, FUEL, PRISONER, KEY, EXIT };
+enum class GameShapeType {
+    UNINITIALISED,
+    NEUTRAL,
+    OBSTRUCTION,
+    FUEL,
+    PRISONER,
+    KEY,
+    EXIT
+};
 
 class GameShape : public Shape {
 public:

@@ -84,7 +84,7 @@ void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, in
     for (int i = 0; i < 4; ++i) {
         vertices[i].color = sf::Color(r, g, b);
     }
-    m_window.draw(vertices,4,sf::Quads);
+    m_window.draw(vertices, 4, sf::Quads);
 }
 
 void SfmlAdapter::fillRectangle(

@@ -75,10 +75,16 @@ marengo::Logger::Logger(const std::string& filename)
     }
 }
 
-marengo::Logger::~Logger() { m_log.close(); }
+marengo::Logger::~Logger()
+{
+    m_log.close();
+}
 
 void marengo::Logger::Log(
-    std::string const& message, char const* function, char const* file, int line)
+    std::string const& message,
+    char const* function,
+    char const* file,
+    int line)
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_log << NowAsString() << "|" << function << "|" << file << "|" << line << "|" << message

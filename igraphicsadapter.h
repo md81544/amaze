@@ -34,7 +34,8 @@ public:
     // delay incorporating loop processing time:
     virtual void loopDelay(uint32_t previousTicks, uint32_t totalLoopMilliseconds) const = 0;
 
-    virtual void registerControlHandler(KeyControls key,
+    virtual void registerControlHandler(
+        KeyControls key,
         std::function<void(const bool, const float)> controlHandler)
         = 0;
     virtual void processInput(bool paused) = 0;

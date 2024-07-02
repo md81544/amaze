@@ -85,7 +85,7 @@ private:
     size_t m_averageFrameTime { 0 };
     std::shared_ptr<GameShape> m_pauseMessage;
 
-    bool m_paused{false};
+    bool m_paused { false };
 };
 
 } // namespace amaze
