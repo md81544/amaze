@@ -100,14 +100,14 @@ void View::RotateAndDrawShape(const GameShape& shape) const
 void View::DrawStaticShape(const GameShape& shape) const
 {
     // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
-    double scale = m_GraphicsAdapter.getWindoWidth() / 320.0;
+    double scale = m_GraphicsAdapter.getWindoWidth() / 480.0;
 
     for (const auto& sl : shape.GetVec()) {
         m_GraphicsAdapter.drawLine(
-            sl.x0 * scale + shape.GetPosX(),
-            sl.y0 * scale + shape.GetPosY(),
-            sl.x1 * scale + shape.GetPosX(),
-            sl.y1 * scale + shape.GetPosY(),
+            (sl.x0 + shape.GetPosX()) * scale,
+            (sl.y0 + shape.GetPosY()) * scale,
+            (sl.x1 + shape.GetPosX()) * scale,
+            (sl.y1 + shape.GetPosY()) * scale,
             sl.lineThickness,
             sl.r,
             sl.g,

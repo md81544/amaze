@@ -55,8 +55,6 @@ public:
 
     void process();
 
-    void updateStatistics(size_t millisecs);
-
     void processDynamicObjects(std::function<void(GameShape&)>) override;
 
     void processStaticObjects(std::function<void(GameShape&)>) override;
@@ -84,8 +82,8 @@ private:
 
     std::unique_ptr<ShipModel> m_shipModel;
 
-    std::vector<size_t> m_frameTimes;
     size_t m_averageFrameTime { 0 };
+    std::shared_ptr<GameShape> m_pauseMessage;
 
     bool m_paused{false};
 };

@@ -14,6 +14,7 @@ GameModel::GameModel()
 {
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+    m_pauseMessage = std::make_shared<GameShape>();
 }
 
 void GameModel::initialise(size_t levelNumber)
@@ -50,7 +51,11 @@ void GameModel::initialise(size_t levelNumber)
 void GameModel::createStaticShapes()
 {
     // Note static shapes' coodinates are expressed as if the viewport
-    // is 320x240 pixels, regardless of the physical size of the window.
+    // is 480 pixels wide, regardless of its actual size
+    m_pauseMessage->makeFromText("PAUSED", 241, 252, 33, 255, 6);
+    m_pauseMessage->SetPos(240, 100);
+    m_pauseMessage->SetVisible(false);
+    m_allStaticGameShapes.push_back(m_pauseMessage);
 }
 
 size_t GameModel::level() const
@@ -161,7 +166,7 @@ void GameModel::levelLoad(size_t levelNum)
                 break;
             case 'T':
                 if (obj != nullptr && vec.size() == 5) {
-                    obj->makeFromText(vec[1], stoi(vec[2]), stoi(vec[3]), stoi(vec[4]), 255, 1);
+                    obj->makeFromText(vec[1], stoi(vec[2]), stoi(vec[3]), stoi(vec[4]), 255, 6);
                 }
                 if (obj != nullptr && vec.size() == 6) {
                     obj->makeFromText(
@@ -262,18 +267,6 @@ void GameModel::process() // TODO more descriptive name
     m_shipModel->process();
 }
 
-void GameModel::updateStatistics(size_t millisecs)
-{
-    m_frameTimes.push_back(millisecs);
-    if (m_frameTimes.size() > 40) {
-        m_frameTimes.erase(m_frameTimes.begin());
-    }
-    size_t sum;
-    size_t count = m_frameTimes.size();
-    sum = static_cast<size_t>(std::accumulate(m_frameTimes.begin(), m_frameTimes.end(), 0.0));
-    m_averageFrameTime = static_cast<size_t>(sum / count);
-}
-
 void GameModel::processDynamicObjects(std::function<void(GameShape&)> process)
 {
     for (const auto& shape : m_allDynamicGameShapes) {
@@ -296,6 +289,7 @@ unsigned int GameModel::getRotation() const
 void GameModel::togglePause()
 {
     m_paused = !m_paused;
+    m_pauseMessage->SetVisible(m_paused);
 }
 
 bool GameModel::getPausedState()

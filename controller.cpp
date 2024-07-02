@@ -83,7 +83,7 @@ void Controller::registerControlHandlers()
     // Pause
     m_graphicsAdapter.registerControlHandler(
         KeyControls::PAUSE, [&](const bool isKeyDown, const float) {
-            if (isKeyDown) {
+            if (isKeyDown && !m_gameModel.getShipModel()->isExploding()) {
                 m_gameModel.togglePause();
             }
         });
@@ -125,10 +125,10 @@ void Controller::mainLoop(int gameLevel)
             if (m_gameModel.gameIsRunning() == false) {
                 break;
             }
-            m_graphicsAdapter.cls();
-            m_view.Update();
-            m_graphicsAdapter.redraw();
         }
+        m_graphicsAdapter.cls();
+        m_view.Update();
+        m_graphicsAdapter.redraw();
         m_graphicsAdapter.loopDelay(loopStart, 10); // ensure loop lasts at least n msecs
     }
 }
