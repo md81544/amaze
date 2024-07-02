@@ -9,9 +9,8 @@
 namespace marengo {
 namespace amaze {
 
-Controller::Controller(Preferences& p, GameModel& m, View& v, IGraphicsAdapter& g)
-    : m_preferences(p)
-    , m_gameModel(m)
+Controller::Controller(GameModel& m, View& v, IGraphicsAdapter& g)
+    : m_gameModel(m)
     , m_view(v)
     , m_graphicsAdapter(g)
 {

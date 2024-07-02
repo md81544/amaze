@@ -1,4 +1,3 @@
-#include "preferences.h"
 #include "sfmladapter.h"
 
 #include "configreader.h"
@@ -112,10 +111,9 @@ int main(int argc, char* argv[])
 
         GameModel gameModel;
         gameModel.setDataPath(dataDir);
-        Preferences preferences(gameModel.getDataPath() + "amaze.cfg");
         View view(gameModel, graphicsManager);
 
-        Controller controller(preferences, gameModel, view, graphicsManager);
+        Controller controller(gameModel, view, graphicsManager);
         controller.mainLoop(gameLevel);
 
         // TODO model.preferencesSave();
