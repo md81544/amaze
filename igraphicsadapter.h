@@ -31,8 +31,6 @@ public:
     virtual int getWindoWidth() const = 0;
     virtual int getWindowHeight() const = 0;
     virtual int getTicks() const = 0;
-    // delay incorporating loop processing time:
-    virtual void loopDelay(uint32_t previousTicks, uint32_t totalLoopMilliseconds) const = 0;
 
     virtual void registerControlHandler(
         KeyControls key,

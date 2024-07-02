@@ -35,7 +35,6 @@ public:
     virtual int getWindoWidth() const override;
     virtual int getWindowHeight() const override;
     virtual int getTicks() const override;
-    virtual void loopDelay(uint32_t previousTicks, uint32_t totalLoopMilliseconds) const override;
     virtual void imageDisplay(const std::string& fileName, int x, int y) override;
     virtual size_t imageLoad(const std::string& fileName) override;
     virtual void imageDisplay(size_t id, int x, int y) override;

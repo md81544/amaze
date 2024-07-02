@@ -107,18 +107,6 @@ int SfmlAdapter::getPhysicalScreenHeight()
     return sf::VideoMode::getDesktopMode().height;
 }
 
-void SfmlAdapter::loopDelay(
-    uint32_t previousTicks, // milliseconds
-    uint32_t totalLoopMilliseconds) const
-{
-    // TODO we could use the simpler SFML setFramerateLimit
-    sf::Clock clock;
-    while (clock.getElapsedTime().asMilliseconds()
-           < static_cast<int>(previousTicks + totalLoopMilliseconds)) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-    }
-}
-
 size_t SfmlAdapter::imageLoad(const std::string& /* fileName */)
 {
     return 0; // TODO DELETE?

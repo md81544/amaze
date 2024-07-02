@@ -5,6 +5,7 @@
 
 #include <chrono>
 #include <memory>
+#include <thread>
 
 namespace marengo {
 namespace amaze {
@@ -122,10 +123,11 @@ void Controller::mainLoop(int gameLevel)
             m_gameModel.process(); // perform all processing required per loop
 
             collisionChecks();
-
-            if (m_gameModel.gameIsRunning() == false) {
-                break;
-            }
+        }
+        if (m_gameModel.gameIsRunning() == false) {
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            // TODO - go round again to some form of menu
+            break;
         }
         m_graphicsAdapter.cls();
         m_view.Update();
