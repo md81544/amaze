@@ -113,7 +113,6 @@ void Controller::mainLoop(int gameLevel)
         m_gameModel.getShipModel()->setVisible(true);
         m_gameModel.levelLoad(gameLevel);
         m_gameModel.setGameState(GameState::Running);
-        // TODO - reinstate position from previous save?
 
         // Main game loop
         bool ending { false };

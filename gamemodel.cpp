@@ -307,9 +307,7 @@ void GameModel::restart()
 {
     // TESTING MCD DEBUG
     // This is a test to see how we can handle "lives"
-    m_shipModel.reset();
-    m_shipModel
-        = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+    rebuildShip();
     m_shipModel->initialise();
     m_shipModel->setIsExploding(false);
     m_shipModel->setShipX(m_savedPositionsRingBuffer.lastItem().posX);
@@ -332,6 +330,22 @@ GameState GameModel::getGameState()
 void GameModel::setGameState(GameState state)
 {
     m_gameState = state;
+}
+
+void GameModel::rebuildShip()
+{
+    std::vector<std::shared_ptr<GameShape>> tmp;
+    std::swap(tmp, m_allDynamicGameShapes);
+    for (auto& s : tmp) {
+        if (s->getName() != "Ship" && s->getName() != "Flames" && s->getName() != "Explosion") {
+            m_allDynamicGameShapes.push_back(s);
+        }
+    }
+    m_shipModel.reset();
+    // TODO: the following line's calls to newGameShape() adds three new objects into
+    // m_allDynamicGameShapes
+    m_shipModel
+        = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
 }
 
 } // namespace amaze

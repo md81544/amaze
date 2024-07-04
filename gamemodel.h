@@ -97,6 +97,7 @@ private:
 
     helperfunctions::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
+    void rebuildShip();
 };
 
 } // namespace amaze
