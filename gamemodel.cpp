@@ -16,6 +16,7 @@ GameModel::GameModel()
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
     m_pauseMessage = std::make_shared<GameShape>();
+    m_livesRemainingLabel = std::make_shared<GameShape>();
 }
 
 void GameModel::initialise(size_t levelNumber)
@@ -58,6 +59,11 @@ void GameModel::createStaticShapes()
     m_pauseMessage->setVisible(false);
     m_pauseMessage->setName("gameModel::m_pauseMessage"); // useful for debugging only
     m_allStaticGameShapes.push_back(m_pauseMessage);
+    setLivesRemainingText();
+    m_livesRemainingLabel->setPos(50, 10);
+    m_livesRemainingLabel->setVisible(true);
+    m_livesRemainingLabel->setName("gameModel::m_livesRemainingLabel"); // useful for debugging only
+    m_allStaticGameShapes.push_back(m_livesRemainingLabel);
 }
 
 size_t GameModel::level() const
@@ -331,12 +337,15 @@ void GameModel::setGameState(GameState state)
 
 int GameModel::lifeLost()
 {
-    return --m_livesRemaining;
+    --m_livesRemaining;
+    setLivesRemainingText();
+    return m_livesRemaining;
 }
 
 void GameModel::extraLife()
 {
     ++m_livesRemaining;
+    setLivesRemainingText();
 }
 
 void GameModel::rebuildShip()
@@ -351,6 +360,13 @@ void GameModel::rebuildShip()
     m_shipModel.reset();
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+}
+
+void GameModel::setLivesRemainingText()
+{
+    m_livesRemainingLabel->makeFromText(
+        "Lives remaining: " + std::to_string(m_livesRemaining), 0, 200, 0, 255, 2);
+    m_livesRemainingLabel->setScale(0.3);
 }
 
 } // namespace amaze

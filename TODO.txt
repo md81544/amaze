@@ -1,12 +1,8 @@
-* Write "Paused" on the screen when paused
-* Need to be able to pause from the controller too
-* Maybe three lives? If you die you start from where you were a few seconds ago?
-  - and maybe the "fuel" objects give extra lives?
-* Extending from that, maybe some "walls" could be orange, signifying that they are
+* Display of lives remaining
+* Maybe some "walls" could be orange, signifying that they are
   breakable, but would use a life to get through?
 * Splash screen
 * Menu?
 * Next level when level complete
 * Change level data file format to YAML or JSON?
 * Keyboard controls don't work properly if joystick is attached
-* Maybe instead of fuel we should need to collect keys to get into the exit?

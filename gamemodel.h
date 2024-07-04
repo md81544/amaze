@@ -96,11 +96,13 @@ private:
 
     size_t m_averageFrameTime { 0 };
     std::shared_ptr<GameShape> m_pauseMessage;
+    std::shared_ptr<GameShape> m_livesRemainingLabel;
 
     helperfunctions::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
     void rebuildShip();
     int m_livesRemaining{1};
+    void setLivesRemainingText();
 };
 
 } // namespace amaze

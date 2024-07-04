@@ -104,7 +104,7 @@ void Controller::registerControlHandlers()
 
 void Controller::mainLoop(int gameLevel)
 {
-    // This is the main game control structure, called from main().
+    // This is the main game control structure, called from main()
 
     // TODO splash screen?
     bool quitting { false };
