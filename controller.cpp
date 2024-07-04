@@ -3,7 +3,9 @@
 #include "helperfunctions.h"
 #include "log.h"
 
+#include <chrono>
 #include <memory>
+#include <thread>
 
 namespace marengo {
 namespace amaze {
@@ -126,14 +128,15 @@ void Controller::mainLoop(int gameLevel)
                 case GameState::Dead:
                     // We get here when the ship has finished exploding
                     m_gameModel.restart();
-                    //ending = true;
+                    // ending = true;
                     break;
                 case GameState::Quit:
                     quitting = true;
                     break;
                 case GameState::Succeeded:
                     // TODO something more than just quit
-                    ending = true;
+                    quitting = true;
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
                     break;
                 case GameState::Exploding:
                     m_gameModel.process(); // perform all processing required per loop
