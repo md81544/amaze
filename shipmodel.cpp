@@ -203,7 +203,6 @@ std::shared_ptr<GameShape> ShipModel::flamesGameShape() const
 void ShipModel::process(bool isExploding)
 {
     // process() is called each game loop by the controlller
-    printf("m_rotation = %lf\n", m_Rotation);//DEBUG
     setRotation(m_RotationDelta);
 
     updateShipPosition();
