@@ -305,8 +305,6 @@ void GameModel::togglePause()
 
 void GameModel::restart()
 {
-    // TESTING MCD DEBUG
-    // This is a test to see how we can handle "lives"
     rebuildShip();
     m_shipModel->initialise();
     m_shipModel->setIsExploding(false);
@@ -319,7 +317,6 @@ void GameModel::restart()
     m_shipModel->buildExplosionShape();
 
     std::this_thread::sleep_for(std::chrono::seconds(2));
-    // TESTING MCD DEBUG
 }
 
 GameState GameModel::getGameState()
@@ -332,6 +329,16 @@ void GameModel::setGameState(GameState state)
     m_gameState = state;
 }
 
+int GameModel::lifeLost()
+{
+    return --m_livesRemaining;
+}
+
+void GameModel::extraLife()
+{
+    ++m_livesRemaining;
+}
+
 void GameModel::rebuildShip()
 {
     std::vector<std::shared_ptr<GameShape>> tmp;
@@ -342,8 +349,6 @@ void GameModel::rebuildShip()
         }
     }
     m_shipModel.reset();
-    // TODO: the following line's calls to newGameShape() adds three new objects into
-    // m_allDynamicGameShapes
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
 }

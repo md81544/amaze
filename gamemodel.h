@@ -74,6 +74,8 @@ public:
     void restart();
     GameState getGameState();
     void setGameState(GameState state);
+    int lifeLost();
+    void extraLife();
 
 private:
     std::string m_dataPath { "" };
@@ -98,6 +100,7 @@ private:
     helperfunctions::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
     void rebuildShip();
+    int m_livesRemaining{1};
 };
 
 } // namespace amaze

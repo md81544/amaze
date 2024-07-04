@@ -126,8 +126,12 @@ void Controller::mainLoop(int gameLevel)
                     break;
                 case GameState::Dead:
                     // We get here when the ship has finished exploding
-                    m_gameModel.restart();
-                    // ending = true;
+                    if (m_gameModel.lifeLost() != 0) {
+                        m_gameModel.restart();
+                        break;
+                    }
+                    quitting = true; // all lives lost
+                    std::this_thread::sleep_for(std::chrono::seconds(3));
                     break;
                 case GameState::Quit:
                     quitting = true;
@@ -168,6 +172,7 @@ void Controller::collisionChecks()
             case GameShapeType::FUEL:
                 m_graphicsAdapter.soundPlay("collect");
                 collider->setIsActive(false);
+                m_gameModel.extraLife();
                 break;
             case GameShapeType::KEY:
                 // currently an idea but not used
