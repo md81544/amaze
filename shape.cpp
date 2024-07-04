@@ -42,7 +42,7 @@ void Shape::makeFromText(
             double y = vertices[j * 2 + 1];
             if (prevX != -1 && prevY != -1 && x != -1 && y != -1) {
                 ShapeLine sl { prevX, prevY, x + textWidth, y, r, g, b, a, lineThickness };
-                AddShapeLine(sl);
+                addShapeLine(sl);
             }
             prevX = x + textWidth;
             prevY = y;
@@ -66,13 +66,13 @@ void Shape::makeFromText(
     }
 }
 
-void Shape::AddShapeLine(ShapeLine sl)
+void Shape::addShapeLine(ShapeLine sl)
 {
-    UpdateShapeSize(sl.x0, sl.y0, sl.x1, sl.y1);
+    updateShapeSize(sl.x0, sl.y0, sl.x1, sl.y1);
     m_ShapeLines.push_back(sl);
 }
 
-void Shape::SetColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+void Shape::setColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 {
     m_R = r;
     m_G = g;
@@ -80,53 +80,53 @@ void Shape::SetColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     m_A = a;
 }
 
-void Shape::AddLine(double x0, double y0, double x1, double y1, uint8_t thickness)
+void Shape::addLine(double x0, double y0, double x1, double y1, uint8_t thickness)
 {
-    AddShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, thickness });
+    addShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, thickness });
 }
 
-double Shape::GetWidth() const
+double Shape::getWidth() const
 {
     return m_Width;
 }
 
-double Shape::GetHeight() const
+double Shape::getHeight() const
 {
     return m_Height;
 }
 
-void Shape::SetPos(double x, double y)
+void Shape::setPos(double x, double y)
 {
     m_X = x;
     m_Y = y;
 }
 
-double Shape::GetPosX() const
+double Shape::getPosX() const
 {
     return m_X;
 }
 
-double Shape::GetPosY() const
+double Shape::getPosY() const
 {
     return m_Y;
 }
 
-bool Shape::IsVisible() const
+bool Shape::isVisible() const
 {
     return m_IsVisible;
 }
 
-void Shape::SetVisible(bool b)
+void Shape::setVisible(bool b)
 {
     m_IsVisible = b;
 }
 
-double Shape::GetScale() const
+double Shape::getScale() const
 {
     return m_Scale;
 }
 
-void Shape::Rotate(double rotationDelta)
+void Shape::rotate(double rotationDelta)
 {
     // This is not related to the rotation of the entire "world" around
     // the ship - this will simply cause a shape to rotate around its centre
@@ -155,7 +155,7 @@ void Shape::Rotate(double rotationDelta)
     std::swap(tmp, m_ShapeLines);
 }
 
-void Shape::Clear()
+void Shape::clear()
 {
     m_ShapeLines.clear();
     m_Width = 0;
@@ -167,7 +167,7 @@ void Shape::Clear()
     m_Rotation = 0;
 }
 
-void Shape::SetScale(double scale)
+void Shape::setScale(double scale)
 {
     if (scale > 0) {
         m_Scale = scale;
@@ -182,7 +182,7 @@ void Shape::SetScale(double scale)
     m_Height = static_cast<int>(static_cast<double>(m_Height) * m_Scale);
 }
 
-bool Shape::IntersectCheck(std::shared_ptr<Shape> s) const
+bool Shape::intersectCheck(std::shared_ptr<Shape> s) const
 {
     // check for intersect with all of my lines against all of another object's:
     for (size_t myLine = 0; myLine < m_ShapeLines.size(); ++myLine) {
@@ -190,11 +190,11 @@ bool Shape::IntersectCheck(std::shared_ptr<Shape> s) const
         double y0 = m_ShapeLines[myLine].y0 + m_Y;
         double x1 = m_ShapeLines[myLine].x1 + m_X;
         double y1 = m_ShapeLines[myLine].y1 + m_Y;
-        for (unsigned int theirLine = 0; theirLine < s->GetVec().size(); ++theirLine) {
-            double x2 = s->GetVec()[theirLine].x0 + s->GetPosX();
-            double y2 = s->GetVec()[theirLine].y0 + s->GetPosY();
-            double x3 = s->GetVec()[theirLine].x1 + s->GetPosX();
-            double y3 = s->GetVec()[theirLine].y1 + s->GetPosY();
+        for (unsigned int theirLine = 0; theirLine < s->getVec().size(); ++theirLine) {
+            double x2 = s->getVec()[theirLine].x0 + s->getPosX();
+            double y2 = s->getVec()[theirLine].y0 + s->getPosY();
+            double x3 = s->getVec()[theirLine].x1 + s->getPosX();
+            double y3 = s->getVec()[theirLine].y1 + s->getPosY();
 
             double Ax, Bx, Cx, Ay, By, Cy, d, e, f;
             short x1lo, x1hi, y1lo, y1hi;
@@ -276,12 +276,12 @@ bool Shape::IntersectCheck(std::shared_ptr<Shape> s) const
     return false;
 }
 
-const std::vector<ShapeLine>& Shape::GetVec() const
+const std::vector<ShapeLine>& Shape::getVec() const
 {
     return m_ShapeLines;
 }
 
-void Shape::UpdateShapeSize(double x0, double y0, double x1, double y1)
+void Shape::updateShapeSize(double x0, double y0, double x1, double y1)
 {
     // update the size of the shape:
     if (x0 < m_MinX) {

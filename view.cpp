@@ -23,7 +23,7 @@ void View::PlaySounds()
         m_GraphicsAdapter.soundFade("rocket", 1000);
     }
 
-    if (m_Model.getShipModel()->isExploding()) {
+    if (m_Model.getGameState() == GameState::Exploding) {
         m_GraphicsAdapter.soundPlay("collision");
     }
 }
@@ -47,14 +47,14 @@ void View::Update()
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
     m_Model.processDynamicObjects([&](GameShape& shape) {
-        if (shape.IsVisible() && shape.IsActive()) {
+        if (shape.isVisible() && shape.IsActive()) {
             RotateAndDrawShape(shape);
         }
     });
 
     // Static shapes (i.e. items which don't move on screen, e.g. the gauges)
     m_Model.processStaticObjects([&](GameShape& shape) {
-        if (shape.IsVisible()) {
+        if (shape.isVisible()) {
             DrawStaticShape(const_cast<const GameShape&>(shape));
         }
     });
@@ -68,12 +68,12 @@ void View::RotateAndDrawShape(const GameShape& shape) const
     double xOffset = m_GraphicsAdapter.getWindoWidth() / 2;
     double yOffset = m_GraphicsAdapter.getWindowHeight() / 2;
 
-    for (const auto& sl : shape.GetVec()) {
-        // ShapeLine sl = shape.GetVec()[ line ];
-        double x0 = sl.x0 + shape.GetPosX() - m_Model.getShipModel()->x();
-        double y0 = sl.y0 + shape.GetPosY() - m_Model.getShipModel()->y();
-        double x1 = sl.x1 + shape.GetPosX() - m_Model.getShipModel()->x();
-        double y1 = sl.y1 + shape.GetPosY() - m_Model.getShipModel()->y();
+    for (const auto& sl : shape.getVec()) {
+        // ShapeLine sl = shape.getVec()[ line ];
+        double x0 = sl.x0 + shape.getPosX() - m_Model.getShipModel()->x();
+        double y0 = sl.y0 + shape.getPosY() - m_Model.getShipModel()->y();
+        double x1 = sl.x1 + shape.getPosX() - m_Model.getShipModel()->x();
+        double y1 = sl.y1 + shape.getPosY() - m_Model.getShipModel()->y();
         // OK, when we get here, we have a line expressed
         // relative to the origin of the ship.  We can apply the
         // rotate now (unless the shape is marked "don't rotate")...
@@ -102,12 +102,12 @@ void View::DrawStaticShape(const GameShape& shape) const
     // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
     double scale = m_GraphicsAdapter.getWindoWidth() / 480.0;
 
-    for (const auto& sl : shape.GetVec()) {
+    for (const auto& sl : shape.getVec()) {
         m_GraphicsAdapter.drawLine(
-            (sl.x0 + shape.GetPosX()) * scale,
-            (sl.y0 + shape.GetPosY()) * scale,
-            (sl.x1 + shape.GetPosX()) * scale,
-            (sl.y1 + shape.GetPosY()) * scale,
+            (sl.x0 + shape.getPosX()) * scale,
+            (sl.y0 + shape.getPosY()) * scale,
+            (sl.x1 + shape.getPosX()) * scale,
+            (sl.y1 + shape.getPosY()) * scale,
             sl.lineThickness,
             sl.r,
             sl.g,

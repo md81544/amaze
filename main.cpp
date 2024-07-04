@@ -67,6 +67,7 @@ std::string findDataDirectory(const char* const program)
 int main(int argc, char* argv[])
 {
     using namespace marengo::amaze;
+
     try {
         INIT_MGOLOG("debug.log");
 

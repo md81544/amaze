@@ -16,6 +16,45 @@ double Cosine(double degrees);
 int Sgn(int x);
 bool DoLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4);
 
+template <typename T, std::size_t N> class RingBuffer {
+public:
+    RingBuffer()
+    {
+        clear();
+    }
+
+    void add(const T& item)
+    {
+        m_buffer[m_head] = item;
+        advance(m_head);
+        if (m_head == m_tail) {
+            advance(m_tail);
+        }
+    }
+
+    const T& lastItem()
+    {
+        return m_buffer[m_tail];
+    }
+
+    void clear()
+    {
+        m_tail = m_head = 0;
+    }
+
+private:
+    static const std::size_t BUFSIZE = N + 1;
+
+    void advance(std::size_t& ptr)
+    {
+        ptr = (ptr + 1) % BUFSIZE;
+    }
+
+    T m_buffer[BUFSIZE];
+    std::size_t m_head;
+    std::size_t m_tail;
+};
+
 } // namespace helperfunctions
 } // namespace amaze
 } // namespace marengo

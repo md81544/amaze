@@ -2,6 +2,8 @@
 * Need to be able to pause from the controller too
 * Maybe three lives? If you die you start from where you were a few seconds ago?
   - and maybe the "fuel" objects give extra lives?
+* Extending from that, maybe some "walls" could be orange, signifying that they are
+  breakable, but would use a life to get through?
 * Splash screen
 * Menu?
 * Next level when level complete

@@ -25,13 +25,13 @@ public:
     GameShape();
 
     bool IsActive() const;
-    void SetIsActive(bool value);
+    void setIsActive(bool value);
 
-    GameShapeType GetGameShapeType() const;
-    void SetGameShapeType(const GameShapeType& value);
+    GameShapeType getGameShapeType() const;
+    void setGameShapeType(const GameShapeType& value);
 
-    std::string GetName() const;
-    void SetName(const std::string& name);
+    std::string getName() const;
+    void setName(const std::string& name);
 
 private:
     bool m_isActive { true };

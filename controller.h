@@ -4,6 +4,8 @@
 #include "igraphicsadapter.h"
 #include "view.h"
 
+#include <utility>
+
 // This class acts as the MVC "controller" - i.e. it contains
 // game logic, tests input, collisions, end events etc
 

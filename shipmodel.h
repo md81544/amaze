@@ -46,8 +46,6 @@ public:
     bool isAccelerating() const;
     void setIsAccelerating(bool value, float amount = 0.f);
     float accelerationAmount() const;
-    bool isBraking() const;
-    void setIsBraking(bool value);
 
     double x() const;
     void setShipX(double value);
@@ -63,7 +61,7 @@ public:
     std::shared_ptr<GameShape> flamesGameShape() const;
     std::shared_ptr<GameShape> explosionGameShape() const;
 
-    void process();
+    void process(bool isExploding);
     void drawFlames();
     void buildExplosionShape();
 
@@ -74,12 +72,10 @@ private:
     double m_ShipY;
     double m_Dx;
     double m_Dy;
-    double m_Velocity { 0 };
+    double m_Velocity { 0.0 };
     double m_MaxVelocity;
-    bool m_IsExploding { false };
     bool m_IsAccelerating { false };
     float m_AccelerationAmount { 0.f };
-    bool m_IsBraking { false };
 
     std::shared_ptr<GameShape> m_ShipGameShape;
     std::shared_ptr<GameShape> m_FlamesGameShape;

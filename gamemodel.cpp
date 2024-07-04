@@ -1,11 +1,12 @@
 #include "gamemodel.h"
 #include "exceptions.h"
-#include "helperfunctions.h"
 
 #include <cassert>
+#include <chrono>
 #include <fstream>
 #include <numeric>
 #include <sstream>
+#include <thread>
 
 namespace marengo {
 namespace amaze {
@@ -30,13 +31,13 @@ void GameModel::initialise(size_t levelNumber)
     std::shared_ptr<GameShape> bkg(new GameShape);
     for (double n = 0; n <= 2000; n += 50) {
         ShapeLine sl1 { n, 0, n, 2000, 0, 100, 0, 255, 1 };
-        bkg->AddShapeLine(sl1);
+        bkg->addShapeLine(sl1);
         ShapeLine sl2 { 0, n, 2000, n, 0, 100, 0, 255, 1 };
-        bkg->AddShapeLine(sl2);
+        bkg->addShapeLine(sl2);
     }
-    bkg->SetPos(0, 0);
-    bkg->SetName("Background");
-    bkg->SetGameShapeType(GameShapeType::NEUTRAL);
+    bkg->setPos(0, 0);
+    bkg->setName("Background");
+    bkg->setGameShapeType(GameShapeType::NEUTRAL);
     m_allDynamicGameShapes.push_back(std::move(bkg));
 
     m_allDynamicGameShapes.push_back(m_shipModel->shipGameShape());
@@ -53,9 +54,9 @@ void GameModel::createStaticShapes()
     // Note static shapes' coodinates are expressed as if the viewport
     // is 480 pixels wide, regardless of its actual size
     m_pauseMessage->makeFromText("PAUSED", 241, 252, 33, 255, 6);
-    m_pauseMessage->SetPos(240, 100);
-    m_pauseMessage->SetVisible(false);
-    m_pauseMessage->SetName("gameModel::m_pauseMessage"); // useful for debugging only
+    m_pauseMessage->setPos(240, 100);
+    m_pauseMessage->setVisible(false);
+    m_pauseMessage->setName("gameModel::m_pauseMessage"); // useful for debugging only
     m_allStaticGameShapes.push_back(m_pauseMessage);
 }
 
@@ -122,22 +123,22 @@ void GameModel::levelLoad(size_t levelNum)
                 m_levelDescription = vec[5];
                 break;
             case 'N': // New object, parameter 1 is type, parameter 2 appears unused
-                if (obj->GetGameShapeType() != GameShapeType::UNINITIALISED) {
+                if (obj->getGameShapeType() != GameShapeType::UNINITIALISED) {
                     m_allDynamicGameShapes.push_back(std::move(obj));
                 }
                 obj = std::unique_ptr<GameShape>(new GameShape);
-                obj->SetGameShapeType(GameShapeType::NEUTRAL);
+                obj->setGameShapeType(GameShapeType::NEUTRAL);
                 if (vec.size() > 1) {
                     if (vec[1] == "OBSTRUCTION") {
-                        obj->SetGameShapeType(GameShapeType::OBSTRUCTION);
+                        obj->setGameShapeType(GameShapeType::OBSTRUCTION);
                     } else if (vec[1] == "FUEL") {
-                        obj->SetGameShapeType(GameShapeType::FUEL);
+                        obj->setGameShapeType(GameShapeType::FUEL);
                     } else if (vec[1] == "PRISONER") {
-                        obj->SetGameShapeType(GameShapeType::PRISONER);
+                        obj->setGameShapeType(GameShapeType::PRISONER);
                     } else if (vec[1] == "KEY") {
-                        obj->SetGameShapeType(GameShapeType::KEY);
+                        obj->setGameShapeType(GameShapeType::KEY);
                     } else if (vec[1] == "EXIT") {
-                        obj->SetGameShapeType(GameShapeType::EXIT);
+                        obj->setGameShapeType(GameShapeType::EXIT);
                     }
                 }
                 break;
@@ -157,12 +158,12 @@ void GameModel::levelLoad(size_t levelNum)
                     if (vec.size() == 9) {
                         sl1.lineThickness = stoi(vec[8]);
                     }
-                    obj->AddShapeLine(sl1);
+                    obj->addShapeLine(sl1);
                 }
                 break;
             case 'P':
                 if (obj != nullptr && vec.size() == 3) {
-                    obj->SetPos(stoi(vec[1]), stoi(vec[2]));
+                    obj->setPos(stoi(vec[1]), stoi(vec[2]));
                 }
                 break;
             case 'T':
@@ -184,7 +185,7 @@ void GameModel::levelLoad(size_t levelNum)
         currentLine.clear();
     }
     in.close();
-    if (obj->GetGameShapeType() != GameShapeType::UNINITIALISED) {
+    if (obj->getGameShapeType() != GameShapeType::UNINITIALISED) {
         m_allDynamicGameShapes.push_back(std::move(obj));
     }
     setLevel(levelNum);
@@ -210,16 +211,6 @@ void GameModel::setLevelDescription(const std::string& value)
     m_levelDescription = value;
 }
 
-bool GameModel::gameIsRunning() const
-{
-    return m_gameIsRunning;
-}
-
-void GameModel::setGameIsRunning(bool value)
-{
-    m_gameIsRunning = value;
-}
-
 std::shared_ptr<GameShape> GameModel::newGameShape()
 {
     std::shared_ptr<GameShape> gameShape(new GameShape);
@@ -242,14 +233,14 @@ std::shared_ptr<GameShape> GameModel::collisionDetect() const
             // can't collide with itself :)
             continue;
         }
-        if (obj->GetGameShapeType() == GameShapeType::NEUTRAL) {
+        if (obj->getGameShapeType() == GameShapeType::NEUTRAL) {
             // NEUTRAL objects don't cause collisions
             continue;
         }
         if (obj->IsActive() == false) {
             continue;
         }
-        if (m_shipModel->shipGameShape()->IntersectCheck(obj)) {
+        if (m_shipModel->shipGameShape()->intersectCheck(obj)) {
             return obj;
         }
     }
@@ -258,14 +249,15 @@ std::shared_ptr<GameShape> GameModel::collisionDetect() const
 
 void GameModel::process() // TODO more descriptive name
 {
-    if (m_shipModel->isExploding()) {
+    if (m_gameState == GameState::Exploding) {
+        m_shipModel->setIsExploding(true);
         m_shipModel->setVisible(false);
         m_explosionIterationCount++;
-        if (m_explosionIterationCount > 150) {
-            setGameIsRunning(false);
+        if (m_explosionIterationCount > 40) {
+            setGameState(GameState::Dead);
         }
     }
-    m_shipModel->process();
+    m_shipModel->process(m_gameState == GameState::Exploding);
 }
 
 void GameModel::processDynamicObjects(std::function<void(GameShape&)> process)
@@ -284,18 +276,62 @@ void GameModel::processStaticObjects(std::function<void(GameShape&)> process)
 
 unsigned int GameModel::getRotation() const
 {
-    return 0; // TODO
+    return 0; // unused overridden function
+}
+
+void GameModel::savePosition()
+{
+    if (m_gameState == GameState::Exploding) {
+        return;
+    }
+    unsigned x = static_cast<unsigned int>(m_shipModel->x());
+    unsigned y = static_cast<unsigned int>(m_shipModel->y());
+    double rot = m_shipModel->rotation();
+    // The ring buffer has 200 slots, so at 100 fps the last
+    // item in the buffer will be from about two seconds ago
+    m_savedPositionsRingBuffer.add({ x, y, rot });
 }
 
 void GameModel::togglePause()
 {
-    m_paused = !m_paused;
-    m_pauseMessage->SetVisible(m_paused);
+    if (m_gameState == GameState::Paused) {
+        m_gameState = GameState::Running;
+        m_pauseMessage->setVisible(false);
+    } else {
+        m_gameState = GameState::Paused;
+        m_pauseMessage->setVisible(true);
+    }
 }
 
-bool GameModel::getPausedState()
+void GameModel::restart()
 {
-    return m_paused;
+    // TESTING MCD DEBUG
+    // This is a test to see how we can handle "lives"
+    m_shipModel.reset();
+    m_shipModel
+        = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+    m_shipModel->initialise();
+    m_shipModel->setIsExploding(false);
+    m_shipModel->setShipX(m_savedPositionsRingBuffer.lastItem().posX);
+    m_shipModel->setShipY(m_savedPositionsRingBuffer.lastItem().posY);
+    m_shipModel->setRotation(m_savedPositionsRingBuffer.lastItem().rotation);
+    m_shipModel->setVisible(true);
+    m_explosionIterationCount = 0;
+    m_gameState = GameState::Running;
+    m_shipModel->buildExplosionShape();
+
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    // TESTING MCD DEBUG
+}
+
+GameState GameModel::getGameState()
+{
+    return m_gameState;
+}
+
+void GameModel::setGameState(GameState state)
+{
+    m_gameState = state;
 }
 
 } // namespace amaze

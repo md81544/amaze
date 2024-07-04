@@ -10,27 +10,27 @@ bool GameShape::IsActive() const
     return m_isActive;
 }
 
-void GameShape::SetIsActive(bool value)
+void GameShape::setIsActive(bool value)
 {
     m_isActive = value;
 }
 
-GameShapeType GameShape::GetGameShapeType() const
+GameShapeType GameShape::getGameShapeType() const
 {
     return m_gameShapeType;
 }
 
-void GameShape::SetGameShapeType(const GameShapeType& value)
+void GameShape::setGameShapeType(const GameShapeType& value)
 {
     m_gameShapeType = value;
 }
 
-std::string GameShape::GetName() const
+std::string GameShape::getName() const
 {
     return m_name;
 }
 
-void GameShape::SetName(const std::string& name)
+void GameShape::setName(const std::string& name)
 {
     m_name = name;
 }

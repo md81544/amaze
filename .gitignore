@@ -326,3 +326,4 @@ ASALocalRun/
 
 amaze
 .DS_Store
+build/

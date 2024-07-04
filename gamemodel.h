@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "gameshape.h"
+#include "helperfunctions.h"
 #include "imodel.h"
 #include "shipmodel.h"
 
@@ -21,6 +22,21 @@
 namespace marengo {
 namespace amaze {
 
+enum class GameState {
+    Running, // normal operation
+    Exploding, // ship is exploding
+    Dead, // life is lost
+    Succeeded, // found the exit
+    Paused, // game is paused
+    Quit // user requested to quit
+};
+
+struct ShipPosition {
+    unsigned int posX;
+    unsigned int posY;
+    double rotation;
+};
+
 class GameModel : public IModel {
 public:
     GameModel();
@@ -37,14 +53,8 @@ public:
     size_t level() const;
     void setLevel(size_t value);
 
-    bool wasTimeoutWarned() const;
-    void setWasTimeoutWarned(bool value);
-
     std::string levelDescription() const;
     void setLevelDescription(const std::string& value);
-
-    bool gameIsRunning() const;
-    void setGameIsRunning(bool value);
 
     std::shared_ptr<GameShape> newGameShape();
 
@@ -54,22 +64,22 @@ public:
     std::shared_ptr<GameShape> collisionDetect() const;
 
     void process();
-
     void processDynamicObjects(std::function<void(GameShape&)>) override;
-
     void processStaticObjects(std::function<void(GameShape&)>) override;
-
     unsigned int getRotation() const override;
-
+    // Save rocket position periodically to facilitate a restart after a life is used
+    void savePosition();
     void togglePause();
     bool getPausedState(); // returns true if paused
+    void restart();
+    GameState getGameState();
+    void setGameState(GameState state);
 
 private:
     std::string m_dataPath { "" };
 
     size_t m_level { 0 };
     std::string m_levelDescription;
-    bool m_gameIsRunning { false };
 
     int m_explosionIterationCount { 0 };
 
@@ -85,7 +95,8 @@ private:
     size_t m_averageFrameTime { 0 };
     std::shared_ptr<GameShape> m_pauseMessage;
 
-    bool m_paused { false };
+    helperfunctions::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
+    GameState m_gameState { GameState::Running };
 };
 
 } // namespace amaze

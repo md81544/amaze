@@ -3,9 +3,7 @@
 #include "helperfunctions.h"
 #include "log.h"
 
-#include <chrono>
 #include <memory>
-#include <thread>
 
 namespace marengo {
 namespace amaze {
@@ -84,7 +82,9 @@ void Controller::registerControlHandlers()
     m_graphicsAdapter.registerControlHandler(
         KeyControls::PAUSE, [&](const bool isKeyDown, const float) {
             int now = m_graphicsAdapter.getTicks();
-            if (isKeyDown && !m_gameModel.getShipModel()->isExploding()
+            if (isKeyDown
+                && (m_gameModel.getGameState() == GameState::Running
+                    || m_gameModel.getGameState() == GameState::Paused)
                 && now > m_lastPause + 500) {
                 m_gameModel.togglePause();
                 m_lastPause = m_graphicsAdapter.getTicks();
@@ -95,7 +95,7 @@ void Controller::registerControlHandlers()
     m_graphicsAdapter.registerControlHandler(
         KeyControls::QUIT, [&](const bool isKeyDown, const float) {
             if (isKeyDown) {
-                m_gameModel.setGameIsRunning(false);
+                m_gameModel.setGameState(GameState::Quit);
             }
         });
 }
@@ -105,49 +105,67 @@ void Controller::mainLoop(int gameLevel)
     // This is the main game control structure, called from main().
 
     // TODO splash screen?
-
-    m_gameModel.levelLoad(gameLevel);
-    m_gameModel.setGameIsRunning(true);
+    bool quitting { false };
     m_graphicsAdapter.setFrameRate(100);
+    while (!quitting) {
+        m_gameModel.getShipModel()->setVisible(true);
+        m_gameModel.levelLoad(gameLevel);
+        m_gameModel.setGameState(GameState::Running);
+        // TODO - reinstate position from previous save?
 
-    // Main game loop
-    while (true) {
-        // Read any key presses and call any registered functions for those
-        // keypresses
-        m_graphicsAdapter.processInput(m_gameModel.getPausedState());
+        // Main game loop
+        bool ending { false };
+        while (!ending && !quitting) {
+            m_gameModel.savePosition();
 
-        if (m_gameModel.getPausedState()) {
-            m_view.stopSounds();
-        } else {
-
-            m_gameModel.process(); // perform all processing required per loop
-
-            collisionChecks();
+            switch (m_gameModel.getGameState()) {
+                case GameState::Paused:
+                    m_graphicsAdapter.processInput(true);
+                    m_view.stopSounds();
+                    break;
+                case GameState::Dead:
+                    // We get here when the ship has finished exploding
+                    m_gameModel.restart();
+                    //ending = true;
+                    break;
+                case GameState::Quit:
+                    quitting = true;
+                    break;
+                case GameState::Succeeded:
+                    // TODO something more than just quit
+                    ending = true;
+                    break;
+                case GameState::Exploding:
+                    m_gameModel.process(); // perform all processing required per loop
+                    break;
+                case GameState::Running:
+                    m_graphicsAdapter.processInput(false);
+                    m_gameModel.process(); // perform all processing required per loop
+                    collisionChecks();
+                    break;
+                default:
+                    break;
+            }
+            m_graphicsAdapter.cls();
+            m_view.Update();
+            m_graphicsAdapter.redraw();
         }
-        if (m_gameModel.gameIsRunning() == false) {
-            std::this_thread::sleep_for(std::chrono::seconds(2));
-            // TODO - go round again to some form of menu
-            break;
-        }
-        m_graphicsAdapter.cls();
-        m_view.Update();
-        m_graphicsAdapter.redraw();
     }
 }
 
 void Controller::collisionChecks()
 {
     // Collision detection
-    std::shared_ptr<GameShape> collider = m_gameModel.collisionDetect();
+    auto collider = m_gameModel.collisionDetect();
     if (collider) {
-        switch (collider->GetGameShapeType()) {
+        switch (collider->getGameShapeType()) {
             case GameShapeType::EXIT:
                 m_graphicsAdapter.soundPlay("success");
-                m_gameModel.setGameIsRunning(false); // TODO next Level etc
+                m_gameModel.setGameState(GameState::Succeeded);
                 break;
             case GameShapeType::FUEL:
                 m_graphicsAdapter.soundPlay("collect");
-                collider->SetIsActive(false);
+                collider->setIsActive(false);
                 break;
             case GameShapeType::KEY:
                 // currently an idea but not used
@@ -156,6 +174,7 @@ void Controller::collisionChecks()
                 break;
             case GameShapeType::OBSTRUCTION:
                 m_gameModel.getShipModel()->setIsExploding(true);
+                m_gameModel.setGameState(GameState::Exploding);
                 break;
             case GameShapeType::PRISONER:
                 // currently an idea but not used
