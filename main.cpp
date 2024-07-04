@@ -7,7 +7,7 @@
 #include "view.h"
 
 #include <filesystem>
-#include <iostream>
+#include <print>
 
 // MVC intentions
 // What goes where in the MVC pattern can be a matter for debate; here's
@@ -121,13 +121,15 @@ int main(int argc, char* argv[])
 
         return 0;
     } catch (const marengo::amaze::AmazeBaseException& ex) {
-        std::string message = "Exception (" + std::string(typeid(ex).name()) + ") thrown in "
-            + ex.file() + " +" + std::to_string(ex.line()) + " (" + ex.function()
-            + "): " + ex.what();
-        std::cout << message << std::endl;
+        std::print(
+            "Exception ({0}) thrown in {1} +{2} ({3}) : {4}\n",
+            typeid(ex).name(),
+            ex.file(),
+            ex.line(),
+            ex.function(),
+            ex.what());
     } catch (const std::exception& e) {
-        // anything caught here is a terminal event
-        std::cout << e.what() << std::endl;
+        std::print("Exception encountered: {}\n", e.what());
     }
     return 1;
 }

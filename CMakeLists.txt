@@ -23,7 +23,7 @@ target_link_libraries(amaze PRIVATE
     sfml-audio
 )
 
-target_compile_options(amaze PRIVATE -std=c++20 -Wall -Wextra -Werror -Wpedantic)
+target_compile_options(amaze PRIVATE -std=c++2b -Wall -Wextra -Werror -Wpedantic)
 
 
 ADD_CUSTOM_TARGET(debug
