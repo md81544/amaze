@@ -339,7 +339,9 @@ void GameModel::setGameState(GameState state)
 
 int GameModel::lifeLost()
 {
-    --m_livesRemaining;
+    if (m_livesRemaining > 0) {
+        --m_livesRemaining;
+    }
     setLivesRemainingText();
     return m_livesRemaining;
 }

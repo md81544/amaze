@@ -24,6 +24,7 @@ Controller::Controller(GameModel& m, View& v, IGraphicsAdapter& g)
     m_graphicsAdapter.soundLoad("collision", (dataPath / "collision.wav").string());
     m_graphicsAdapter.soundLoad("collect", (dataPath / "collect.wav").string());
     m_graphicsAdapter.soundLoad("success", (dataPath / "success.wav").string());
+    m_graphicsAdapter.soundLoad("breakable", (dataPath / "breakable.wav").string());
 }
 
 void Controller::registerControlHandlers()
@@ -184,8 +185,12 @@ void Controller::collisionChecks()
                 m_gameModel.setGameState(GameState::Exploding);
                 break;
             case GameShapeType::BREAKABLE:
-                m_gameModel.getShipModel()->setIsExploding(true);
-                m_gameModel.setGameState(GameState::Exploding);
+                if (m_gameModel.lifeLost() > 0) {
+                    m_graphicsAdapter.soundPlay("breakable");
+                } else {
+                    m_gameModel.getShipModel()->setIsExploding(true);
+                    m_gameModel.setGameState(GameState::Exploding);
+                }
                 collider->setIsActive(false); // Breakable objects can be destroyed
                 break;
             case GameShapeType::PRISONER:
