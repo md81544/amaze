@@ -49,6 +49,7 @@ public:
     const std::string getDataPath();
 
     void createStaticShapes();
+    void buildBreakableExplosionShape();
 
     size_t level() const;
     void setLevel(size_t value);
@@ -76,6 +77,7 @@ public:
     void setGameState(GameState state);
     int lifeLost();
     void extraLife();
+    void setBreakableExploding();
 
 private:
     std::string m_dataPath { "" };
@@ -97,11 +99,14 @@ private:
     size_t m_averageFrameTime { 0 };
     std::shared_ptr<GameShape> m_pauseMessage;
     std::shared_ptr<GameShape> m_livesRemainingLabel;
+    std::shared_ptr<GameShape> m_breakableExplosionShape;
+    bool m_breakableExploding { false };
+    int m_breakableExplodingIterationCount { 0 };
 
     helperfunctions::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
     void rebuildShip();
-    int m_livesRemaining{1};
+    int m_livesRemaining { 1 };
     void setLivesRemainingText();
 };
 

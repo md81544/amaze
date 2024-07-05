@@ -28,6 +28,9 @@ void GameModel::initialise(size_t levelNumber)
 
     createStaticShapes();
 
+    buildBreakableExplosionShape();
+    m_allDynamicGameShapes.push_back(m_breakableExplosionShape);
+
     // Grid lines on the background
     std::shared_ptr<GameShape> bkg(new GameShape);
     for (double n = 0; n <= 2000; n += 50) {
@@ -64,6 +67,29 @@ void GameModel::createStaticShapes()
     m_livesRemainingLabel->setVisible(true);
     m_livesRemainingLabel->setName("gameModel::m_livesRemainingLabel"); // useful for debugging only
     m_allStaticGameShapes.push_back(m_livesRemainingLabel);
+}
+
+void GameModel::buildBreakableExplosionShape()
+{
+    using namespace helperfunctions;
+    if (!m_breakableExplosionShape) {
+        m_breakableExplosionShape = std::make_shared<GameShape>();
+    }
+    m_breakableExplosionShape->clear();
+    for (int n = 0; n < 11; ++n) {
+        if (rand() % 5 == 1) {
+            continue;
+        }
+        double x1 = static_cast<double>(Sine(n * 30.0) * 20 + (rand() % 10));
+        double y1 = static_cast<double>(Cosine(n * 30.0) * 20 + (rand() % 10));
+        double x2 = static_cast<double>(Sine((n + 1) * 30.0) * 20 + (rand() % 10));
+        double y2 = static_cast<double>(Cosine((n + 1) * 30.0) * 20 + (rand() % 10));
+        m_breakableExplosionShape->addShapeLine(ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6 });
+    }
+    m_breakableExplosionShape->setName("BreakableExplosion");
+    m_breakableExplosionShape->setVisible(false);
+    m_breakableExplosionShape->resize(0.1);
+    m_breakableExplodingIterationCount = 0;
 }
 
 size_t GameModel::level() const
@@ -265,6 +291,15 @@ void GameModel::process() // TODO more descriptive name
             setGameState(GameState::Dead);
         }
     }
+    if (m_breakableExploding) {
+        m_breakableExplosionShape->setVisible(true);
+        m_breakableExplosionShape->setPos(m_shipModel->x(), m_shipModel->y());
+        m_breakableExplosionShape->resize(1.2);
+        if (++m_breakableExplodingIterationCount > 40) {
+            m_breakableExploding = false;
+            buildBreakableExplosionShape();
+        }
+    }
     m_shipModel->process(m_gameState == GameState::Exploding);
 }
 
@@ -352,6 +387,11 @@ void GameModel::extraLife()
     setLivesRemainingText();
 }
 
+void GameModel::setBreakableExploding()
+{
+    m_breakableExploding = true;
+}
+
 void GameModel::rebuildShip()
 {
     std::vector<std::shared_ptr<GameShape>> tmp;
@@ -370,7 +410,7 @@ void GameModel::setLivesRemainingText()
 {
     m_livesRemainingLabel->makeFromText(
         "Lives remaining: " + std::to_string(m_livesRemaining), 0, 200, 0, 255, 2);
-    m_livesRemainingLabel->setScale(0.3);
+    m_livesRemainingLabel->resize(0.3);
 }
 
 } // namespace amaze

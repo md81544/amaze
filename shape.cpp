@@ -167,7 +167,7 @@ void Shape::clear()
     m_Rotation = 0;
 }
 
-void Shape::setScale(double scale)
+void Shape::resize(double scale)
 {
     if (scale > 0) {
         m_Scale = scale;

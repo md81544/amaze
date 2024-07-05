@@ -1,3 +1,4 @@
+* Breakable line animation when destroyed
 * Splash screen
 * Menu?
 * Next level when level complete

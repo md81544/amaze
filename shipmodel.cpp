@@ -209,7 +209,7 @@ void ShipModel::process(bool isExploding)
 
     if (isExploding) {
         m_ExplosionGameShape->setPos(m_ShipX, m_ShipY);
-        m_ExplosionGameShape->setScale(1.2);
+        m_ExplosionGameShape->resize(1.2);
         m_FlamesGameShape->setVisible(false);
         m_IsAccelerating = false;
     }
@@ -289,7 +289,7 @@ void ShipModel::buildExplosionShape()
     }
     m_ExplosionGameShape->setName("Explosion");
     m_ExplosionGameShape->setVisible(false);
-    m_ExplosionGameShape->setScale(0.1);
+    m_ExplosionGameShape->resize(0.1);
 }
 
 std::shared_ptr<GameShape> ShipModel::explosionGameShape() const

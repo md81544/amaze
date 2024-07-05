@@ -187,6 +187,7 @@ void Controller::collisionChecks()
             case GameShapeType::BREAKABLE:
                 if (m_gameModel.lifeLost() > 0) {
                     m_graphicsAdapter.soundPlay("breakable");
+                    m_gameModel.setBreakableExploding();
                 } else {
                     m_gameModel.getShipModel()->setIsExploding(true);
                     m_gameModel.setGameState(GameState::Exploding);
