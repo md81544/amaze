@@ -183,6 +183,11 @@ void Controller::collisionChecks()
                 m_gameModel.getShipModel()->setIsExploding(true);
                 m_gameModel.setGameState(GameState::Exploding);
                 break;
+            case GameShapeType::BREAKABLE:
+                m_gameModel.getShipModel()->setIsExploding(true);
+                m_gameModel.setGameState(GameState::Exploding);
+                collider->setIsActive(false); // Breakable objects can be destroyed
+                break;
             case GameShapeType::PRISONER:
                 // currently an idea but not used
                 break;

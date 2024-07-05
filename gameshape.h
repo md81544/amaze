@@ -17,7 +17,8 @@ enum class GameShapeType {
     FUEL,
     PRISONER,
     KEY,
-    EXIT
+    EXIT,
+    BREAKABLE // acts like OBSTRUCTION, but is destroyed once hit
 };
 
 class GameShape : public Shape {

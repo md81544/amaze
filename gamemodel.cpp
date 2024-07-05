@@ -145,6 +145,8 @@ void GameModel::levelLoad(size_t levelNum)
                         obj->setGameShapeType(GameShapeType::KEY);
                     } else if (vec[1] == "EXIT") {
                         obj->setGameShapeType(GameShapeType::EXIT);
+                    } else if (vec[1] == "BREAKABLE") {
+                        obj->setGameShapeType(GameShapeType::BREAKABLE);
                     }
                 }
                 break;
