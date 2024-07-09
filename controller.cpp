@@ -108,23 +108,24 @@ void Controller::mainLoop(int gameLevel)
     // This is the main game control structure, called from main()
 
     // TODO splash screen?
-    bool quitting { false };
-    bool quitImmediate { false };
+    bool endingLevel { false };
     int iterationCount = 300;
     m_graphicsAdapter.setFrameRate(100);
-    while (!quitting && !quitImmediate) {
-        m_gameModel.getShipModel()->setVisible(!quitting);
+
+    // Main game loop
+    for (;;) {
+        m_gameModel.getShipModel()->setVisible(!endingLevel);
         m_gameModel.levelLoad(gameLevel);
         m_gameModel.setGameState(GameState::Running);
 
-        // Main game loop
-        bool ending { false };
-        while (!ending && (!quitting || iterationCount > 0)) {
-            if (quitImmediate) {
-                break;
-            }
-            if (quitting) {
+        // Main loop per "life"
+        for (;;) {
+            if (endingLevel) {
                 --iterationCount;
+                if (iterationCount == 0) {
+                    // TODO - next level rather than just quitting
+                    goto end_loops;
+                }
             }
             m_gameModel.savePosition();
 
@@ -139,10 +140,11 @@ void Controller::mainLoop(int gameLevel)
                         m_gameModel.restart();
                         break;
                     }
-                    quitting = true; // all lives lost
+                    endingLevel = true; // all lives lost
                     break;
                 case GameState::Quit:
-                    quitImmediate = true;
+                    // Break out of two loops, a justified use of goto :)
+                    goto end_loops;
                     break;
                 case GameState::Succeeded:
                     // TODO something more than just quit
@@ -150,7 +152,7 @@ void Controller::mainLoop(int gameLevel)
                     m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
                     m_gameModel.getShipModel()->setIsAccelerating(false);
                     m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
-                    quitting = true;
+                    endingLevel = true;
                     break;
                 case GameState::Exploding:
                     m_gameModel.process(); // perform all processing required per loop
@@ -168,6 +170,7 @@ void Controller::mainLoop(int gameLevel)
             m_graphicsAdapter.redraw();
         }
     }
+end_loops:
 }
 
 void Controller::collisionChecks()

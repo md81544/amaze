@@ -1,4 +1,4 @@
-* Breakable line animation when destroyed
+* Black holes that attract the ship
 * Splash screen
 * Menu?
 * Next level when level complete
