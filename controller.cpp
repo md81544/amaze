@@ -109,15 +109,23 @@ void Controller::mainLoop(int gameLevel)
 
     // TODO splash screen?
     bool quitting { false };
+    bool quitImmediate { false };
+    int iterationCount = 300;
     m_graphicsAdapter.setFrameRate(100);
-    while (!quitting) {
-        m_gameModel.getShipModel()->setVisible(true);
+    while (!quitting && !quitImmediate) {
+        m_gameModel.getShipModel()->setVisible(!quitting);
         m_gameModel.levelLoad(gameLevel);
         m_gameModel.setGameState(GameState::Running);
 
         // Main game loop
         bool ending { false };
-        while (!ending && !quitting) {
+        while (!ending && (!quitting || iterationCount > 0)) {
+            if (quitImmediate) {
+                break;
+            }
+            if (quitting) {
+                --iterationCount;
+            }
             m_gameModel.savePosition();
 
             switch (m_gameModel.getGameState()) {
@@ -132,15 +140,17 @@ void Controller::mainLoop(int gameLevel)
                         break;
                     }
                     quitting = true; // all lives lost
-                    std::this_thread::sleep_for(std::chrono::seconds(3));
                     break;
                 case GameState::Quit:
-                    quitting = true;
+                    quitImmediate = true;
                     break;
                 case GameState::Succeeded:
                     // TODO something more than just quit
+                    m_view.stopSounds();
+                    m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
+                    m_gameModel.getShipModel()->setIsAccelerating(false);
+                    m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
                     quitting = true;
-                    std::this_thread::sleep_for(std::chrono::seconds(2));
                     break;
                 case GameState::Exploding:
                     m_gameModel.process(); // perform all processing required per loop
