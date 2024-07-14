@@ -108,7 +108,7 @@ void Controller::mainLoop(int gameLevel)
     // This is the main game control structure, called from main()
 
     // TODO splash screen?
-    bool endingLevel { false };
+    bool endingLevel = false;
     int iterationCount = 300;
     m_graphicsAdapter.setFrameRate(100);
 

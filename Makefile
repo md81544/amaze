@@ -3,13 +3,13 @@ MAKEFLAGS += --silent
 .PHONY: all debug clean release
 
 all:
-	./m.sh
+	./.m.sh
 
 debug:
-	./m.sh debug
+	./.m.sh debug
 
 clean:
-	./m.sh clean
+	./.m.sh clean
 
 release:
-	./m.sh release
+	./.m.sh release
