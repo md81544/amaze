@@ -29,49 +29,18 @@
 // related to the mechanics of the game BUT NOT logic related to actual
 // gameplay (which should be in the model).
 
-namespace {
-
-std::string findConfigFile(const char* const argv0)
-{
-    std::filesystem::path p(argv0);
-    return p.string() + ".cfg";
-}
-std::string findDataDirectory(const char* const program)
-{
-    // Attempt to locate the data directory. We look in the
-    // directory where the binary is located, its parent,
-    // and its parent's parent. Throws if it cannot find a data directory.
-    std::filesystem::path searchDir(program);
-    std::string dir { "" };
-    searchDir = searchDir.parent_path();
-    for (int n = 0; n < 3; ++n) {
-        auto tryDir = searchDir;
-        tryDir.append("data");
-        if (std::filesystem::is_directory(tryDir)) {
-            auto tryFile = tryDir;
-            tryFile.append("level0.cfg");
-            if (std::filesystem::exists(tryFile)) {
-                dir = tryDir.string();
-                break;
-            }
-        }
-        searchDir = searchDir.parent_path();
-    }
-    if (dir.empty()) {
-        THROWUP(marengo::amaze::AmazeStartupException, "Could not locate data directory");
-    }
-    return dir;
-}
-} // end anonymous namespace
-
 int main(int argc, char* argv[])
 {
     using namespace marengo::amaze;
 
     try {
-        INIT_MGOLOG("debug.log");
 
-        mgo::ConfigReader config(findConfigFile(argv[0]));
+        std::filesystem::path exe(argv[0]);
+        std::filesystem::path cwd = exe.remove_filename();
+
+        INIT_MGOLOG((cwd / "debug.log").string());
+
+        mgo::ConfigReader config((cwd / "amaze.cfg").string());
 
         int gameLevel = 0;
 
@@ -83,6 +52,8 @@ int main(int argc, char* argv[])
         // defeats MacOS's focus-losing behaviour. This doesn't seem to happen on older versions
         // of MacOS but has been replicated on two separate machines running Sonoma (MacOS 14.x).
         // This still doesn't seem to work if we specify full screen however :/
+        // This is avoided by using an .app bundle and running that, it does mean it's then
+        // harder to supply command-line arguments. TODO make the level selection in the game.
         if (argc > 1) {
             for (int n = 1; n < argc; ++n) {
                 try {
@@ -94,7 +65,7 @@ int main(int argc, char* argv[])
         srand(static_cast<unsigned int>(time(NULL))); // TODO random device
 
         // Locate our data directory:
-        std::string dataDir = findDataDirectory(argv[0]);
+        std::string dataDir = (cwd / "data").string();
 
         // The window's dimensions' proportions should mirror the physical screen's dimensions so
         // everything is in proportion if we go fullscreen

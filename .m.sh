@@ -48,4 +48,4 @@ if [[ $? -ne 0 ]]; then
 fi
 cd ..
 rm -f amaze
-ln -s build/amaze
+cp build/amaze .
