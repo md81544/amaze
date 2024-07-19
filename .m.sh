@@ -49,3 +49,7 @@ fi
 cd ..
 rm -f amaze
 cp build/amaze .
+# MacOS bundle specifics:
+cd amaze.app/Contents/MacOS
+rm -f amaze
+ln -s ../../../amaze .
