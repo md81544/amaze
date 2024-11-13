@@ -224,22 +224,47 @@ void ShipModel::process(bool isExploding)
 
 void ShipModel::drawFlames()
 {
+    // m_AccelerationAmount will be something like a maximum of 0.025
+    float lengthMultiplier = m_AccelerationAmount * 40.f;
+    if (lengthMultiplier > 1.f) {
+        lengthMultiplier = 1.f;
+    }
     m_FlamesGameShape->clear();
     for (int n = 0; n < 8; ++n) {
         m_FlamesGameShape->setColour(180, 0, 0, 255);
-        m_FlamesGameShape->addLine(4 - rand() % 8, 17, 10 - rand() % 20, 80 + rand() % 20, 3);
+        int bottomY = lengthMultiplier * 80 + rand() % 20;
+        if (bottomY < 17) {
+            bottomY = 17 + rand() % 20;
+        }
+        m_FlamesGameShape->addLine(
+            4 - rand() % 8, 17, 10 - rand() % 20, bottomY, 3);
     }
     for (int n = 0; n < 10; ++n) {
         m_FlamesGameShape->setColour(255, 0, 0, 255);
-        m_FlamesGameShape->addLine(4 - rand() % 8, 17, 15 - rand() % 30, 40 + rand() % 30, 3);
+        int bottomY = lengthMultiplier * 40 + rand() % 20;
+        if (bottomY < 17) {
+            bottomY = 17 + rand() % 20;
+        }
+        m_FlamesGameShape->addLine(
+            4 - rand() % 8, 17, 10 - rand() % 20, bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_FlamesGameShape->setColour(250, 214, 116, 255);
-        m_FlamesGameShape->addLine(4 - rand() % 8, 17, 10 - rand() % 20, 35 + rand() % 20, 3);
+        int bottomY = lengthMultiplier * 35 + rand() % 20;
+        if (bottomY < 17) {
+            bottomY = 17 + rand() % 20;
+        }
+        m_FlamesGameShape->addLine(
+            4 - rand() % 8, 17, 10 - rand() % 20, bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_FlamesGameShape->setColour(255, 255, 255, 255);
-        m_FlamesGameShape->addLine(4 - rand() % 8, 17, 4 - rand() % 8, 20 + rand() % 10, 3);
+        int bottomY = lengthMultiplier * 20 + rand() % 20;
+        if (bottomY < 17) {
+            bottomY = 17 + rand() % 20;
+        }
+        m_FlamesGameShape->addLine(
+            4 - rand() % 8, 17, 4 - rand() % 8, bottomY, 3);
     }
 
     // Ensure that the flames have the same rotation
