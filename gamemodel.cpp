@@ -34,9 +34,9 @@ void GameModel::initialise(size_t levelNumber)
     // Grid lines on the background
     std::shared_ptr<GameShape> bkg(new GameShape);
     for (double n = 0; n <= 2000; n += 50) {
-        ShapeLine sl1 { n, 0, n, 2000, 0, 100, 0, 255, 1 };
+        ShapeLine sl1 { n, 0, n, 2000, 0, 64, 0, 255, 4 };
         bkg->addShapeLine(sl1);
-        ShapeLine sl2 { 0, n, 2000, n, 0, 100, 0, 255, 1 };
+        ShapeLine sl2 { 0, n, 2000, n, 0, 64, 0, 255, 4 };
         bkg->addShapeLine(sl2);
     }
     bkg->setPos(0, 0);
