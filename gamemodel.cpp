@@ -149,10 +149,12 @@ void GameModel::levelLoad(size_t levelNum)
         }
         char c = vec[0][0];
         switch (c) {
-            case '!': // timelimit (unused), fuel (unused), ship x, ship y, description (unused)
+            case '!': // timelimit (unused), fuel (unused), ship x, ship y, ship angle, description
+                      // (currently unused)
                 m_shipModel->setShipX(stod(vec[3]));
                 m_shipModel->setShipY(stod(vec[4]));
-                m_levelDescription = vec[5];
+                m_shipModel->setRotation(stod(vec[5]));
+                m_levelDescription = vec[6];
                 break;
             case 'N': // New object, parameter 1 is type, parameter 2 appears unused
                 if (obj->getGameShapeType() != GameShapeType::UNINITIALISED) {
