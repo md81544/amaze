@@ -130,6 +130,9 @@ void Controller::mainLoop(int gameLevel)
             m_gameModel.savePosition();
 
             switch (m_gameModel.getGameState()) {
+                case GameState::Menu:
+                    // TODO
+                    break;
                 case GameState::Paused:
                     m_graphicsAdapter.processInput(true);
                     m_view.stopSounds();

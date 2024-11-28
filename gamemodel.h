@@ -28,7 +28,8 @@ enum class GameState {
     Dead, // life is lost
     Succeeded, // found the exit
     Paused, // game is paused
-    Quit // user requested to quit
+    Quit, // user requested to quit
+    Menu  // Level selection / options etc
 };
 
 struct ShipPosition {

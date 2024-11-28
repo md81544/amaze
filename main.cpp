@@ -29,7 +29,7 @@
 // related to the mechanics of the game BUT NOT logic related to actual
 // gameplay (which should be in the model).
 
-int main(int, char* argv[])
+int main(int argc, char* argv[])
 {
     using namespace marengo::amaze;
 
@@ -42,10 +42,14 @@ int main(int, char* argv[])
 
         mgo::ConfigReader config((cwd / "amaze.cfg").string());
 
-        // Until some form of menu is implemented, specify the level in the config
-        // file. Not using commandline parameters because if I do, MacOS starts the
-        // app without focus
         int gameLevel = config.readLong("GameLevel", 0);
+        if(argc >1){
+            try{
+                int level = std::atoi(argv[1]);
+                gameLevel = level;
+            }
+            catch(...){}
+        }
 
         srand(static_cast<unsigned int>(time(NULL))); // TODO random device
 

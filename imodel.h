@@ -15,7 +15,10 @@
 // The default viewport position is (0,0).
 // The View model displays the viewport at the size of
 // the physical window and scales the "units" to pixels
-// accordingly.
+// accordingly. SFML has "viewport" capability but a lot of this
+// code was written for other graphics toolkits and was ported.
+// Hence we don't use a lot of useful SFML stuff, and what we do
+// use is abstracted.
 
 namespace marengo {
 namespace amaze {
