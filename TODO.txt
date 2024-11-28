@@ -1,8 +1,9 @@
+* How about rocket flames can break breakable walls? i.e. if you back in and thrust
 * Why is the ship in the middle of the screen? Maybe move it lower down
 * Black holes that attract the ship?
 * Teleport / portals
 * Splash screen
-* Menu?
+* Menu
 * Next level when level complete
 * Change level data file format to YAML or JSON?
 * Keyboard controls don't work properly if joystick is attached

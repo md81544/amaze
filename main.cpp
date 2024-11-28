@@ -61,13 +61,6 @@ int main(int argc, char* argv[])
         int width = config.readLong("WindowWidth", 800);
         int height = config.readLong("WindowHeight", 500);
         bool useFullScreen = config.readBool("FullScreen", false);
-        if (useFullScreen) {
-            // Check whether the SFML bug is going to hit us in full screen (see my bug report
-            // https://github.com/SFML/SFML/issues/2300)
-            if (!SfmlAdapter::isFullScreenSafe()) {
-                useFullScreen = false;
-            }
-        }
         SfmlAdapter graphicsManager(width, height, useFullScreen);
 
         GameModel gameModel;

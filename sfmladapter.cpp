@@ -11,7 +11,8 @@ namespace amaze {
 
 SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
     : m_window(
-          sf::VideoMode(screenWidth, screenHeight),
+          useFullScreen ? sf::VideoMode::getDesktopMode()
+                        : sf::VideoMode(screenWidth, screenHeight),
           "Amaze",
           useFullScreen ? sf::Style::Fullscreen : sf::Style::Default)
     , m_screenHeight(screenHeight)
