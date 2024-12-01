@@ -295,10 +295,11 @@ void GameModel::process() // TODO more descriptive name
         m_breakableExplosionShape->setVisible(true);
         m_breakableExplosionShape->setPos(m_shipModel->x(), m_shipModel->y());
         m_breakableExplosionShape->resize(1.2);
-        m_scheduler.doAfter(ScheduleEventName::BreakableExploding, 40, [&]() {
-            m_breakableExploding = false;
-            buildBreakableExplosionShape();
-        });
+        m_scheduler.doAfter(
+            ScheduleEventName::BreakableExploding, 40, [&]() {
+                m_breakableExploding = false;
+                buildBreakableExplosionShape();
+                });
     }
     m_shipModel->process(m_gameState == GameState::Exploding);
 }
@@ -386,9 +387,10 @@ void GameModel::extraLife()
     setLivesRemainingText();
 }
 
-void GameModel::setBreakableExploding()
+void GameModel::setBreakableExploding(bool value /* =true */)
 {
-    m_breakableExploding = true;
+    m_breakableExploding = value;
+    m_breakableExplosionShape->setVisible(value);
 }
 
 void GameModel::rebuildShip()

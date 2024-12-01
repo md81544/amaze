@@ -8,4 +8,3 @@
 * Next level when level complete
 * Change level data file format to YAML or JSON?
 * Keyboard controls don't work properly if joystick is attached
-* Remove exploding breakable wall fragments if exit is hit

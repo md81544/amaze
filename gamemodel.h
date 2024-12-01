@@ -79,7 +79,7 @@ public:
     void setGameState(GameState state);
     int lifeLost();
     void extraLife();
-    void setBreakableExploding();
+    void setBreakableExploding(bool value = true);
 
 private:
     std::string m_dataPath { "" };

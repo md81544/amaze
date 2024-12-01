@@ -153,6 +153,7 @@ void Controller::mainLoop(int gameLevel)
                     m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
                     m_gameModel.getShipModel()->setIsAccelerating(false);
                     m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
+                    m_gameModel.setBreakableExploding(false);
                     m_scheduler.doAfter(ScheduleEventName::EndLoops, 300, [&]() {
                         endingLevel = true;
                     });
