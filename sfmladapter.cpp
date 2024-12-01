@@ -19,6 +19,11 @@ SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
     , m_screenWidth(screenWidth)
 {
     m_window.setMouseCursorVisible(false);
+    if (useFullScreen) {
+        auto dm = sf::VideoMode::getDesktopMode();
+        m_screenHeight = dm.height;
+        m_screenWidth = dm.width;
+    }
 }
 
 SfmlAdapter::~SfmlAdapter() { }
