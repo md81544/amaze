@@ -109,7 +109,6 @@ void Controller::mainLoop(int gameLevel)
 
     // TODO splash screen?
     bool endingLevel = false;
-    int iterationCount = 300;
     m_graphicsAdapter.setFrameRate(100);
 
     // Main game loop
@@ -120,12 +119,9 @@ void Controller::mainLoop(int gameLevel)
 
         // Main loop per "life"
         for (;;) {
+            m_scheduler.processSchedule();
             if (endingLevel) {
-                --iterationCount;
-                if (iterationCount == 0) {
-                    // TODO - next level rather than just quitting
-                    goto end_loops;
-                }
+                goto end_loops;
             }
             m_gameModel.savePosition();
 
@@ -143,7 +139,9 @@ void Controller::mainLoop(int gameLevel)
                         m_gameModel.restart();
                         break;
                     }
-                    endingLevel = true; // all lives lost
+                    m_scheduler.doAfter(ScheduleEventName::EndLoops, 300, [&]() {
+                        endingLevel = true; // all lives lost
+                    });
                     break;
                 case GameState::Quit:
                     // Break out of two loops, a justified use of goto :)
@@ -155,7 +153,9 @@ void Controller::mainLoop(int gameLevel)
                     m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
                     m_gameModel.getShipModel()->setIsAccelerating(false);
                     m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
-                    endingLevel = true;
+                    m_scheduler.doAfter(ScheduleEventName::EndLoops, 300, [&]() {
+                        endingLevel = true;
+                    });
                     break;
                 case GameState::Exploding:
                     m_gameModel.process(); // perform all processing required per loop

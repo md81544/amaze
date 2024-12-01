@@ -5,6 +5,7 @@
 #include "gameshape.h"
 #include "helperfunctions.h"
 #include "imodel.h"
+#include "scheduler.h"
 #include "shipmodel.h"
 
 // This class acts as the MVC "model" for the game.
@@ -86,8 +87,6 @@ private:
     size_t m_level { 0 };
     std::string m_levelDescription;
 
-    int m_explosionIterationCount { 0 };
-
     // Container for all GameShapes in the game:
     std::vector<std::shared_ptr<GameShape>> m_allDynamicGameShapes;
 
@@ -102,13 +101,14 @@ private:
     std::shared_ptr<GameShape> m_livesRemainingLabel;
     std::shared_ptr<GameShape> m_breakableExplosionShape;
     bool m_breakableExploding { false };
-    int m_breakableExplodingIterationCount { 0 };
 
     helperfunctions::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
     void rebuildShip();
     int m_livesRemaining { 1 };
     void setLivesRemainingText();
+    Scheduler m_scheduler;
+
 };
 
 } // namespace amaze

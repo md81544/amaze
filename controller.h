@@ -2,6 +2,7 @@
 
 #include "gamemodel.h"
 #include "igraphicsadapter.h"
+#include "scheduler.h"
 #include "view.h"
 
 #include <utility>
@@ -24,6 +25,7 @@ private:
     View& m_view;
     IGraphicsAdapter& m_graphicsAdapter;
     int m_lastPause { 0 };
+    Scheduler m_scheduler;
 };
 
 } // namespace amaze

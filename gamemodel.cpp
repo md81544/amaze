@@ -22,7 +22,6 @@ GameModel::GameModel()
 void GameModel::initialise(size_t levelNumber)
 {
     // Resets the model to a state ready for a new Level
-    m_explosionIterationCount = 0;
     m_allDynamicGameShapes.clear();
     m_allStaticGameShapes.clear();
 
@@ -89,7 +88,6 @@ void GameModel::buildBreakableExplosionShape()
     m_breakableExplosionShape->setName("BreakableExplosion");
     m_breakableExplosionShape->setVisible(false);
     m_breakableExplosionShape->resize(0.1);
-    m_breakableExplodingIterationCount = 0;
 }
 
 size_t GameModel::level() const
@@ -285,22 +283,22 @@ std::shared_ptr<GameShape> GameModel::collisionDetect() const
 
 void GameModel::process() // TODO more descriptive name
 {
+    m_scheduler.processSchedule();
+
     if (m_gameState == GameState::Exploding) {
         m_shipModel->setIsExploding(true);
         m_shipModel->setVisible(false);
-        m_explosionIterationCount++;
-        if (m_explosionIterationCount > 40) {
-            setGameState(GameState::Dead);
-        }
+        m_scheduler.doAfter(
+            ScheduleEventName::Exploding, 40, [&]() { setGameState(GameState::Dead); });
     }
     if (m_breakableExploding) {
         m_breakableExplosionShape->setVisible(true);
         m_breakableExplosionShape->setPos(m_shipModel->x(), m_shipModel->y());
         m_breakableExplosionShape->resize(1.2);
-        if (++m_breakableExplodingIterationCount > 40) {
+        m_scheduler.doAfter(ScheduleEventName::BreakableExploding, 40, [&]() {
             m_breakableExploding = false;
             buildBreakableExplosionShape();
-        }
+        });
     }
     m_shipModel->process(m_gameState == GameState::Exploding);
 }
@@ -357,7 +355,6 @@ void GameModel::restart()
     m_shipModel->setShipY(m_savedPositionsRingBuffer.lastItem().posY);
     m_shipModel->setRotation(m_savedPositionsRingBuffer.lastItem().rotation);
     m_shipModel->setVisible(true);
-    m_explosionIterationCount = 0;
     m_gameState = GameState::Running;
     m_shipModel->buildExplosionShape();
 
