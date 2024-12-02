@@ -18,10 +18,17 @@ add_executable(amaze
 )
 
 target_link_libraries(amaze PRIVATE
-    sfml-graphics
-    sfml-window
-    sfml-system
-    sfml-audio
+    #sfml-graphics
+    #sfml-window
+    #sfml-system
+    #sfml-audio
+    # Temporary location of SFML libs I've manually fixed until 2.6.3 comes out
+    # correcting the issue in my latest bug report
+    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-graphics.2.6.2.dylib
+    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-window.2.6.2.dylib
+    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-system.2.6.2.dylib
+    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-audio.2.6.2.dylib
+
 )
 
 target_compile_options(amaze PRIVATE -std=c++2b -Wall -Wextra -Werror -Wpedantic)
