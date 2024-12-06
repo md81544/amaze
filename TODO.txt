@@ -1,3 +1,6 @@
+* Jettison the idea of "static shapes" - it's only used currently for (a) the "Paused" message
+  and (b) the "lives remaining". Both of which I'd prefer to use a proper font for (which
+  means we can also get rid of the whole vectorfont thing as well).
 * Black status bar at top to hide notch in fullscreen
 * How about rocket flames can break breakable walls? i.e. if you back in and thrust
 * Why is the ship in the middle of the screen? Maybe move it lower down
@@ -8,3 +11,4 @@
 * Next level when level complete
 * Change level data file format to YAML or JSON?
 * Keyboard controls don't work properly if joystick is attached
+* Moving obstacles

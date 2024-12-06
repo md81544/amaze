@@ -271,10 +271,5 @@ void SfmlAdapter::soundFade(const std::string& key, const int /* msecs */)
     m_sounds[key]->setVolume(newVolume);
 }
 
-bool SfmlAdapter::isFullScreenSafe()
-{
-    return !sf::VideoMode::getFullscreenModes().empty();
-}
-
 } // namespace amaze
 } // namespace marengo
