@@ -9,7 +9,11 @@
 namespace marengo {
 namespace amaze {
 
-SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
+SfmlAdapter::SfmlAdapter(
+    int screenWidth,
+    int screenHeight,
+    bool useFullScreen,
+    const std::string& dataDir)
     : m_window(
           useFullScreen ? sf::VideoMode::getDesktopMode()
                         : sf::VideoMode(screenWidth, screenHeight),
@@ -24,6 +28,7 @@ SfmlAdapter::SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen)
         m_screenHeight = dm.height;
         m_screenWidth = dm.width;
     }
+    m_font.loadFromFile(dataDir + "/Oxanium-SemiBold.ttf");
 }
 
 SfmlAdapter::~SfmlAdapter() { }
@@ -137,6 +142,17 @@ void SfmlAdapter::drawStatusBar()
     sf::RectangleShape sb(sf::Vector2f(m_screenWidth, 75));
     sb.setFillColor(sf::Color::Black);
     m_window.draw(sb);
+}
+
+void SfmlAdapter::drawText(const Text& text)
+{
+    sf::Text t;
+    t.setString(text.text);
+    t.setFillColor(sf::Color({ text.r, text.g, text.b }));
+    t.setPosition({ text.positionX, text.positionY });
+    t.setFont(m_font);
+    t.setCharacterSize(text.characterSize);
+    m_window.draw(t);
 }
 
 void SfmlAdapter::imageDisplay(

@@ -23,8 +23,8 @@ public:
     void stopSounds();
 
 private:
-    GameModel& m_Model;
-    IGraphicsAdapter& m_GraphicsAdapter;
+    GameModel& m_model;
+    IGraphicsAdapter& m_graphicsAdapter;
 };
 
 } // namespace amaze

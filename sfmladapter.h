@@ -21,7 +21,7 @@ namespace amaze {
 class SfmlAdapter : public IGraphicsAdapter {
 
 public:
-    SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen);
+    SfmlAdapter(int screenWidth, int screenHeight, bool useFullScreen, const std::string& dataDir);
     ~SfmlAdapter();
     virtual void setFrameRate(unsigned int fr) override;
     virtual void cls() override;
@@ -40,6 +40,7 @@ public:
     virtual void imageDisplay(size_t id, int x, int y) override;
     virtual void imageUnload(size_t id) override;
     virtual void drawStatusBar() override;
+    virtual void drawText(const Text& text) override;
     virtual void registerControlHandler(
         KeyControls key,
         std::function<void(const bool, const float)> controlHandler) override;
@@ -60,6 +61,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<sf::Sound>> m_sounds;
     sf::Sound m_sound;
     sf::Clock m_clock;
+    sf::Font m_font; // we only use one font for all text currently
 };
 
 } // namespace amaze

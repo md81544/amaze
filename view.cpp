@@ -9,29 +9,29 @@ namespace marengo {
 namespace amaze {
 
 View::View(GameModel& model, IGraphicsAdapter& gm)
-    : m_Model(model)
-    , m_GraphicsAdapter(gm)
+    : m_model(model)
+    , m_graphicsAdapter(gm)
 {
 }
 
 void View::PlaySounds()
 {
-    if (m_Model.getShipModel()->isAccelerating()) {
-        float vol = m_Model.getShipModel()->accelerationAmount() * 1000.f;
-        m_GraphicsAdapter.soundLoop("rocket", vol);
+    if (m_model.getShipModel()->isAccelerating()) {
+        float vol = m_model.getShipModel()->accelerationAmount() * 1000.f;
+        m_graphicsAdapter.soundLoop("rocket", vol);
     } else {
-        m_GraphicsAdapter.soundFade("rocket", 1000);
+        m_graphicsAdapter.soundFade("rocket", 1000);
     }
 
-    if (m_Model.getGameState() == GameState::Exploding) {
-        m_GraphicsAdapter.soundPlay("collision");
+    if (m_model.getGameState() == GameState::Exploding) {
+        m_graphicsAdapter.soundPlay("collision");
     }
 }
 
 void View::stopSounds()
 {
     // This is currently just called when we go into paused state
-    m_GraphicsAdapter.soundFade("rocket", 400);
+    m_graphicsAdapter.soundFade("rocket", 400);
 }
 
 void View::Update()
@@ -46,7 +46,7 @@ void View::Update()
     PlaySounds();
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
-    m_Model.processDynamicObjects([&](GameShape& shape) {
+    m_model.processDynamicObjects([&](GameShape& shape) {
         if (shape.isVisible() && shape.IsActive()) {
             RotateAndDrawShape(shape);
         }
@@ -54,43 +54,52 @@ void View::Update()
 
     // Draw black rectangle at top of screen for status bar (and hiding the "notch" on
     // macs in full screen)
-    m_GraphicsAdapter.drawStatusBar();
+    m_graphicsAdapter.drawStatusBar();
 
     // Static shapes (i.e. items which don't move on screen, e.g. the gauges)
-    m_Model.processStaticObjects([&](GameShape& shape) {
+    m_model.processStaticObjects([&](GameShape& shape) {
         if (shape.isVisible()) {
             DrawStaticShape(const_cast<const GameShape&>(shape));
         }
     });
 
+    Text t;
+    t.r = 0;
+    t.g = 255;
+    t.b = 0;
+    t.characterSize = 40;
+    t.positionX = 30;
+    t.positionY = 20;
+    t.text = "Ships remaining: " + std::to_string(m_model.getLivesRemaining());
+    m_graphicsAdapter.drawText(t);
 }
 
 void View::RotateAndDrawShape(const GameShape& shape) const
 {
     // We treat the viewport as representing 480 coordinate units wide,
     // regardless of its physical dimensions:
-    double scale = m_GraphicsAdapter.getWindoWidth() / 480.0;
-    double xOffset = m_GraphicsAdapter.getWindoWidth() / 2;
-    double yOffset = m_GraphicsAdapter.getWindowHeight() / 2;
+    double scale = m_graphicsAdapter.getWindoWidth() / 480.0;
+    double xOffset = m_graphicsAdapter.getWindoWidth() / 2;
+    double yOffset = m_graphicsAdapter.getWindowHeight() / 2;
 
     for (const auto& sl : shape.getVec()) {
         // ShapeLine sl = shape.getVec()[ line ];
-        double x0 = sl.x0 + shape.getPosX() - m_Model.getShipModel()->x();
-        double y0 = sl.y0 + shape.getPosY() - m_Model.getShipModel()->y();
-        double x1 = sl.x1 + shape.getPosX() - m_Model.getShipModel()->x();
-        double y1 = sl.y1 + shape.getPosY() - m_Model.getShipModel()->y();
+        double x0 = sl.x0 + shape.getPosX() - m_model.getShipModel()->x();
+        double y0 = sl.y0 + shape.getPosY() - m_model.getShipModel()->y();
+        double x1 = sl.x1 + shape.getPosX() - m_model.getShipModel()->x();
+        double y1 = sl.y1 + shape.getPosY() - m_model.getShipModel()->y();
         // OK, when we get here, we have a line expressed
         // relative to the origin of the ship.  We can apply the
         // rotate now (unless the shape is marked "don't rotate")...
-        double dCos = helperfunctions::Cosine(m_Model.getShipModel()->rotation());
-        double dSin = helperfunctions::Sine(m_Model.getShipModel()->rotation());
+        double dCos = helperfunctions::Cosine(m_model.getShipModel()->rotation());
+        double dSin = helperfunctions::Sine(m_model.getShipModel()->rotation());
         double x0r, y0r, x1r, y1r;
         x0r = x0 * dCos - y0 * dSin;
         y0r = x0 * dSin + y0 * dCos;
         x1r = x1 * dCos - y1 * dSin;
         y1r = x1 * dSin + y1 * dCos;
         // now draw adjusted for physical screen coords
-        m_GraphicsAdapter.drawLine(
+        m_graphicsAdapter.drawLine(
             x0r * scale + xOffset,
             y0r * scale + yOffset,
             x1r * scale + xOffset,
@@ -105,10 +114,10 @@ void View::RotateAndDrawShape(const GameShape& shape) const
 void View::DrawStaticShape(const GameShape& shape) const
 {
     // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
-    double scale = m_GraphicsAdapter.getWindoWidth() / 480.0;
+    double scale = m_graphicsAdapter.getWindoWidth() / 480.0;
 
     for (const auto& sl : shape.getVec()) {
-        m_GraphicsAdapter.drawLine(
+        m_graphicsAdapter.drawLine(
             (sl.x0 + shape.getPosX()) * scale,
             (sl.y0 + shape.getPosY()) * scale,
             (sl.x1 + shape.getPosX()) * scale,

@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
         int width = config.readLong("WindowWidth", 800);
         int height = config.readLong("WindowHeight", 500);
         bool useFullScreen = config.readBool("FullScreen", false);
-        SfmlAdapter graphicsManager(width, height, useFullScreen);
+        SfmlAdapter graphicsManager(width, height, useFullScreen, dataDir);
 
         GameModel gameModel;
         gameModel.setDataPath(dataDir);

@@ -40,16 +40,6 @@ struct ShipPosition {
     double rotation;
 };
 
-// This is only used for "static" text, i.e. text which doesn't move/rotate, e.g. lives left
-struct Text {
-    std::string text;
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    unsigned characterSize;
-    float positionX;
-    float positionY;
-};
 
 class GameModel : public IModel {
 public:
@@ -92,6 +82,7 @@ public:
     int lifeLost();
     void extraLife();
     void setBreakableExploding(bool value = true);
+    int getLivesRemaining() { return m_livesRemaining; };
 
 private:
     std::string m_dataPath { "" };
@@ -110,7 +101,6 @@ private:
 
     size_t m_averageFrameTime { 0 };
     std::shared_ptr<GameShape> m_pauseMessage;
-    std::shared_ptr<GameShape> m_livesRemainingLabel;
     std::shared_ptr<GameShape> m_breakableExplosionShape;
     bool m_breakableExploding { false };
 
@@ -118,7 +108,6 @@ private:
     GameState m_gameState { GameState::Running };
     void rebuildShip();
     int m_livesRemaining { 1 };
-    void setLivesRemainingText();
     Scheduler m_scheduler;
 
 };

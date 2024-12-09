@@ -17,6 +17,16 @@ enum class KeyControls {
     PAUSE
 };
 
+struct Text {
+    std::string text;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    unsigned characterSize;
+    float positionX;
+    float positionY;
+};
+
 class IGraphicsAdapter {
 public:
     // TODO - make all functions const where possible
@@ -50,6 +60,7 @@ public:
     // destructs
     virtual void imageUnload(size_t id) = 0;
     virtual void drawStatusBar() = 0;
+    virtual void drawText(const Text& text) = 0;
 
     // Sounds
     // load an sound & supply a key to reference it:
