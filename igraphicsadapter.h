@@ -49,6 +49,7 @@ public:
     // explicitly unload an image (otherwise it should be done when this object
     // destructs
     virtual void imageUnload(size_t id) = 0;
+    virtual void drawStatusBar() = 0;
 
     // Sounds
     // load an sound & supply a key to reference it:

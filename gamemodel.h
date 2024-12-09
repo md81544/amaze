@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <string>
 
 #include "gameshape.h"
 #include "helperfunctions.h"
@@ -37,6 +38,17 @@ struct ShipPosition {
     unsigned int posX;
     unsigned int posY;
     double rotation;
+};
+
+// This is only used for "static" text, i.e. text which doesn't move/rotate, e.g. lives left
+struct Text {
+    std::string text;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    unsigned characterSize;
+    float positionX;
+    float positionY;
 };
 
 class GameModel : public IModel {

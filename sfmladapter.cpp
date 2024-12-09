@@ -132,6 +132,13 @@ void SfmlAdapter::imageUnload(size_t /* id */)
     // TODO - delete?
 }
 
+void SfmlAdapter::drawStatusBar()
+{
+    sf::RectangleShape sb(sf::Vector2f(m_screenWidth, 75));
+    sb.setFillColor(sf::Color::Black);
+    m_window.draw(sb);
+}
+
 void SfmlAdapter::imageDisplay(
     const std::string&, // fileName,
     int, // x,

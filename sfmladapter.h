@@ -39,6 +39,7 @@ public:
     virtual size_t imageLoad(const std::string& fileName) override;
     virtual void imageDisplay(size_t id, int x, int y) override;
     virtual void imageUnload(size_t id) override;
+    virtual void drawStatusBar() override;
     virtual void registerControlHandler(
         KeyControls key,
         std::function<void(const bool, const float)> controlHandler) override;

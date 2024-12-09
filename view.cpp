@@ -52,12 +52,17 @@ void View::Update()
         }
     });
 
+    // Draw black rectangle at top of screen for status bar (and hiding the "notch" on
+    // macs in full screen)
+    m_GraphicsAdapter.drawStatusBar();
+
     // Static shapes (i.e. items which don't move on screen, e.g. the gauges)
     m_Model.processStaticObjects([&](GameShape& shape) {
         if (shape.isVisible()) {
             DrawStaticShape(const_cast<const GameShape&>(shape));
         }
     });
+
 }
 
 void View::RotateAndDrawShape(const GameShape& shape) const
