@@ -14,7 +14,7 @@ View::View(GameModel& model, IGraphicsAdapter& gm)
 {
 }
 
-void View::PlaySounds()
+void View::playSounds()
 {
     if (m_model.getShipModel()->isAccelerating()) {
         float vol = m_model.getShipModel()->accelerationAmount() * 1000.f;
@@ -34,7 +34,7 @@ void View::stopSounds()
     m_graphicsAdapter.soundFade("rocket", 400);
 }
 
-void View::Update()
+void View::update()
 {
     // TODO: this should take a model as its parameter; we shouldn't be bound
     // to one model but should be able to accept any model implementing a
@@ -43,12 +43,12 @@ void View::Update()
 
     // This is where all state is "realised" i.e. images drawn, sounds played
     // etc.
-    PlaySounds();
+    playSounds();
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
     m_model.processDynamicObjects([&](GameShape& shape) {
         if (shape.isVisible() && shape.IsActive()) {
-            RotateAndDrawShape(shape);
+            rotateAndDrawShape(shape);
         }
     });
 
@@ -59,7 +59,7 @@ void View::Update()
     // Static shapes (i.e. items which don't move on screen, e.g. the gauges)
     m_model.processStaticObjects([&](GameShape& shape) {
         if (shape.isVisible()) {
-            DrawStaticShape(const_cast<const GameShape&>(shape));
+            drawStaticShape(const_cast<const GameShape&>(shape));
         }
     });
 
@@ -74,7 +74,7 @@ void View::Update()
     m_graphicsAdapter.drawText(t);
 }
 
-void View::RotateAndDrawShape(const GameShape& shape) const
+void View::rotateAndDrawShape(const GameShape& shape) const
 {
     // We treat the viewport as representing 480 coordinate units wide,
     // regardless of its physical dimensions:
@@ -111,7 +111,7 @@ void View::RotateAndDrawShape(const GameShape& shape) const
     }
 }
 
-void View::DrawStaticShape(const GameShape& shape) const
+void View::drawStaticShape(const GameShape& shape) const
 {
     // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
     double scale = m_graphicsAdapter.getWindoWidth() / 480.0;

@@ -170,7 +170,7 @@ void Controller::mainLoop(int gameLevel)
                     break;
             }
             m_graphicsAdapter.cls();
-            m_view.Update();
+            m_view.update();
             m_graphicsAdapter.redraw();
         }
     }
