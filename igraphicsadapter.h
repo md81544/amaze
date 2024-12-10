@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <optional>
 
 // Defines an adapter interface for the graphical toolkit
 // in use (currently SfmlAdapter implements this)
@@ -14,7 +15,12 @@ enum class KeyControls {
     ACCELERATE,
     QUIT,
     LR_ANALOGUE, // for game controller
-    PAUSE
+    PAUSE,
+    UP, // only used for menus
+    DOWN, // only used for menus
+    ENTER, // only used for menus
+    EXIT, // only used for menus
+    NONE // only used for menus
 };
 
 struct Text {
@@ -23,9 +29,8 @@ struct Text {
     uint8_t g { 0 };
     uint8_t b { 0 };
     unsigned characterSize;
-    float positionX;
-    float positionY;
-    bool centered { false };
+    std::optional<float> positionX;  // no value means centered in X
+    std::optional<float> positionY;  // no value means centered in Y
 };
 
 class IGraphicsAdapter {
@@ -48,6 +53,7 @@ public:
         std::function<void(const bool, const float)> controlHandler)
         = 0;
     virtual void processInput(bool paused) = 0;
+    virtual KeyControls processMenuInput() = 0;
 
     // Images
     // Load & display an image; any resources should be immediately discarded

@@ -45,6 +45,7 @@ public:
         KeyControls key,
         std::function<void(const bool, const float)> controlHandler) override;
     virtual void processInput(bool paused) override;
+    virtual KeyControls processMenuInput() override;
     // Sound processing
     virtual void soundLoad(const std::string& key, const std::string& filename) override;
     virtual void soundPlay(const std::string& key) override;

@@ -127,7 +127,7 @@ void Controller::mainLoop(int gameLevel)
 
             switch (m_gameModel.getGameState()) {
                 case GameState::Menu:
-                    // TODO
+                    /*KeyControls key = */m_graphicsAdapter.processMenuInput();
                     break;
                 case GameState::Paused:
                     m_graphicsAdapter.processInput(true);

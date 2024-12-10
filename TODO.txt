@@ -1,5 +1,5 @@
 * How about rocket flames can break breakable walls? i.e. if you back in and thrust
-* Why is the ship in the middle of the screen? Maybe move it lower down
+* Why is the ship in the middle of the screen? Maybe move it lower down?
 * Black holes that attract the ship?
 * Teleport / portals
 * Splash screen
@@ -8,3 +8,5 @@
 * Change level data file format to YAML or JSON?
 * Keyboard controls don't work properly if joystick is attached
 * Moving obstacles
+* (Just an idea) a black cut-out circle around the ship so that rotation doesn't affect
+  how far you can look?

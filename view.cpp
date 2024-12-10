@@ -70,8 +70,8 @@ void View::update()
         pm.r = 255;
         pm.g = 255;
         pm.characterSize = 160;
-        pm.centered = true;
-        pm.text = "PAUSED";
+        pm.text = "Paused";
+        pm.positionY = m_graphicsAdapter.getWindowHeight() * 0.3;
         m_graphicsAdapter.drawText(pm);
     }
 }

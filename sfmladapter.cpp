@@ -151,12 +151,22 @@ void SfmlAdapter::drawText(const Text& text)
     t.setCharacterSize(text.characterSize);
     t.setString(text.text);
     t.setFillColor(sf::Color({ text.r, text.g, text.b }));
-    if (text.centered) {
-        sf::FloatRect textRect = t.getLocalBounds();
+    // x and y position are optional, with no value signifying centered in that dimension
+    sf::FloatRect textRect = t.getLocalBounds();
+    if (!text.positionX.has_value() && !text.positionY.has_value()) {
         t.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
         t.setPosition(m_window.getView().getCenter());
+    } else if (!text.positionX.has_value()) {
+        // Centre horizontally
+        t.setOrigin(textRect.left + textRect.width / 2.0f, 0.f);
+        t.setPosition(m_window.getView().getCenter().x, text.positionY.value());
+    } else if (!text.positionY.has_value()) {
+        // Centre vertically
+        t.setOrigin(0.f, textRect.top + textRect.height / 2.0f);
+        t.setPosition(text.positionX.value(), m_window.getView().getCenter().y);
     } else {
-        t.setPosition({ text.positionX, text.positionY });
+        // If we get here we must have values for both x and y
+        t.setPosition({ text.positionX.value(), text.positionY.value() });
     }
     m_window.draw(t);
 }
@@ -202,7 +212,12 @@ void SfmlAdapter::processInput(bool paused)
             case sf::Event::KeyPressed:
                 switch (event.key.code) {
                     case sf::Keyboard::Escape:
-                        m_controlHandlers[KeyControls::QUIT](true, 0.f);
+                        if (paused) {
+                            // Escape also unpauses
+                            m_controlHandlers[KeyControls::PAUSE](true, 0.f);
+                        } else {
+                            m_controlHandlers[KeyControls::QUIT](true, 0.f);
+                        }
                         break;
                     case sf::Keyboard::Up:
                     case sf::Keyboard::Space:
@@ -258,6 +273,49 @@ void SfmlAdapter::processInput(bool paused)
         }
     }
     return;
+}
+
+KeyControls SfmlAdapter::processMenuInput()
+{
+    // If this function is called, the menu is displayed, so we react differently
+    // to various keys. Note only one event is returned per call
+    sf::Event event;
+
+    while (m_window.pollEvent(event)) {
+        if (sf::Joystick::isConnected(0)) {
+            float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
+            if (y > 30.f) {
+                return KeyControls::DOWN;
+            } else if (y < -30.f) {
+                return KeyControls::UP;
+            }
+            if (sf::Joystick::isButtonPressed(0, 1)) {
+                return KeyControls::ENTER;
+            }
+            if (sf::Joystick::isButtonPressed(0, 2)) {
+                return KeyControls::EXIT;
+            }
+        }
+        switch (event.type) {
+            case sf::Event::KeyPressed:
+                switch (event.key.code) {
+                    case sf::Keyboard::Escape:
+                        return KeyControls::EXIT;
+                    case sf::Keyboard::Enter:
+                        return KeyControls::ENTER;
+                    case sf::Keyboard::Down:
+                        return KeyControls::DOWN;
+                    case sf::Keyboard::Up:
+                        return KeyControls::UP;
+                    default:
+                        break;
+                }
+            // we don't process other types of events currently
+            default:
+                break;
+        }
+    }
+    return KeyControls::NONE;
 }
 
 void SfmlAdapter::soundLoad(const std::string& key, const std::string& filename)
