@@ -15,16 +15,12 @@ GameModel::GameModel()
 {
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
-    m_pauseMessage = std::make_shared<GameShape>();
 }
 
 void GameModel::initialise(size_t levelNumber)
 {
     // Resets the model to a state ready for a new Level
     m_allDynamicGameShapes.clear();
-    m_allStaticGameShapes.clear();
-
-    createStaticShapes();
 
     buildBreakableExplosionShape();
     m_allDynamicGameShapes.push_back(m_breakableExplosionShape);
@@ -49,17 +45,6 @@ void GameModel::initialise(size_t levelNumber)
     m_level = levelNumber;
 
     m_shipModel->initialise();
-}
-
-void GameModel::createStaticShapes()
-{
-    // Note static shapes' coodinates are expressed as if the viewport
-    // is 480 pixels wide, regardless of its actual size
-    m_pauseMessage->makeFromText("PAUSED", 241, 252, 33, 255, 6);
-    m_pauseMessage->setPos(240, 100);
-    m_pauseMessage->setVisible(false);
-    m_pauseMessage->setName("gameModel::m_pauseMessage"); // useful for debugging only
-    m_allStaticGameShapes.push_back(m_pauseMessage);
 }
 
 void GameModel::buildBreakableExplosionShape()
@@ -305,13 +290,6 @@ void GameModel::processDynamicObjects(std::function<void(GameShape&)> process)
     }
 }
 
-void GameModel::processStaticObjects(std::function<void(GameShape&)> process)
-{
-    for (const auto& shape : m_allStaticGameShapes) {
-        process(*shape);
-    }
-}
-
 unsigned int GameModel::getRotation() const
 {
     return 0; // unused overridden function
@@ -334,11 +312,14 @@ void GameModel::togglePause()
 {
     if (m_gameState == GameState::Paused) {
         m_gameState = GameState::Running;
-        m_pauseMessage->setVisible(false);
     } else {
         m_gameState = GameState::Paused;
-        m_pauseMessage->setVisible(true);
     }
+}
+
+bool GameModel::gameIsPaused()
+{
+    return m_gameState == GameState::Paused;
 }
 
 void GameModel::restart()

@@ -1,6 +1,3 @@
-* Jettison the idea of "static shapes" - it's only used currently for (a) the "Paused" message
-  and (b) the "lives remaining". Both of which I'd prefer to use a proper font for (which
-  means we can also get rid of the whole vectorfont thing as well).
 * How about rocket flames can break breakable walls? i.e. if you back in and thrust
 * Why is the ship in the middle of the screen? Maybe move it lower down
 * Black holes that attract the ship?

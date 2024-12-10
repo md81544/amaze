@@ -147,11 +147,17 @@ void SfmlAdapter::drawStatusBar()
 void SfmlAdapter::drawText(const Text& text)
 {
     sf::Text t;
-    t.setString(text.text);
-    t.setFillColor(sf::Color({ text.r, text.g, text.b }));
-    t.setPosition({ text.positionX, text.positionY });
     t.setFont(m_font);
     t.setCharacterSize(text.characterSize);
+    t.setString(text.text);
+    t.setFillColor(sf::Color({ text.r, text.g, text.b }));
+    if (text.centered) {
+        sf::FloatRect textRect = t.getLocalBounds();
+        t.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+        t.setPosition(m_window.getView().getCenter());
+    } else {
+        t.setPosition({ text.positionX, text.positionY });
+    }
     m_window.draw(t);
 }
 
@@ -214,10 +220,10 @@ void SfmlAdapter::processInput(bool paused)
                     case sf::Keyboard::Right:
                     case sf::Keyboard::D:
                     case sf::Keyboard::Period:
-                        m_controlHandlers[KeyControls::RIGHT](true, 0.f);
                         if (!paused) {
-                            break;
+                            m_controlHandlers[KeyControls::RIGHT](true, 0.f);
                         }
+                        break;
                     case sf::Keyboard::P:
                         m_controlHandlers[KeyControls::PAUSE](true, 0.f);
                         break;

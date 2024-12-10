@@ -52,7 +52,6 @@ public:
     void setDataPath(const std::string& dir);
     const std::string getDataPath();
 
-    void createStaticShapes();
     void buildBreakableExplosionShape();
 
     size_t level() const;
@@ -70,12 +69,11 @@ public:
 
     void process();
     void processDynamicObjects(std::function<void(GameShape&)>) override;
-    void processStaticObjects(std::function<void(GameShape&)>) override;
     unsigned int getRotation() const override;
     // Save rocket position periodically to facilitate a restart after a life is used
     void savePosition();
     void togglePause();
-    bool getPausedState(); // returns true if paused
+    bool gameIsPaused(); // returns true if paused
     void restart();
     GameState getGameState();
     void setGameState(GameState state);
@@ -93,14 +91,9 @@ private:
     // Container for all GameShapes in the game:
     std::vector<std::shared_ptr<GameShape>> m_allDynamicGameShapes;
 
-    // Container for all "static" items - these are items which do not rotate
-    // and stay in  on screen
-    std::vector<std::shared_ptr<GameShape>> m_allStaticGameShapes;
-
     std::unique_ptr<ShipModel> m_shipModel;
 
     size_t m_averageFrameTime { 0 };
-    std::shared_ptr<GameShape> m_pauseMessage;
     std::shared_ptr<GameShape> m_breakableExplosionShape;
     bool m_breakableExploding { false };
 

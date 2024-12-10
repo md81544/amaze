@@ -56,22 +56,24 @@ void View::update()
     // macs in full screen)
     m_graphicsAdapter.drawStatusBar();
 
-    // Static shapes (i.e. items which don't move on screen, e.g. the gauges)
-    m_model.processStaticObjects([&](GameShape& shape) {
-        if (shape.isVisible()) {
-            drawStaticShape(const_cast<const GameShape&>(shape));
-        }
-    });
-
+    // Lives remaining
     Text t;
-    t.r = 0;
-    t.g = 255;
-    t.b = 0;
+    t.g = 128;
     t.characterSize = 40;
     t.positionX = 30;
     t.positionY = 20;
     t.text = "Ships remaining: " + std::to_string(m_model.getLivesRemaining());
     m_graphicsAdapter.drawText(t);
+
+    if(m_model.gameIsPaused()){
+        Text pm;
+        pm.r = 255;
+        pm.g = 255;
+        pm.characterSize = 160;
+        pm.centered = true;
+        pm.text = "PAUSED";
+        m_graphicsAdapter.drawText(pm);
+    }
 }
 
 void View::rotateAndDrawShape(const GameShape& shape) const

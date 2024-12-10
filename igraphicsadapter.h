@@ -19,12 +19,13 @@ enum class KeyControls {
 
 struct Text {
     std::string text;
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
+    uint8_t r { 0 };
+    uint8_t g { 0 };
+    uint8_t b { 0 };
     unsigned characterSize;
     float positionX;
     float positionY;
+    bool centered { false };
 };
 
 class IGraphicsAdapter {
