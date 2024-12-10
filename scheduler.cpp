@@ -1,5 +1,8 @@
 #include "scheduler.h"
 
+namespace marengo {
+namespace amaze {
+
 void Scheduler::doWhile(ScheduleEventName name, int frames, std::function<void()> fn)
 {
     if (isScheduleItemActive(name)) {
@@ -59,3 +62,6 @@ void Scheduler::processSchedule()
             [](const ScheduleItem& s) { return s.numberOfFrames <= 0; }),
         m_scheduleItems.end());
 }
+
+} // namespace amaze
+} // namespace marengo

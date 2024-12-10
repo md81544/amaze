@@ -10,6 +10,7 @@ add_executable(amaze
     helperfunctions.cpp
     log.cpp
     main.cpp
+    menu.cpp
     scheduler.cpp
     sfmladapter.cpp
     shape.cpp
