@@ -140,6 +140,11 @@ void Controller::mainLoop(int gameLevel)
                             m_gameModel.menuDown();
                         } else if (key == KeyControls::UP) {
                             m_gameModel.menuUp();
+                        } else if (key == KeyControls::ENTER) {
+                            std::string selected = m_gameModel.menuSelect();
+                            if (selected == "quit") {
+                                m_gameModel.setGameState(GameState::Quit);
+                            }
                         }
                     }
                     break;

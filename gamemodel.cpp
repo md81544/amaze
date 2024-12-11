@@ -387,9 +387,9 @@ void GameModel::menuUp()
     m_menu.highlightPreviousItem();
 }
 
-void GameModel::menuSelect()
+std::string GameModel::menuSelect()
 {
-    m_menu.selectCurrentItem();
+    return m_menu.selectCurrentItem();
 }
 
 void GameModel::rebuildShip()

@@ -21,6 +21,7 @@ std::vector<MenuItem> Menu::getMenuItems(const std::string& menuName)
     for (const auto& i : sortedItems) {
         rc.push_back(i.second);
     }
+    m_currentMenuItems = rc; // save copy for convenience
     return rc;
 }
 
@@ -31,8 +32,7 @@ std::string Menu::getCurrentMenuName()
 
 int Menu::getCurrentMenuSize()
 {
-    auto range = m_menuItems.equal_range(m_currentMenuName);
-    return std::distance(range.first, range.second);
+    return m_currentMenuItems.size();
 }
 
 void Menu::highlightNextItem()
@@ -49,15 +49,17 @@ void Menu::highlightPreviousItem()
     }
 }
 
-void Menu::selectCurrentItem()
+std::string Menu::selectCurrentItem()
 {
-    // TODO!
+    // This simply returns the name of the selected menu item
+    // which the controller can use to take the appropriate action
+    return m_currentMenuItems[m_currentlyHighlightedItem].itemName;
 }
 
-    int Menu::getCurrentlyHighlightedItem()
-    {
-        return m_currentlyHighlightedItem;
-    }
+int Menu::getCurrentlyHighlightedItem()
+{
+    return m_currentlyHighlightedItem;
+}
 
 } // namespace amaze
 } // namespace marengo

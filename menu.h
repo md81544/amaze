@@ -24,10 +24,11 @@ public:
     int getCurrentMenuSize();
     void highlightNextItem();
     void highlightPreviousItem();
-    void selectCurrentItem();
+    std::string selectCurrentItem();
     int getCurrentlyHighlightedItem();
 
 private:
+    std::vector<MenuItem> m_currentMenuItems; // convenience copy of current menu items
     std::unordered_multimap<std::string, MenuItem> m_menuItems;
     int m_currentlyHighlightedItem { 0 };
     std::string m_currentMenuName { "Main Menu" };
