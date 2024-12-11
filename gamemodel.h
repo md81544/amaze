@@ -44,13 +44,12 @@ struct ShipPosition {
 
 class GameModel : public IModel {
 public:
-    GameModel();
+    explicit GameModel(const std::string& dataPath);
 
     // Reset the model to a state ready for a new Level:
     void initialise(size_t level_number);
     void levelLoad(size_t levelNum);
 
-    void setDataPath(const std::string& dir);
     const std::string getDataPath();
 
     void buildBreakableExplosionShape();

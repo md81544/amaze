@@ -11,7 +11,8 @@
 namespace marengo {
 namespace amaze {
 
-GameModel::GameModel()
+GameModel::GameModel(const std::string& dataPath):
+    m_dataPath(dataPath)
 {
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
@@ -208,11 +209,6 @@ void GameModel::levelLoad(size_t levelNum)
         m_allDynamicGameShapes.push_back(std::move(obj));
     }
     setLevel(levelNum);
-}
-
-void GameModel::setDataPath(const std::string& dir)
-{
-    m_dataPath = dir;
 }
 
 const std::string GameModel::getDataPath()

@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.13)
 
 project (amaze)
 
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+# Prefer to link to any local copies of libraries
+link_directories(BEFORE ${CMAKE_SOURCE_DIR}/tmplibs/${CMAKE_SYSTEM_PROCESSOR})
+
 add_executable(amaze
     configreader.cpp
     controller.cpp
@@ -19,17 +25,10 @@ add_executable(amaze
 )
 
 target_link_libraries(amaze PRIVATE
-    #sfml-graphics
-    #sfml-window
-    #sfml-system
-    #sfml-audio
-    # Temporary location of SFML libs I've manually fixed until 2.6.3 comes out
-    # correcting the issue in my latest bug report
-    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-graphics.2.6.2.dylib
-    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-window.2.6.2.dylib
-    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-system.2.6.2.dylib
-    ${CMAKE_SOURCE_DIR}/tmplibs/libsfml-audio.2.6.2.dylib
-
+    sfml-graphics
+    sfml-window
+    sfml-system
+    sfml-audio
 )
 
 target_compile_options(amaze PRIVATE -std=c++2b -Wall -Wextra -Werror -Wpedantic)
