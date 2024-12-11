@@ -82,6 +82,11 @@ public:
     void extraLife();
     void setBreakableExploding(bool value = true);
     int getLivesRemaining() { return m_livesRemaining; };
+    std::vector<MenuItem> getCurrentMenu();
+    int getCurrentMenuItem() { return m_menu.getCurrentlyHighlightedItem(); };
+    void menuDown();
+    void menuUp();
+    void menuSelect();
 
 private:
     std::string m_dataPath { "" };

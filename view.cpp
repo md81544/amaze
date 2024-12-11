@@ -77,13 +77,8 @@ void View::update()
     }
 
     if(m_model.getGameState() == GameState::Menu) {
-        Text pm;
-        pm.g = 200;
-        pm.characterSize = 64;
-        pm.text = "Main Menu";
-        pm.positionY = 200;
-        m_graphicsAdapter.drawText(pm);
-        // TODO draw menu
+        auto vec = m_model.getCurrentMenu();
+        m_graphicsAdapter.drawMenu(vec, m_model.getCurrentMenuItem());
     }
 }
 

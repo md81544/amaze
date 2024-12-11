@@ -136,6 +136,10 @@ void Controller::mainLoop(int gameLevel)
                         KeyControls key = m_graphicsAdapter.processMenuInput();
                         if (key == KeyControls::EXIT) {
                             m_gameModel.setGameState(GameState::Running);
+                        } else if (key == KeyControls::DOWN) {
+                            m_gameModel.menuDown();
+                        } else if (key == KeyControls::UP) {
+                            m_gameModel.menuUp();
                         }
                     }
                     break;

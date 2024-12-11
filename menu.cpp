@@ -5,7 +5,7 @@
 namespace marengo {
 namespace amaze {
 
-void Menu::addMenuItem(const std::string& menuName, const MenuItem&& menuItem)
+void Menu::addMenuItem(const std::string& menuName, MenuItem&& menuItem)
 {
     m_menuItems.insert(std::make_pair(menuName, std::move(menuItem)));
 }
@@ -18,7 +18,7 @@ std::vector<MenuItem> Menu::getMenuItems(const std::string& menuName)
         sortedItems[it->second.order] = it->second;
     }
     std::vector<MenuItem> rc;
-    for(const auto& i: sortedItems) {
+    for (const auto& i : sortedItems) {
         rc.push_back(i.second);
     }
     return rc;
@@ -26,19 +26,38 @@ std::vector<MenuItem> Menu::getMenuItems(const std::string& menuName)
 
 std::string Menu::getCurrentMenuName()
 {
-    return std::string();
+    return m_currentMenuName;
 }
 
-void Menu::highlightNextItem() { }
-
-void Menu::highlightPreviousItem() { }
-
-void Menu::selectCurrentItem() { }
-
-int Menu::getCurrentlyHighlightedItem()
+int Menu::getCurrentMenuSize()
 {
-    return m_currentlyHighlightedItem;
+    auto range = m_menuItems.equal_range(m_currentMenuName);
+    return std::distance(range.first, range.second);
 }
+
+void Menu::highlightNextItem()
+{
+    if (m_currentlyHighlightedItem < getCurrentMenuSize() - 1) {
+        ++m_currentlyHighlightedItem;
+    }
+}
+
+void Menu::highlightPreviousItem()
+{
+    if (m_currentlyHighlightedItem > 0) {
+        --m_currentlyHighlightedItem;
+    }
+}
+
+void Menu::selectCurrentItem()
+{
+    // TODO!
+}
+
+    int Menu::getCurrentlyHighlightedItem()
+    {
+        return m_currentlyHighlightedItem;
+    }
 
 } // namespace amaze
 } // namespace marengo

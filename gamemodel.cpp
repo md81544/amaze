@@ -16,7 +16,10 @@ GameModel::GameModel()
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
     // Populate the menu structure
-    m_menu.addMenuItem("main", { "quit", "Quit", 0, std::nullopt });
+    m_menu.addMenuItem(
+        "Main Menu", { "Main Menu", "selectLevel", "Select Level", 0, std::nullopt });
+    m_menu.addMenuItem("Main Menu", { "Main Menu", "options", "Options", 1, std::nullopt });
+    m_menu.addMenuItem("Main Menu", { "Main Menu", "quit", "Quit", 2, std::nullopt });
 }
 
 void GameModel::initialise(size_t levelNumber)
@@ -365,6 +368,28 @@ void GameModel::setBreakableExploding(bool value /* =true */)
 {
     m_breakableExploding = value;
     m_breakableExplosionShape->setVisible(value);
+}
+
+std::vector<MenuItem> GameModel::getCurrentMenu()
+{
+    std::string currentMenuName = m_menu.getCurrentMenuName();
+    auto vec = m_menu.getMenuItems(currentMenuName);
+    return vec;
+}
+
+void GameModel::menuDown()
+{
+    m_menu.highlightNextItem();
+}
+
+void GameModel::menuUp()
+{
+    m_menu.highlightPreviousItem();
+}
+
+void GameModel::menuSelect()
+{
+    m_menu.selectCurrentItem();
 }
 
 void GameModel::rebuildShip()

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "menu.h"
+
 #include <functional>
 #include <optional>
 
@@ -69,6 +71,7 @@ public:
     virtual void imageUnload(size_t id) = 0;
     virtual void drawStatusBar() = 0;
     virtual void drawText(const Text& text) = 0;
+    virtual void drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem) = 0;
 
     // Sounds
     // load an sound & supply a key to reference it:

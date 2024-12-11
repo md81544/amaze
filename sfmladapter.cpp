@@ -171,6 +171,35 @@ void SfmlAdapter::drawText(const Text& text)
     m_window.draw(t);
 }
 
+void SfmlAdapter::drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem)
+{
+    if(menuItems.empty()) return;
+    Text t;
+    t.g = 255;
+    t.positionY = 300;
+    t.characterSize = 60;
+    t.text = menuItems[0].menuName;
+    drawText(t);
+    t.positionY.value() += 40;
+    int itemCount = 0;
+    for (const auto& menuItem : menuItems) {
+        if(itemCount == currentlyHighlightedItem) {
+            t.r = 255;
+            t.g = 255;
+            t.b = 255;
+        }else{
+            t.r = 0;
+            t.g = 150;
+            t.b = 0;
+        }
+        t.characterSize = 50;
+        t.text = menuItem.text;
+        t.positionY.value() += 60;
+        drawText(t);
+        ++itemCount;
+    }
+}
+
 void SfmlAdapter::imageDisplay(
     const std::string&, // fileName,
     int, // x,

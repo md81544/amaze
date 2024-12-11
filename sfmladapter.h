@@ -3,6 +3,7 @@
 // All SFML-specific code should go in this class
 
 #include "igraphicsadapter.h"
+#include "menu.h"
 
 #include "SFML/Audio.hpp"
 #include "SFML/Graphics.hpp"
@@ -41,6 +42,7 @@ public:
     virtual void imageUnload(size_t id) override;
     virtual void drawStatusBar() override;
     virtual void drawText(const Text& text) override;
+    virtual void drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem) override;
     virtual void registerControlHandler(
         KeyControls key,
         std::function<void(const bool, const float)> controlHandler) override;
