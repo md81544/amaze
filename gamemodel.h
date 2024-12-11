@@ -86,7 +86,7 @@ public:
     int getCurrentMenuItem() { return m_menu.getCurrentlyHighlightedItem(); };
     void menuDown();
     void menuUp();
-    std::string menuSelect();
+    MenuItemId menuSelect();
 
 private:
     std::string m_dataPath { "" };

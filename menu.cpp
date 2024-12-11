@@ -49,11 +49,11 @@ void Menu::highlightPreviousItem()
     }
 }
 
-std::string Menu::selectCurrentItem()
+MenuItemId Menu::selectCurrentItem()
 {
     // This simply returns the name of the selected menu item
     // which the controller can use to take the appropriate action
-    return m_currentMenuItems[m_currentlyHighlightedItem].itemName;
+    return m_currentMenuItems[m_currentlyHighlightedItem].menuItemId;
 }
 
 int Menu::getCurrentlyHighlightedItem()

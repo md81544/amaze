@@ -17,9 +17,10 @@ GameModel::GameModel()
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
     // Populate the menu structure
     m_menu.addMenuItem(
-        "Main Menu", { "Main Menu", "selectLevel", "Select Level", 0, std::nullopt });
-    m_menu.addMenuItem("Main Menu", { "Main Menu", "options", "Options", 1, std::nullopt });
-    m_menu.addMenuItem("Main Menu", { "Main Menu", "quit", "Quit", 2, std::nullopt });
+        "Main Menu", { "Main Menu", MenuItemId::LEVEL_SELECT, "Select Level", 0, std::nullopt });
+    m_menu.addMenuItem(
+        "Main Menu", { "Main Menu", MenuItemId::OPTIONS, "Options", 1, std::nullopt });
+    m_menu.addMenuItem("Main Menu", { "Main Menu", MenuItemId::QUIT, "Quit", 2, std::nullopt });
 }
 
 void GameModel::initialise(size_t levelNumber)
@@ -387,7 +388,7 @@ void GameModel::menuUp()
     m_menu.highlightPreviousItem();
 }
 
-std::string GameModel::menuSelect()
+MenuItemId GameModel::menuSelect()
 {
     return m_menu.selectCurrentItem();
 }
