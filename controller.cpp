@@ -94,6 +94,11 @@ void Controller::registerControlHandlers()
             }
         });
 
+    // Menu
+    m_graphicsAdapter.registerControlHandler(KeyControls::MENU, [&](const bool, const float) {
+        m_gameModel.setGameState(GameState::Menu);
+    });
+
     // Quit
     m_graphicsAdapter.registerControlHandler(
         KeyControls::QUIT, [&](const bool isKeyDown, const float) {
@@ -127,7 +132,12 @@ void Controller::mainLoop(int gameLevel)
 
             switch (m_gameModel.getGameState()) {
                 case GameState::Menu:
-                    /*KeyControls key = */m_graphicsAdapter.processMenuInput();
+                    {
+                        KeyControls key = m_graphicsAdapter.processMenuInput();
+                        if (key == KeyControls::EXIT) {
+                            m_gameModel.setGameState(GameState::Running);
+                        }
+                    }
                     break;
                 case GameState::Paused:
                     m_graphicsAdapter.processInput(true);
@@ -154,9 +164,8 @@ void Controller::mainLoop(int gameLevel)
                     m_gameModel.getShipModel()->setIsAccelerating(false);
                     m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
                     m_gameModel.setBreakableExploding(false);
-                    m_scheduler.doAfter(ScheduleEventName::EndLoops, 300, [&]() {
-                        endingLevel = true;
-                    });
+                    m_scheduler.doAfter(
+                        ScheduleEventName::EndLoops, 300, [&]() { endingLevel = true; });
                     break;
                 case GameState::Exploding:
                     m_gameModel.process(); // perform all processing required per loop

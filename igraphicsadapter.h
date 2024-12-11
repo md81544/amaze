@@ -16,6 +16,7 @@ enum class KeyControls {
     QUIT,
     LR_ANALOGUE, // for game controller
     PAUSE,
+    MENU,
     UP, // only used for menus
     DOWN, // only used for menus
     ENTER, // only used for menus

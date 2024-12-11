@@ -24,5 +24,21 @@ std::vector<MenuItem> Menu::getMenuItems(const std::string& menuName)
     return rc;
 }
 
+std::string Menu::getCurrentMenuName()
+{
+    return std::string();
+}
+
+void Menu::highlightNextItem() { }
+
+void Menu::highlightPreviousItem() { }
+
+void Menu::selectCurrentItem() { }
+
+int Menu::getCurrentlyHighlightedItem()
+{
+    return m_currentlyHighlightedItem;
+}
+
 } // namespace amaze
 } // namespace marengo

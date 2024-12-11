@@ -15,6 +15,8 @@ GameModel::GameModel()
 {
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+    // Populate the menu structure
+    m_menu.addMenuItem("main", { "quit", "Quit", 0, std::nullopt });
 }
 
 void GameModel::initialise(size_t levelNumber)
@@ -274,11 +276,10 @@ void GameModel::process() // TODO more descriptive name
         m_breakableExplosionShape->setVisible(true);
         m_breakableExplosionShape->setPos(m_shipModel->x(), m_shipModel->y());
         m_breakableExplosionShape->resize(1.2);
-        m_scheduler.doAfter(
-            ScheduleEventName::BreakableExploding, 40, [&]() {
-                m_breakableExploding = false;
-                buildBreakableExplosionShape();
-                });
+        m_scheduler.doAfter(ScheduleEventName::BreakableExploding, 40, [&]() {
+            m_breakableExploding = false;
+            buildBreakableExplosionShape();
+        });
     }
     m_shipModel->process(m_gameState == GameState::Exploding);
 }

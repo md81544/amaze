@@ -216,7 +216,7 @@ void SfmlAdapter::processInput(bool paused)
                             // Escape also unpauses
                             m_controlHandlers[KeyControls::PAUSE](true, 0.f);
                         } else {
-                            m_controlHandlers[KeyControls::QUIT](true, 0.f);
+                            m_controlHandlers[KeyControls::MENU](true, 0.f);
                         }
                         break;
                     case sf::Keyboard::Up:
@@ -295,6 +295,7 @@ KeyControls SfmlAdapter::processMenuInput()
             if (sf::Joystick::isButtonPressed(0, 2)) {
                 return KeyControls::EXIT;
             }
+            // TODO - menu button to return KeyControls::EXIT
         }
         switch (event.type) {
             case sf::Event::KeyPressed:

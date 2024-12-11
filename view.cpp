@@ -73,6 +73,17 @@ void View::update()
         pm.text = "Paused";
         pm.positionY = m_graphicsAdapter.getWindowHeight() * 0.3;
         m_graphicsAdapter.drawText(pm);
+        // TODO do we need pause if opening the menu does the same thing?
+    }
+
+    if(m_model.getGameState() == GameState::Menu) {
+        Text pm;
+        pm.g = 200;
+        pm.characterSize = 64;
+        pm.text = "Main Menu";
+        pm.positionY = 200;
+        m_graphicsAdapter.drawText(pm);
+        // TODO draw menu
     }
 }
 

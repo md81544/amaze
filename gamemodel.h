@@ -6,6 +6,7 @@
 #include "gameshape.h"
 #include "helperfunctions.h"
 #include "imodel.h"
+#include "menu.h"
 #include "scheduler.h"
 #include "shipmodel.h"
 
@@ -102,6 +103,7 @@ private:
     void rebuildShip();
     int m_livesRemaining { 1 };
     Scheduler m_scheduler;
+    Menu m_menu;
 
 };
 
