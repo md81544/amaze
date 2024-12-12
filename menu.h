@@ -9,9 +9,11 @@ namespace marengo {
 namespace amaze {
 
 enum class MenuItemId {
+    SUBMENU,  // returned from selectCurrentItem() if a submenu was selected
     QUIT,
     OPTIONS,
-    LEVEL_SELECT
+    LEVEL_SELECT,
+    LEVEL_FILE
 };
 
 struct MenuItem {
@@ -19,7 +21,8 @@ struct MenuItem {
     MenuItemId menuItemId;
     std::string text;
     int order;
-    std::optional<std::string> subMenuName;
+    std::optional<std::string> subMenuName{ std::nullopt };
+    std::string data { "" };
 };
 
 class Menu {
@@ -30,7 +33,7 @@ public:
     int getCurrentMenuSize();
     void highlightNextItem();
     void highlightPreviousItem();
-    MenuItemId selectCurrentItem();
+    std::tuple<MenuItemId, std::optional<MenuItem>>  selectCurrentItem();
     int getCurrentlyHighlightedItem();
 
 private:

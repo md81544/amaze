@@ -12,6 +12,10 @@ void Menu::addMenuItem(const std::string& menuName, MenuItem&& menuItem)
 
 std::vector<MenuItem> Menu::getMenuItems(const std::string& menuName)
 {
+    if (m_currentMenuName == menuName && !m_currentMenuItems.empty()) {
+        return m_currentMenuItems;
+    }
+    m_currentMenuName = menuName;
     std::map<int, MenuItem> sortedItems;
     auto range = m_menuItems.equal_range(menuName);
     for (auto it = range.first; it != range.second; ++it) {
@@ -22,6 +26,7 @@ std::vector<MenuItem> Menu::getMenuItems(const std::string& menuName)
         rc.push_back(i.second);
     }
     m_currentMenuItems = rc; // save copy for convenience
+    m_currentlyHighlightedItem = 0;
     return rc;
 }
 
@@ -49,11 +54,20 @@ void Menu::highlightPreviousItem()
     }
 }
 
-MenuItemId Menu::selectCurrentItem()
+std::tuple<MenuItemId, std::optional<MenuItem>> Menu::selectCurrentItem()
 {
+    if (m_currentMenuItems[m_currentlyHighlightedItem].subMenuName.has_value()) {
+        // User has selected an item with a submenu
+        // TODO switch to new submenu - also need a way to return
+        // We then return a value that the caller can ignore, and then
+        // the new submenu will be displayed in the next frame
+        getMenuItems(m_currentMenuItems[m_currentlyHighlightedItem].subMenuName.value());
+        return { MenuItemId::SUBMENU, std::nullopt };
+    }
     // This simply returns the name of the selected menu item
     // which the controller can use to take the appropriate action
-    return m_currentMenuItems[m_currentlyHighlightedItem].menuItemId;
+    return { m_currentMenuItems[m_currentlyHighlightedItem].menuItemId,
+             m_currentMenuItems[m_currentlyHighlightedItem] };
 }
 
 int Menu::getCurrentlyHighlightedItem()

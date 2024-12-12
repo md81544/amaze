@@ -135,15 +135,21 @@ void Controller::mainLoop(int gameLevel)
                     {
                         KeyControls key = m_graphicsAdapter.processMenuInput();
                         if (key == KeyControls::EXIT) {
+                            m_gameModel.setMenu("Main Menu");
                             m_gameModel.setGameState(GameState::Running);
                         } else if (key == KeyControls::DOWN) {
                             m_gameModel.menuDown();
                         } else if (key == KeyControls::UP) {
                             m_gameModel.menuUp();
                         } else if (key == KeyControls::ENTER) {
-                            MenuItemId selected = m_gameModel.menuSelect();
+                            auto [selected, item] = m_gameModel.menuSelect();
                             if (selected == MenuItemId::QUIT) {
                                 m_gameModel.setGameState(GameState::Quit);
+                            } else if (selected == MenuItemId::LEVEL_FILE) {
+                                if (item.has_value()) {
+                                    m_gameModel.levelLoad(item.value().data);
+                                    m_gameModel.setGameState(GameState::Running);
+                                }
                             }
                         }
                     }

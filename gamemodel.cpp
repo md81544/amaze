@@ -3,25 +3,72 @@
 
 #include <cassert>
 #include <chrono>
+#include <filesystem>
 #include <fstream>
+#include <map>
 #include <numeric>
+#include <regex>
 #include <sstream>
 #include <thread>
 
 namespace marengo {
 namespace amaze {
 
-GameModel::GameModel(const std::string& dataPath):
-    m_dataPath(dataPath)
+GameModel::GameModel(const std::string& dataPath)
+    : m_dataPath(dataPath)
 {
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
     // Populate the menu structure
     m_menu.addMenuItem(
-        "Main Menu", { "Main Menu", MenuItemId::LEVEL_SELECT, "Select Level", 0, std::nullopt });
+        "Main Menu", { "Main Menu", MenuItemId::LEVEL_SELECT, "Select Level", 0, "Select Level" });
+    m_menu.addMenuItem("Main Menu", { "Main Menu", MenuItemId::OPTIONS, "Options", 1 });
+    m_menu.addMenuItem("Main Menu", { "Main Menu", MenuItemId::QUIT, "Quit", 2 });
+
+    // Sub-menu for level selection
+    std::regex regexPattern("^level.*cfg$");
+    std::map<int, std::filesystem::path> sortedPaths;
+    for (const auto& entry : std::filesystem::directory_iterator(dataPath)) {
+        if (entry.is_regular_file()) {
+            const std::string fileName = entry.path().filename().string();
+            if (std::regex_match(fileName, regexPattern)) {
+                std::string num;
+                for (const auto c : fileName) {
+                    if (isdigit(c)) {
+                        num += c;
+                    }
+                }
+                sortedPaths[std::stoi(num)] = entry;
+            }
+        }
+    }
     m_menu.addMenuItem(
-        "Main Menu", { "Main Menu", MenuItemId::OPTIONS, "Options", 1, std::nullopt });
-    m_menu.addMenuItem("Main Menu", { "Main Menu", MenuItemId::QUIT, "Quit", 2, std::nullopt });
+        "Select Level", { "Select Level", MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
+    int counter = 1;
+    int menuCounter = 1;
+    std::string menuNameBase = "Select Level";
+    std::string menuName = menuNameBase;
+    for (const auto& p : sortedPaths) {
+        m_menu.addMenuItem(
+            menuName,
+            { menuName,
+              MenuItemId::LEVEL_FILE,
+              p.second.filename(),
+              counter,
+              std::nullopt,
+              p.second.string() });
+        ++counter;
+        if (counter > 10) {
+            // add to another submenu
+            menuName = menuNameBase + " (" + std::to_string(menuCounter) + ")";
+            m_menu.addMenuItem(
+                menuName, { menuName, MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
+            m_menu.addMenuItem(
+                "Select Level",
+                { "Select Level", MenuItemId::LEVEL_SELECT, "<more>", counter, menuName });
+            counter = 1;
+        }
+    }
 }
 
 void GameModel::initialise(size_t levelNumber)
@@ -133,8 +180,8 @@ void GameModel::levelLoad(size_t levelNum)
         }
         char c = vec[0][0];
         switch (c) {
-            case '!': // timelimit (unused), fuel (unused), ship x, ship y, ship angle, description
-                      // (currently unused)
+            case '!': // timelimit (unused), fuel (unused), ship x, ship y, ship angle,
+                      // description (currently unused)
                 m_shipModel->setShipX(stod(vec[3]));
                 m_shipModel->setShipY(stod(vec[4]));
                 m_shipModel->setRotation(stod(vec[5]));
@@ -209,6 +256,18 @@ void GameModel::levelLoad(size_t levelNum)
         m_allDynamicGameShapes.push_back(std::move(obj));
     }
     setLevel(levelNum);
+}
+
+void GameModel::levelLoad(const std::string& filename)
+{
+    // This assumes the filename contains consecutive numbers, as per the usual levelxxx.cfg
+    std::string numString;
+    for (const auto c : filename) {
+        if (isdigit(c)) {
+            numString += c;
+        }
+    }
+    levelLoad(std::stoul(numString));
 }
 
 const std::string GameModel::getDataPath()
@@ -384,9 +443,14 @@ void GameModel::menuUp()
     m_menu.highlightPreviousItem();
 }
 
-MenuItemId GameModel::menuSelect()
+std::tuple<MenuItemId, std::optional<MenuItem>> GameModel::menuSelect()
 {
     return m_menu.selectCurrentItem();
+}
+
+void GameModel::setMenu(const std::string& menuName)
+{
+    m_menu.getMenuItems(menuName);
 }
 
 void GameModel::rebuildShip()

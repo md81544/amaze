@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <tuple>
 
 #include "gameshape.h"
 #include "helperfunctions.h"
@@ -32,7 +33,7 @@ enum class GameState {
     Succeeded, // found the exit
     Paused, // game is paused
     Quit, // user requested to quit
-    Menu  // Level selection / options etc
+    Menu // Level selection / options etc
 };
 
 struct ShipPosition {
@@ -41,7 +42,6 @@ struct ShipPosition {
     double rotation;
 };
 
-
 class GameModel : public IModel {
 public:
     explicit GameModel(const std::string& dataPath);
@@ -49,6 +49,7 @@ public:
     // Reset the model to a state ready for a new Level:
     void initialise(size_t level_number);
     void levelLoad(size_t levelNum);
+    void levelLoad(const std::string& filename);
 
     const std::string getDataPath();
 
@@ -80,12 +81,20 @@ public:
     int lifeLost();
     void extraLife();
     void setBreakableExploding(bool value = true);
-    int getLivesRemaining() { return m_livesRemaining; };
+    int getLivesRemaining()
+    {
+        return m_livesRemaining;
+    };
     std::vector<MenuItem> getCurrentMenu();
-    int getCurrentMenuItem() { return m_menu.getCurrentlyHighlightedItem(); };
+    int getCurrentMenuItem()
+    {
+        return m_menu.getCurrentlyHighlightedItem();
+    };
+    std::string getCurrentMenuItemData();
     void menuDown();
     void menuUp();
-    MenuItemId menuSelect();
+    std::tuple<MenuItemId, std::optional<MenuItem>> menuSelect();
+    void setMenu(const std::string& menuName);
 
 private:
     std::string m_dataPath { "" };
@@ -108,7 +117,6 @@ private:
     int m_livesRemaining { 1 };
     Scheduler m_scheduler;
     Menu m_menu;
-
 };
 
 } // namespace amaze
