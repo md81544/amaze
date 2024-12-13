@@ -58,7 +58,6 @@ std::tuple<MenuItemId, std::optional<MenuItem>> Menu::selectCurrentItem()
 {
     if (m_currentMenuItems[m_currentlyHighlightedItem].subMenuName.has_value()) {
         // User has selected an item with a submenu
-        // TODO switch to new submenu - also need a way to return
         // We then return a value that the caller can ignore, and then
         // the new submenu will be displayed in the next frame
         getMenuItems(m_currentMenuItems[m_currentlyHighlightedItem].subMenuName.value());

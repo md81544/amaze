@@ -2,7 +2,7 @@
 
 #include "shape.h"
 
-// TODO (perhaps?) might want to ditching the "gameShapeType"
+// TODO (perhaps?) might want to ditch the "gameShapeType"
 // and having sub classes depending on type. As currently
 // functionality is no different between different shape
 // types this seems overkill.

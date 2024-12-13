@@ -175,7 +175,6 @@ void Controller::mainLoop(int gameLevel)
                     goto end_loops;
                     break;
                 case GameState::Succeeded:
-                    // TODO something more than just quit
                     m_view.stopSounds();
                     m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
                     m_gameModel.getShipModel()->setIsAccelerating(false);
