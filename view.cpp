@@ -65,7 +65,7 @@ void View::update()
     t.text = "Ships remaining: " + std::to_string(m_model.getLivesRemaining());
     m_graphicsAdapter.drawText(t);
 
-    if(m_model.gameIsPaused()){
+    if (m_model.gameIsPaused()) {
         Text pm;
         pm.r = 255;
         pm.g = 255;
@@ -76,7 +76,26 @@ void View::update()
         // TODO do we need pause if opening the menu does the same thing?
     }
 
-    if(m_model.getGameState() == GameState::Menu) {
+    if (m_model.getGameState() == GameState::Succeeded) {
+        Text pm;
+        pm.r = 255;
+        pm.g = 255;
+        pm.characterSize = 160;
+        pm.text = "Success!";
+        pm.positionY = m_graphicsAdapter.getWindowHeight() * 0.3;
+        m_graphicsAdapter.drawText(pm);
+    }
+
+    if (m_model.getGameState() == GameState::Dead) {
+        Text pm;
+        pm.r = 255;
+        pm.characterSize = 160;
+        pm.text = "Game Over";
+        pm.positionY = m_graphicsAdapter.getWindowHeight() * 0.3;
+        m_graphicsAdapter.drawText(pm);
+    }
+
+    if (m_model.getGameState() == GameState::Menu) {
         auto vec = m_model.getCurrentMenu();
         m_graphicsAdapter.drawMenu(vec, m_model.getCurrentMenuItem());
     }
