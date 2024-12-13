@@ -86,7 +86,7 @@ void View::update()
         m_graphicsAdapter.drawText(pm);
     }
 
-    if (m_model.getGameState() == GameState::Dead) {
+    if (m_model.getGameState() == GameState::Dead && m_model.getLivesRemaining() == 0) {
         Text pm;
         pm.r = 255;
         pm.characterSize = 160;

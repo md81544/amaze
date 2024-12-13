@@ -80,6 +80,7 @@ public:
     void setGameState(GameState state);
     int lifeLost();
     void extraLife();
+    void setLives(int lives);
     void setBreakableExploding(bool value = true);
     int getLivesRemaining()
     {

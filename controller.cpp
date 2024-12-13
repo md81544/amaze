@@ -136,6 +136,7 @@ void Controller::mainLoop(int gameLevel)
                         KeyControls key = m_graphicsAdapter.processMenuInput();
                         if (key == KeyControls::EXIT) {
                             m_gameModel.setMenu("Main Menu");
+                            m_gameModel.getShipModel()->setVisible(true);
                             m_gameModel.setGameState(GameState::Running);
                         } else if (key == KeyControls::DOWN) {
                             m_gameModel.menuDown();
@@ -165,10 +166,13 @@ void Controller::mainLoop(int gameLevel)
                         m_gameModel.restart();
                         break;
                     }
-                    m_scheduler.doAfter(
-                        ScheduleEventName::LevelEnded,
-                        300,
-                        [&]() { m_gameModel.setGameState(GameState::Menu); });
+                    m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
+                        // We just reload the level, but display the menu
+                        // in case the user wants a different level
+                        m_gameModel.levelLoad(m_gameModel.level());
+                        m_gameModel.getShipModel()->setVisible(false);
+                        m_gameModel.setGameState(GameState::Menu);
+                    });
                     break;
                 case GameState::Quit:
                     // Break out of two loops, a justified use of goto :)
@@ -180,10 +184,13 @@ void Controller::mainLoop(int gameLevel)
                     m_gameModel.getShipModel()->setIsAccelerating(false);
                     m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
                     m_gameModel.setBreakableExploding(false);
-                    m_scheduler.doAfter(
-                        ScheduleEventName::LevelEnded,
-                        300,
-                        [&]() { m_gameModel.setGameState(GameState::Menu); });
+                    m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
+                        // We just reload the level, but display the menu
+                        // in case the user wants a different level
+                        m_gameModel.levelLoad(m_gameModel.level());
+                        m_gameModel.getShipModel()->setVisible(false);
+                        m_gameModel.setGameState(GameState::Menu);
+                    });
                     break;
                 case GameState::Exploding:
                     m_gameModel.process(); // perform all processing required per loop

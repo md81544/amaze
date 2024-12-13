@@ -426,6 +426,11 @@ void GameModel::extraLife()
     ++m_livesRemaining;
 }
 
+void GameModel::setLives(int lives)
+{
+    m_livesRemaining = lives;
+}
+
 void GameModel::setBreakableExploding(bool value /* =true */)
 {
     m_breakableExploding = value;
