@@ -19,6 +19,7 @@ GameModel::GameModel(const std::string& dataPath)
 {
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+
     // Populate the menu structure
     m_menu.addMenuItem(
         "Main Menu", { "Main Menu", MenuItemId::LEVEL_SELECT, "Select Level", 0, "Select Level" });
@@ -74,7 +75,12 @@ GameModel::GameModel(const std::string& dataPath)
 void GameModel::initialise(size_t levelNumber)
 {
     // Resets the model to a state ready for a new Level
+    m_livesRemaining = 1;
     m_allDynamicGameShapes.clear();
+
+    m_shipModel.reset();
+    m_shipModel
+        = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
 
     buildBreakableExplosionShape();
     m_allDynamicGameShapes.push_back(m_breakableExplosionShape);

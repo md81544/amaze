@@ -147,6 +147,7 @@ void Controller::mainLoop(int gameLevel)
                                 m_gameModel.setGameState(GameState::Quit);
                             } else if (selected == MenuItemId::LEVEL_FILE) {
                                 if (item.has_value()) {
+                                    m_gameModel.setMenu("Main Menu");
                                     m_gameModel.levelLoad(item.value().data);
                                     m_gameModel.setGameState(GameState::Running);
                                 }

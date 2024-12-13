@@ -66,20 +66,20 @@ public:
     void buildExplosionShape();
 
 private:
-    double m_Rotation { 0.0 };
-    double m_RotationDelta { 0.0 };
-    double m_ShipX;
-    double m_ShipY;
-    double m_Dx;
-    double m_Dy;
-    double m_Velocity { 0.0 };
-    double m_MaxVelocity;
-    bool m_IsAccelerating { false };
-    float m_AccelerationAmount { 0.f };
+    double m_rotation { 0.0 };
+    double m_rotationDelta { 0.0 };
+    double m_shipX;
+    double m_shipY;
+    double m_dx;
+    double m_dy;
+    double m_velocity { 0.0 };
+    double m_maxVelocity;
+    bool m_isAccelerating { false };
+    float m_accelerationAmount { 0.f };
 
-    std::shared_ptr<GameShape> m_ShipGameShape;
-    std::shared_ptr<GameShape> m_FlamesGameShape;
-    std::shared_ptr<GameShape> m_ExplosionGameShape;
+    std::shared_ptr<GameShape> m_shipGameShape;
+    std::shared_ptr<GameShape> m_flamesGameShape;
+    std::shared_ptr<GameShape> m_explosionGameShape;
 };
 
 } // namespace amaze
