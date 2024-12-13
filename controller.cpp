@@ -165,9 +165,10 @@ void Controller::mainLoop(int gameLevel)
                         m_gameModel.restart();
                         break;
                     }
-                    m_scheduler.doAfter(ScheduleEventName::EndLoops, 300, [&]() {
-                        endingLevel = true; // all lives lost
-                    });
+                    m_scheduler.doAfter(
+                        ScheduleEventName::LevelEnded,
+                        300,
+                        [&]() { m_gameModel.setGameState(GameState::Menu); });
                     break;
                 case GameState::Quit:
                     // Break out of two loops, a justified use of goto :)
@@ -181,7 +182,9 @@ void Controller::mainLoop(int gameLevel)
                     m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
                     m_gameModel.setBreakableExploding(false);
                     m_scheduler.doAfter(
-                        ScheduleEventName::EndLoops, 300, [&]() { endingLevel = true; });
+                        ScheduleEventName::LevelEnded,
+                        300,
+                        [&]() { m_gameModel.setGameState(GameState::Menu); });
                     break;
                 case GameState::Exploding:
                     m_gameModel.process(); // perform all processing required per loop

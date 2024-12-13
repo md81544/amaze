@@ -8,7 +8,7 @@ namespace amaze {
 // Add event names to this as required. It's just more type safe than using
 // a string to name events being added.
 enum class ScheduleEventName {
-    EndLoops,
+    LevelEnded,
     Exploding,
     BreakableExploding
 };
