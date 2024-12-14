@@ -132,9 +132,9 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         if (m_model.getGameState() == GameState::Menu
             || m_model.getGameState() == GameState::Paused) {
             // Dim everything if the menu is displayed
-            r *= 0.5;
-            g *= 0.5;
-            b *= 0.5;
+            r *= 0.4;
+            g *= 0.4;
+            b *= 0.4;
         }
         m_graphicsAdapter.drawLine(
             x0r * scale + xOffset,
