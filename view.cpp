@@ -126,15 +126,25 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         x1r = x1 * dCos - y1 * dSin;
         y1r = x1 * dSin + y1 * dCos;
         // now draw adjusted for physical screen coords
+        uint8_t r = sl.r;
+        uint8_t g = sl.g;
+        uint8_t b = sl.b;
+        if (m_model.getGameState() == GameState::Menu
+            || m_model.getGameState() == GameState::Paused) {
+            // Dim everything if the menu is displayed
+            r *= 0.5;
+            g *= 0.5;
+            b *= 0.5;
+        }
         m_graphicsAdapter.drawLine(
             x0r * scale + xOffset,
             y0r * scale + yOffset,
             x1r * scale + xOffset,
             y1r * scale + yOffset,
             sl.lineThickness,
-            sl.r,
-            sl.g,
-            sl.b);
+            r,
+            g,
+            b);
     }
 }
 
