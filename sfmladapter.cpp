@@ -17,7 +17,7 @@ KeyControls joystickRateLimiter(KeyControls key)
     static auto lastCall = std::chrono::system_clock::now();
     auto now = std::chrono::system_clock::now();
     KeyControls rc = KeyControls::NONE;
-    if (firstCall || now - lastCall > std::chrono::milliseconds(100)) {
+    if (firstCall || now - lastCall > std::chrono::milliseconds(80)) {
         rc = key;
     }
     firstCall = false;
@@ -245,10 +245,13 @@ void SfmlAdapter::processInput(bool paused)
             if (!paused) {
                 float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
                 m_controlHandlers[KeyControls::LR_ANALOGUE](true, -x);
-                // Right trigger
+                // Right trigger or right stick accelerates
                 float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
+                float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
                 if (v > -90.f) {
                     m_controlHandlers[KeyControls::ACCELERATE](true, (v + 100.f) / 10.f);
+                } else if (r < -20.f) {
+                    m_controlHandlers[KeyControls::ACCELERATE](true, r * -.2f);
                 } else {
                     m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                 }
@@ -332,10 +335,12 @@ KeyControls SfmlAdapter::processMenuInput()
 
     while (m_window.pollEvent(event)) {
         if (sf::Joystick::isConnected(0)) {
-            float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
-            if (y > 30.f) {
+            // Either stick works for up/down
+            float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
+            float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
+            if (y > 30.f || r > 30.f) {
                 return joystickRateLimiter(KeyControls::DOWN);
-            } else if (y < -30.f) {
+            } else if (y < -30.f || r < -30.f) {
                 return joystickRateLimiter(KeyControls::UP);
             }
             if (sf::Joystick::isButtonPressed(0, 1)) {

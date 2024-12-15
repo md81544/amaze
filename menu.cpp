@@ -44,6 +44,9 @@ void Menu::highlightNextItem()
 {
     if (m_currentlyHighlightedItem < getCurrentMenuSize() - 1) {
         ++m_currentlyHighlightedItem;
+    }else{
+        // wrap around
+        m_currentlyHighlightedItem = 0;
     }
 }
 
@@ -51,6 +54,8 @@ void Menu::highlightPreviousItem()
 {
     if (m_currentlyHighlightedItem > 0) {
         --m_currentlyHighlightedItem;
+    }else{
+        m_currentlyHighlightedItem = getCurrentMenuSize() - 1;
     }
 }
 
