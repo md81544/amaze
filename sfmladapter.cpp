@@ -9,6 +9,24 @@
 namespace marengo {
 namespace amaze {
 
+namespace {
+
+KeyControls joystickRateLimiter(KeyControls key)
+{
+    static bool firstCall = true;
+    static auto lastCall = std::chrono::system_clock::now();
+    auto now = std::chrono::system_clock::now();
+    KeyControls rc = KeyControls::NONE;
+    if (firstCall || now - lastCall > std::chrono::milliseconds(100)) {
+        rc = key;
+    }
+    firstCall = false;
+    lastCall = now;
+    return rc;
+}
+
+}
+
 SfmlAdapter::SfmlAdapter(
     int screenWidth,
     int screenHeight,
@@ -173,7 +191,9 @@ void SfmlAdapter::drawText(const Text& text)
 
 void SfmlAdapter::drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem)
 {
-    if(menuItems.empty()) return;
+    if (menuItems.empty()) {
+        return;
+    }
     Text t;
     t.g = 255;
     t.positionY = 300;
@@ -183,11 +203,11 @@ void SfmlAdapter::drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlig
     t.positionY.value() += 40;
     int itemCount = 0;
     for (const auto& menuItem : menuItems) {
-        if(itemCount == currentlyHighlightedItem) {
+        if (itemCount == currentlyHighlightedItem) {
             t.r = 255;
             t.g = 255;
             t.b = 255;
-        }else{
+        } else {
             t.r = 0;
             t.g = 150;
             t.b = 0;
@@ -314,15 +334,15 @@ KeyControls SfmlAdapter::processMenuInput()
         if (sf::Joystick::isConnected(0)) {
             float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
             if (y > 30.f) {
-                return KeyControls::DOWN;
+                return joystickRateLimiter(KeyControls::DOWN);
             } else if (y < -30.f) {
-                return KeyControls::UP;
+                return joystickRateLimiter(KeyControls::UP);
             }
             if (sf::Joystick::isButtonPressed(0, 1)) {
-                return KeyControls::ENTER;
+                return joystickRateLimiter(KeyControls::ENTER);
             }
             if (sf::Joystick::isButtonPressed(0, 2)) {
-                return KeyControls::EXIT;
+                return joystickRateLimiter(KeyControls::EXIT);
             }
             // TODO - menu button to return KeyControls::EXIT
         }
