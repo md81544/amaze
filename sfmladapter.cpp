@@ -254,7 +254,7 @@ void SfmlAdapter::processInput(bool paused)
                 }
             }
             if (sf::Joystick::isButtonPressed(0, 9)) {
-                m_controlHandlers[KeyControls::PAUSE](true, 0.f);
+                m_controlHandlers[KeyControls::MENU](true, 0.f);
             }
         }
         switch (event.type) {
