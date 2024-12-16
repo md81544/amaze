@@ -1,7 +1,4 @@
 * Menu -> Level Select: use names instead of filenames
-* Menu: use either stick to navigate up / down. Maybe speed up the rate limiter slightly
-* Menu: if at top and up is pressed, select bottom item and vice versa
-* Use right stick for acceleration as well as right trigger
 
 * How about rocket flames can break breakable walls? i.e. if you back in and thrust
 * Why is the ship in the middle of the screen? Maybe move it lower down?
