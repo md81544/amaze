@@ -14,14 +14,14 @@ namespace {
 KeyControls joystickRateLimiter(KeyControls key)
 {
     static bool firstCall = true;
-    static auto lastCall = std::chrono::system_clock::now();
+    static auto lastGoodCall = std::chrono::system_clock::now();
     auto now = std::chrono::system_clock::now();
     KeyControls rc = KeyControls::NONE;
-    if (firstCall || now - lastCall > std::chrono::milliseconds(80)) {
+    if (firstCall || (now - lastGoodCall) > std::chrono::milliseconds(200)) {
+        lastGoodCall = now;
         rc = key;
     }
     firstCall = false;
-    lastCall = now;
     return rc;
 }
 
@@ -331,26 +331,9 @@ KeyControls SfmlAdapter::processMenuInput()
 {
     // If this function is called, the menu is displayed, so we react differently
     // to various keys. Note only one event is returned per call
-    sf::Event event;
 
+    sf::Event event;
     while (m_window.pollEvent(event)) {
-        if (sf::Joystick::isConnected(0)) {
-            // Either stick works for up/down
-            float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
-            float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
-            if (y > 30.f || r > 30.f) {
-                return joystickRateLimiter(KeyControls::DOWN);
-            } else if (y < -30.f || r < -30.f) {
-                return joystickRateLimiter(KeyControls::UP);
-            }
-            if (sf::Joystick::isButtonPressed(0, 1)) {
-                return joystickRateLimiter(KeyControls::ENTER);
-            }
-            if (sf::Joystick::isButtonPressed(0, 2)) {
-                return joystickRateLimiter(KeyControls::EXIT);
-            }
-            // TODO - menu button to return KeyControls::EXIT
-        }
         switch (event.type) {
             case sf::Event::KeyPressed:
                 switch (event.key.code) {
@@ -370,6 +353,25 @@ KeyControls SfmlAdapter::processMenuInput()
                 break;
         }
     }
+
+    if (sf::Joystick::isConnected(0)) {
+        // Either stick works for up/down
+        float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
+        float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
+        if (y > 30.f || r > 30.f) {
+            return joystickRateLimiter(KeyControls::DOWN);
+        } else if (y < -30.f || r < -30.f) {
+            return joystickRateLimiter(KeyControls::UP);
+        }
+        if (sf::Joystick::isButtonPressed(0, 1)) {
+            return joystickRateLimiter(KeyControls::ENTER);
+        }
+        if (sf::Joystick::isButtonPressed(0, 2)) {
+            return joystickRateLimiter(KeyControls::EXIT);
+        }
+        // TODO - menu button to return KeyControls::EXIT
+    }
+
     return KeyControls::NONE;
 }
 
