@@ -78,6 +78,25 @@
         "execution": "cpp",
         "queue": "cpp",
         "shared_mutex": "cpp",
-        "source_location": "cpp"
+        "source_location": "cpp",
+        "print": "cpp",
+        "*.tcc": "cpp",
+        "codecvt": "cpp",
+        "condition_variable": "cpp",
+        "forward_list": "cpp",
+        "functional": "cpp",
+        "iterator": "cpp",
+        "memory_resource": "cpp",
+        "random": "cpp",
+        "regex": "cpp",
+        "utility": "cpp",
+        "numbers": "cpp",
+        "semaphore": "cpp",
+        "span": "cpp",
+        "stdfloat": "cpp",
+        "stop_token": "cpp",
+        "text_encoding": "cpp",
+        "thread": "cpp",
+        "cinttypes": "cpp"
     }
 }

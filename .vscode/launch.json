@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Debug",
             "program": "${workspaceFolder}/amaze",
-            "args": ["98"],
+            "args": ["69"],
             "cwd": "${workspaceFolder}"
         }
     ]

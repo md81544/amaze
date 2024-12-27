@@ -18,6 +18,10 @@ struct ShapeLine {
     uint8_t b;
     uint8_t a;
     int lineThickness;
+    double originalX0;
+    double originalY0;
+    double originalX1;
+    double originalY1;
 };
 
 class Shape {

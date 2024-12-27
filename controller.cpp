@@ -232,6 +232,7 @@ void Controller::collisionChecks()
             case GameShapeType::NEUTRAL:
                 break;
             case GameShapeType::OBSTRUCTION:
+            case GameShapeType::MOVING:
                 m_gameModel.getShipModel()->setIsExploding(true);
                 m_gameModel.setGameState(GameState::Exploding);
                 break;

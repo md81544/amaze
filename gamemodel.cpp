@@ -88,9 +88,9 @@ void GameModel::initialise(size_t levelNumber)
     // Grid lines on the background
     std::shared_ptr<GameShape> bkg(new GameShape);
     for (double n = 0; n <= 2000; n += 50) {
-        ShapeLine sl1 { n, 0, n, 2000, 0, 32, 0, 255, 4 };
+        ShapeLine sl1 { n, 0, n, 2000, 0, 32, 0, 255, 4, n, 0, n, 2000 };
         bkg->addShapeLine(sl1);
-        ShapeLine sl2 { 0, n, 2000, n, 0, 32, 0, 255, 4 };
+        ShapeLine sl2 { 0, n, 2000, n, 0, 32, 0, 255, 4, 0, n, 2000, n };
         bkg->addShapeLine(sl2);
     }
     bkg->setPos(0, 0);
@@ -101,6 +101,8 @@ void GameModel::initialise(size_t levelNumber)
     m_allDynamicGameShapes.push_back(m_shipModel->shipGameShape());
     m_allDynamicGameShapes.push_back(m_shipModel->flamesGameShape());
     m_allDynamicGameShapes.push_back(m_shipModel->explosionGameShape());
+
+    // Add all moving objects
 
     m_level = levelNumber;
 
@@ -122,7 +124,8 @@ void GameModel::buildBreakableExplosionShape()
         double y1 = static_cast<double>(Cosine(n * 30.0) * 20 + (rand() % 10));
         double x2 = static_cast<double>(Sine((n + 1) * 30.0) * 20 + (rand() % 10));
         double y2 = static_cast<double>(Cosine((n + 1) * 30.0) * 20 + (rand() % 10));
-        m_breakableExplosionShape->addShapeLine(ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6 });
+        m_breakableExplosionShape->addShapeLine(
+            ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6, x1, y1, x2, y2 });
     }
     m_breakableExplosionShape->setName("BreakableExplosion");
     m_breakableExplosionShape->setVisible(false);
@@ -187,7 +190,7 @@ void GameModel::levelLoad(size_t levelNum)
         char c = vec[0][0];
         switch (c) {
             case '!': // timelimit (unused), fuel (unused), ship x, ship y, ship angle,
-                      // description (currently unused)
+                      // description (currently unused, but a TODO)
                 m_shipModel->setShipX(stod(vec[3]));
                 m_shipModel->setShipY(stod(vec[4]));
                 m_shipModel->setRotation(stod(vec[5]));
@@ -212,6 +215,15 @@ void GameModel::levelLoad(size_t levelNum)
                         obj->setGameShapeType(GameShapeType::EXIT);
                     } else if (vec[1] == "BREAKABLE") {
                         obj->setGameShapeType(GameShapeType::BREAKABLE);
+                    } else if (vec[1] == "MOVING") {
+                        obj->setGameShapeType(GameShapeType::MOVING);
+                        if (vec.size() >= 8) {
+                            obj->setXDelta(std::stof(vec[3]));
+                            obj->setXMaxDifference(std::stof(vec[4]));
+                            obj->setYDelta(std::stof(vec[5]));
+                            obj->setYMaxDifference(std::stof(vec[6]));
+                            obj->setRotationDelta(std::stof(vec[7]));
+                        }
                     }
                 }
                 break;
@@ -226,7 +238,11 @@ void GameModel::levelLoad(size_t levelNum)
                         static_cast<uint8_t>(stoi(vec[6])), // g
                         static_cast<uint8_t>(stoi(vec[7])), // b
                         255, // alpha
-                        stoi(vec[5]) // thickness
+                        stoi(vec[5]), // thickness
+                        stod(vec[1]), // x0
+                        stod(vec[2]), // y0
+                        stod(vec[3]), // x1
+                        stod(vec[4]) // y1
                     };
                     if (vec.size() == 9) {
                         sl1.lineThickness = stoi(vec[8]);

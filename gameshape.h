@@ -18,7 +18,8 @@ enum class GameShapeType {
     PRISONER,
     KEY,
     EXIT,
-    BREAKABLE // acts like OBSTRUCTION, but is destroyed once hit
+    BREAKABLE, // acts like OBSTRUCTION, but is destroyed once hit
+    MOVING
 };
 
 class GameShape : public Shape {
@@ -34,10 +35,30 @@ public:
     std::string getName() const;
     void setName(const std::string& name);
 
+    // The following are only used for moving objects
+    void move();
+    float getRotationDelta() const;
+    void setRotationDelta(float value);
+    float getXDelta() const;
+    float getYDelta() const;
+    void  setXDelta(float value);
+    void  setYDelta(float value);
+    void setXMaxDifference(float value);
+    void setYMaxDifference(float value);
+    float getXMaxDifference() const;
+    float getYMaxDifference() const;
+
 private:
     bool m_isActive { true };
     std::string m_name; // for debugging only
     GameShapeType m_gameShapeType { GameShapeType::UNINITIALISED };
+
+    // The following are only used for moving objects
+    float m_rotationDelta { 0.0f };
+    float m_xDelta { 0.0f };
+    float m_yDelta { 0.0f };
+    float m_xMaxDifference { 0.0f };
+    float m_yMaxDifference { 0.0f };
 };
 
 } // namespace amaze

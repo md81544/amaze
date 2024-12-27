@@ -48,6 +48,9 @@ void View::update()
     // Dynamic shapes (i.e. shapes which rotate around the ship)
     m_model.processDynamicObjects([&](GameShape& shape) {
         if (shape.isVisible() && shape.IsActive()) {
+            if (shape.getGameShapeType() == GameShapeType::MOVING) {
+                shape.move();
+            }
             rotateAndDrawShape(shape);
         }
     });

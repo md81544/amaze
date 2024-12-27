@@ -41,7 +41,8 @@ void Shape::makeFromText(
             double x = vertices[j * 2];
             double y = vertices[j * 2 + 1];
             if (prevX != -1 && prevY != -1 && x != -1 && y != -1) {
-                ShapeLine sl { prevX, prevY, x + textWidth, y, r, g, b, a, lineThickness };
+                ShapeLine sl { prevX, prevY, x + textWidth, y, r, g, b, a, lineThickness,
+                               prevX, prevY, x + textWidth, y };
                 addShapeLine(sl);
             }
             prevX = x + textWidth;
@@ -82,7 +83,7 @@ void Shape::setColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 void Shape::addLine(double x0, double y0, double x1, double y1, uint8_t thickness)
 {
-    addShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, thickness });
+    addShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, thickness, x0, y0, x1, y1 });
 }
 
 double Shape::getWidth() const
