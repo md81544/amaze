@@ -261,6 +261,12 @@ void SfmlAdapter::processInput(bool paused)
             }
         }
         switch (event.type) {
+            case sf::Event::LostFocus:
+                // Pause when window loses focus
+                if (!paused) {
+                    m_controlHandlers[KeyControls::PAUSE](true, 0.f);
+                }
+                break;
             case sf::Event::KeyPressed:
                 switch (event.key.code) {
                     case sf::Keyboard::Escape:
