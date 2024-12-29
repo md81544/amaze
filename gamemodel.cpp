@@ -44,12 +44,11 @@ GameModel::GameModel(const std::string& dataPath)
             }
         }
     }
-    m_menu.addMenuItem(
-        "Select Level", { "Select Level", MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
-    int counter = 1;
-    int menuCounter = 1;
     std::string menuNameBase = "Select Level";
     std::string menuName = menuNameBase;
+    m_menu.addMenuItem(menuName, { menuName, MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
+    int counter = 1;
+    int menuCounter = 1;
     for (const auto& p : sortedPaths) {
         m_menu.addMenuItem(
             menuName,
@@ -62,14 +61,19 @@ GameModel::GameModel(const std::string& dataPath)
         ++counter;
         if (counter > 10) {
             // add to another submenu
-            menuName = menuNameBase + " (" + std::to_string(menuCounter) + ")";
+            std::string newMenuName = menuNameBase + " (" + std::to_string(menuCounter) + ")";
+            m_menu.addMenuItem(
+                menuName, { menuName, MenuItemId::LEVEL_SELECT, "<more>", counter, newMenuName });
+            ++menuCounter;
+            menuName = newMenuName;
             m_menu.addMenuItem(
                 menuName, { menuName, MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
-            m_menu.addMenuItem(
-                "Select Level",
-                { "Select Level", MenuItemId::LEVEL_SELECT, "<more>", counter, menuName });
             counter = 1;
         }
+    }
+    if (counter > 1) {
+        m_menu.addMenuItem(
+            menuName, { menuName, MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
     }
 }
 
