@@ -282,8 +282,6 @@ void GameModel::addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& ob
     if (obj->getGameShapeType() != GameShapeType::UNINITIALISED) {
         if (obj->getGameShapeType() == GameShapeType::MOVING) {
             obj->setPosFromCentre(); // converts all lines to relative to the object's centre
-            obj->setXMaxDifference(obj->getXMaxDifference() - obj->getPosX());
-            obj->setYMaxDifference(obj->getYMaxDifference() - obj->getPosY());
         }
         m_allDynamicGameShapes.push_back(std::move(obj));
     }
