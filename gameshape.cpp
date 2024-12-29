@@ -59,6 +59,9 @@ void GameShape::move()
         sl.x1 += m_xDelta;
         sl.y1 += m_yDelta;
     }
+    if (m_rotationDelta != 0.0f) {
+        rotate(m_rotationDelta);
+    }
 }
 
 float GameShape::getRotationDelta() const

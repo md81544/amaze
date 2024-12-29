@@ -131,7 +131,9 @@ void Shape::rotate(double rotationDelta)
 {
     // This is not related to the rotation of the entire "world" around
     // the ship - this will simply cause a shape to rotate around its centre
-    if (rotationDelta == 0) {
+    // (Note - shapes' lines should be defined relative to this centre - but
+    // see setPosFromCentre() )
+    if (rotationDelta == 0.0) {
         return;
     }
 
@@ -280,6 +282,24 @@ bool Shape::intersectCheck(std::shared_ptr<Shape> s) const
 const std::vector<ShapeLine>& Shape::getVec() const
 {
     return m_ShapeLines;
+}
+
+void Shape::setPosFromCentre()
+{
+    // Convert all lines to be relative to the centre of the shape
+    auto centreX = m_MinX + (m_Width / 2);
+    auto centreY = m_MinY + (m_Height / 2);
+    setPos(centreX, centreY);
+    for (auto& sl : m_ShapeLines) {
+        sl.x0 -= centreX;
+        sl.y0 -= centreY;
+        sl.x1 -= centreX;
+        sl.y1 -= centreY;
+        sl.originalX0 -= centreX;
+        sl.originalY0 -= centreY;
+        sl.originalX1 -= centreX;
+        sl.originalY1 -= centreY;
+    }
 }
 
 void Shape::updateShapeSize(double x0, double y0, double x1, double y1)

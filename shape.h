@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
 #include <memory>
 #include <string>
 #include <vector>
@@ -51,21 +52,22 @@ public:
     void clear();
     bool intersectCheck(std::shared_ptr<Shape>) const;
     const std::vector<ShapeLine>& getVec() const;
+    void setPosFromCentre();
 
 protected:
     std::vector<ShapeLine> m_ShapeLines;
-    double m_Width { 0 };
-    double m_Height { 0 };
-    double m_X { 0 };
-    double m_Y { 0 };
-    double m_Scale { 1 };
+    double m_Width { 0.0 };
+    double m_Height { 0.0 };
+    double m_X { 0.0 };
+    double m_Y { 0.0 };
+    double m_Scale { 1.0 };
     int m_Rotation { 0 };
     int m_PreviousRotation { 0 };
     bool m_IsVisible { true };
-    double m_MinX { 0 };
-    double m_MinY { 0 };
-    double m_MaxX { 0 };
-    double m_MaxY { 0 };
+    double m_MinX { std::numeric_limits<double>::max() };
+    double m_MinY { std::numeric_limits<double>::max() };
+    double m_MaxX { std::numeric_limits<double>::min() };
+    double m_MaxY { std::numeric_limits<double>::min() };
     // default colours for addLine:
     uint8_t m_R { 255 };
     uint8_t m_G { 255 };

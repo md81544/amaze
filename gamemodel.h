@@ -98,6 +98,8 @@ public:
     void setMenu(const std::string& menuName);
 
 private:
+    void addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& obj);
+
     std::string m_dataPath { "" };
 
     size_t m_level { 0 };

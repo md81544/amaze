@@ -1,5 +1,6 @@
 #include "gamemodel.h"
 #include "exceptions.h"
+#include "log.h"
 
 #include <cassert>
 #include <chrono>
@@ -197,9 +198,7 @@ void GameModel::levelLoad(size_t levelNum)
                 m_levelDescription = vec[6];
                 break;
             case 'N': // New object, parameter 1 is type, parameter 2 appears unused
-                if (obj->getGameShapeType() != GameShapeType::UNINITIALISED) {
-                    m_allDynamicGameShapes.push_back(std::move(obj));
-                }
+                addPreviousObject(obj);
                 obj = std::unique_ptr<GameShape>(new GameShape);
                 obj->setGameShapeType(GameShapeType::NEUTRAL);
                 if (vec.size() > 1) {
@@ -274,10 +273,20 @@ void GameModel::levelLoad(size_t levelNum)
         currentLine.clear();
     }
     in.close();
+    addPreviousObject(obj);
+    setLevel(levelNum);
+}
+
+void GameModel::addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& obj)
+{
     if (obj->getGameShapeType() != GameShapeType::UNINITIALISED) {
+        if (obj->getGameShapeType() == GameShapeType::MOVING) {
+            obj->setPosFromCentre(); // converts all lines to relative to the object's centre
+            obj->setXMaxDifference(obj->getXMaxDifference() - obj->getPosX());
+            obj->setYMaxDifference(obj->getYMaxDifference() - obj->getPosY());
+        }
         m_allDynamicGameShapes.push_back(std::move(obj));
     }
-    setLevel(levelNum);
 }
 
 void GameModel::levelLoad(const std::string& filename)
