@@ -225,7 +225,12 @@ void GameModel::levelLoad(size_t levelNum)
                             obj->setXMaxDifference(std::stof(vec[4]));
                             obj->setYDelta(std::stof(vec[5]));
                             obj->setYMaxDifference(std::stof(vec[6]));
-                            obj->setRotationDelta(std::stof(vec[7]));
+                            if(obj->getXDelta() == 0.0f && obj->getYDelta() == 0.0f){
+                                // Movement and rotation are mutually exclusive because
+                                // movement affect's the object's position around which
+                                // the object rotates (maybe a TODO to fix?)
+                                obj->setRotationDelta(std::stof(vec[7]));
+                            }
                         }
                     }
                 }
