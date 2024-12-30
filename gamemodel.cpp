@@ -24,7 +24,7 @@ std::string getLevelDescription(std::filesystem::path levelFile)
         THROWUP(AmazeRuntimeException, "Failed to load Level file " + levelFile.string());
     }
     std::string currentLine;
-    std::string levelDescription;
+    std::string levelDescription { "Untitled" };
     getline(in, currentLine);
     std::vector<std::string> vec;
     helperfunctions::CsvSplit(currentLine, '~', vec);
