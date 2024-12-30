@@ -15,6 +15,28 @@
 namespace marengo {
 namespace amaze {
 
+namespace {
+
+std::string getLevelDescription(std::filesystem::path levelFile)
+{
+    std::ifstream in(levelFile.string());
+    if (!in) {
+        THROWUP(AmazeRuntimeException, "Failed to load Level file " + levelFile.string());
+    }
+    std::string currentLine;
+    std::string levelDescription;
+    getline(in, currentLine);
+    std::vector<std::string> vec;
+    helperfunctions::CsvSplit(currentLine, '~', vec);
+    if (vec.size() > 6) {
+        levelDescription = vec[6];
+    }
+    in.close();
+    return levelDescription;
+}
+
+} // namespace
+
 GameModel::GameModel(const std::string& dataPath)
     : m_dataPath(dataPath)
 {
@@ -54,7 +76,8 @@ GameModel::GameModel(const std::string& dataPath)
             menuName,
             { menuName,
               MenuItemId::LEVEL_FILE,
-              p.second.filename(),
+              // p.second.filename(),
+              getLevelDescription(p.second),
               counter,
               std::nullopt,
               p.second.string() });
@@ -225,7 +248,7 @@ void GameModel::levelLoad(size_t levelNum)
                             obj->setXMaxDifference(std::stof(vec[4]));
                             obj->setYDelta(std::stof(vec[5]));
                             obj->setYMaxDifference(std::stof(vec[6]));
-                            if(obj->getXDelta() == 0.0f && obj->getYDelta() == 0.0f){
+                            if (obj->getXDelta() == 0.0f && obj->getYDelta() == 0.0f) {
                                 // Movement and rotation are mutually exclusive because
                                 // movement affects the object's position around which
                                 // the object rotates (maybe a TODO to fix?)
