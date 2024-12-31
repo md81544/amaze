@@ -175,8 +175,8 @@ void ShipModel::updateShipPosition()
     m_velocity = sqrt((m_dx * m_dx) + (m_dy * m_dy));
 
     if (m_isAccelerating) {
-        m_dx = m_dx + helperfunctions::Sine(m_rotation) * m_accelerationAmount;
-        m_dy = m_dy + helperfunctions::Cosine(m_rotation) * m_accelerationAmount;
+        m_dx = m_dx + helperfunctions::sine(m_rotation) * m_accelerationAmount;
+        m_dy = m_dy + helperfunctions::cosine(m_rotation) * m_accelerationAmount;
     }
 
     // calculate new position for ship
@@ -280,10 +280,10 @@ void ShipModel::buildExplosionShape()
         if (rand() % 3 == 1) {
             continue;
         }
-        double x1 = static_cast<double>(Sine(n * 30.0) * 20 + (rand() % 10));
-        double y1 = static_cast<double>(Cosine(n * 30.0) * 20 + (rand() % 10));
-        double x2 = static_cast<double>(Sine((n + 1) * 30.0) * 20 + (rand() % 10));
-        double y2 = static_cast<double>(Cosine((n + 1) * 30.0) * 20 + (rand() % 10));
+        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (rand() % 10));
+        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (rand() % 10));
+        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (rand() % 10));
+        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (rand() % 10));
         uint8_t r = (rand() % 128) + 96;
         m_explosionGameShape->addShapeLine(
             ShapeLine { x1, y1, x2, y2, r, r, r, 255, 4, x1, y1, x2, y2 });
@@ -293,23 +293,23 @@ void ShipModel::buildExplosionShape()
         if (rand() % 3 == 1) {
             continue;
         }
-        double x1 = static_cast<double>(Sine(n * 6.0) * 40);
-        double y1 = static_cast<double>(Cosine(n * 6.0) * 40);
-        double x2 = static_cast<double>(Sine(n * 6.0) * 50);
-        double y2 = static_cast<double>(Cosine(n * 6.0) * 50);
+        double x1 = static_cast<double>(sine(n * 6.0) * 40);
+        double y1 = static_cast<double>(cosine(n * 6.0) * 40);
+        double x2 = static_cast<double>(sine(n * 6.0) * 50);
+        double y2 = static_cast<double>(cosine(n * 6.0) * 50);
         m_explosionGameShape->addShapeLine(
             ShapeLine { x1, y1, x2, y2, 255, 255, 255, 255, 3, x1, y1, x2, y2 });
-        x1 = static_cast<double>(Sine(n * 6.0) * 50);
-        y1 = static_cast<double>(Cosine(n * 6.0) * 50);
-        x2 = static_cast<double>(Sine(n * 6.0) * 60);
-        y2 = static_cast<double>(Cosine(n * 6.0) * 60);
+        x1 = static_cast<double>(sine(n * 6.0) * 50);
+        y1 = static_cast<double>(cosine(n * 6.0) * 50);
+        x2 = static_cast<double>(sine(n * 6.0) * 60);
+        y2 = static_cast<double>(cosine(n * 6.0) * 60);
         m_explosionGameShape->addShapeLine(
             ShapeLine { x1, y1, x2, y2, 250, 214, 116, 255, 2, x1, y1, x2, y2 });
         int i = rand() % 50;
-        x1 = static_cast<double>(Sine(n * 6.0) * 60);
-        y1 = static_cast<double>(Cosine(n * 6.0) * 60);
-        x2 = static_cast<double>(Sine(n * 6.0) * (70 + i));
-        y2 = static_cast<double>(Cosine(n * 6.0) * (70 + i));
+        x1 = static_cast<double>(sine(n * 6.0) * 60);
+        y1 = static_cast<double>(cosine(n * 6.0) * 60);
+        x2 = static_cast<double>(sine(n * 6.0) * (70 + i));
+        y2 = static_cast<double>(cosine(n * 6.0) * (70 + i));
         m_explosionGameShape->addShapeLine(
             ShapeLine { x1, y1, x2, y2, 255, 0, 0, 255, 1, x1, y1, x2, y2 });
     }

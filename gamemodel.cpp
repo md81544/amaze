@@ -27,7 +27,7 @@ std::string getLevelDescription(std::filesystem::path levelFile)
     std::string levelDescription { "Untitled" };
     getline(in, currentLine);
     std::vector<std::string> vec;
-    helperfunctions::CsvSplit(currentLine, '~', vec);
+    helperfunctions::csvSplit(currentLine, '~', vec);
     if (vec.size() > 6) {
         levelDescription = vec[6];
     }
@@ -76,8 +76,7 @@ GameModel::GameModel(const std::string& dataPath)
             menuName,
             { menuName,
               MenuItemId::LEVEL_FILE,
-              // p.second.filename(),
-              getLevelDescription(p.second),
+              std::to_string(p.first) + " " + getLevelDescription(p.second),
               counter,
               std::nullopt,
               p.second.string() });
@@ -148,10 +147,10 @@ void GameModel::buildBreakableExplosionShape()
         if (rand() % 5 == 1) {
             continue;
         }
-        double x1 = static_cast<double>(Sine(n * 30.0) * 20 + (rand() % 10));
-        double y1 = static_cast<double>(Cosine(n * 30.0) * 20 + (rand() % 10));
-        double x2 = static_cast<double>(Sine((n + 1) * 30.0) * 20 + (rand() % 10));
-        double y2 = static_cast<double>(Cosine((n + 1) * 30.0) * 20 + (rand() % 10));
+        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (rand() % 10));
+        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (rand() % 10));
+        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (rand() % 10));
+        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (rand() % 10));
         m_breakableExplosionShape->addShapeLine(
             ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6, x1, y1, x2, y2 });
     }
@@ -209,7 +208,7 @@ void GameModel::levelLoad(size_t levelNum)
     while (!in.eof()) {
         getline(in, currentLine);
         std::vector<std::string> vec;
-        helperfunctions::CsvSplit(currentLine, '~', vec);
+        helperfunctions::csvSplit(currentLine, '~', vec);
         // When we get here, vec is a vector of all the items on the current
         // line.
         if (vec.size() == 0) {

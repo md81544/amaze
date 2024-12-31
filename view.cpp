@@ -121,8 +121,8 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         // OK, when we get here, we have a line expressed
         // relative to the origin of the ship.  We can apply the
         // rotate now (unless the shape is marked "don't rotate")...
-        double dCos = helperfunctions::Cosine(m_model.getShipModel()->rotation());
-        double dSin = helperfunctions::Sine(m_model.getShipModel()->rotation());
+        double dCos = helperfunctions::cosine(m_model.getShipModel()->rotation());
+        double dSin = helperfunctions::sine(m_model.getShipModel()->rotation());
         double x0r, y0r, x1r, y1r;
         x0r = x0 * dCos - y0 * dSin;
         y0r = x0 * dSin + y0 * dCos;

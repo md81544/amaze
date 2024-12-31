@@ -12,7 +12,7 @@ namespace marengo {
 namespace amaze {
 namespace helperfunctions {
 
-void CsvSplit(const std::string& s, char c, std::vector<std::string>& v)
+void csvSplit(const std::string& s, char c, std::vector<std::string>& v)
 {
     size_t j = s.find(c);
     if (j == std::string::npos) {
@@ -31,28 +31,28 @@ void CsvSplit(const std::string& s, char c, std::vector<std::string>& v)
     }
 }
 
-void CsvSplit(const std::string& s, char c, std::vector<double>& v)
+void csvSplit(const std::string& s, char c, std::vector<double>& v)
 {
     std::vector<std::string> items;
-    CsvSplit(s, c, items);
+    csvSplit(s, c, items);
     for (const std::string& item : items) {
         v.push_back(std::stod(item));
     }
 }
 
-double Cosine(double degrees)
+double cosine(double degrees)
 {
     namespace bmc = boost::math::constants;
     return std::cos(degrees * (bmc::two_pi<double>() / 360.0));
 }
 
-double Sine(double degrees)
+double sine(double degrees)
 {
     namespace bmc = boost::math::constants;
     return std::sin(degrees * (bmc::two_pi<double>() / 360.0));
 }
 
-int Sgn(int x)
+int sgn(int x)
 {
     if (x > 0) {
         return 1;
@@ -63,7 +63,7 @@ int Sgn(int x)
     return 0;
 }
 
-bool DoLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4)
+bool doLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4)
 {
 
     long Ax, Bx, Cx, Ay, By, Cy, d, e, f;

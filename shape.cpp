@@ -144,10 +144,10 @@ void Shape::rotate(double rotationDelta)
 
     for (ShapeLine line : m_ShapeLines) {
         // adjust according to rotation
-        double x0r = line.x0 * helperfunctions::Cosine(rd) - line.y0 * helperfunctions::Sine(rd);
-        double y0r = line.x0 * helperfunctions::Sine(rd) + line.y0 * helperfunctions::Cosine(rd);
-        double x1r = line.x1 * helperfunctions::Cosine(rd) - line.y1 * helperfunctions::Sine(rd);
-        double y1r = line.x1 * helperfunctions::Sine(rd) + line.y1 * helperfunctions::Cosine(rd);
+        double x0r = line.x0 * helperfunctions::cosine(rd) - line.y0 * helperfunctions::sine(rd);
+        double y0r = line.x0 * helperfunctions::sine(rd) + line.y0 * helperfunctions::cosine(rd);
+        double x1r = line.x1 * helperfunctions::cosine(rd) - line.y1 * helperfunctions::sine(rd);
+        double y1r = line.x1 * helperfunctions::sine(rd) + line.y1 * helperfunctions::cosine(rd);
 
         line.x0 = x0r;
         line.y0 = y0r;
