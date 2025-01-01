@@ -35,6 +35,7 @@ public:
     void highlightPreviousItem();
     std::tuple<MenuItemId, std::optional<MenuItem>>  selectCurrentItem();
     int getCurrentlyHighlightedItem();
+    void resetMenuPosition();
 
 private:
     std::vector<MenuItem> m_currentMenuItems; // convenience copy of current menu items

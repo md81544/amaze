@@ -96,6 +96,7 @@ void Controller::registerControlHandlers()
 
     // Menu
     m_graphicsAdapter.registerControlHandler(KeyControls::MENU, [&](const bool, const float) {
+        m_gameModel.resetMenuPosition();
         m_gameModel.setGameState(GameState::Menu);
     });
 
@@ -171,6 +172,7 @@ void Controller::mainLoop(int gameLevel)
                         // in case the user wants a different level
                         m_gameModel.levelLoad(m_gameModel.level());
                         m_gameModel.getShipModel()->setVisible(false);
+                        m_gameModel.resetMenuPosition();
                         m_gameModel.setGameState(GameState::Menu);
                     });
                     break;
@@ -189,6 +191,7 @@ void Controller::mainLoop(int gameLevel)
                         // in case the user wants a different level
                         m_gameModel.levelLoad(m_gameModel.level());
                         m_gameModel.getShipModel()->setVisible(false);
+                        m_gameModel.resetMenuPosition();
                         m_gameModel.setGameState(GameState::Menu);
                     });
                     break;

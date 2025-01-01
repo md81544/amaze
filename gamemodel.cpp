@@ -491,6 +491,10 @@ void GameModel::setBreakableExploding(bool value /* =true */)
     m_breakableExplosionShape->setVisible(value);
 }
 
+void GameModel::resetMenuPosition() {
+    m_menu.resetMenuPosition();
+}
+
 std::vector<MenuItem> GameModel::getCurrentMenu()
 {
     std::string currentMenuName = m_menu.getCurrentMenuName();

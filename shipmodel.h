@@ -25,9 +25,6 @@ public:
     double rotationDelta() const;
     void setRotationDelta(double value);
 
-    bool slowRotation() const;
-    void setSlowRotation(bool value);
-
     double dX() const;
     void setDx(double value);
 

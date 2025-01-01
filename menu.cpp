@@ -79,5 +79,9 @@ int Menu::getCurrentlyHighlightedItem()
     return m_currentlyHighlightedItem;
 }
 
+void Menu::resetMenuPosition() {
+    m_currentlyHighlightedItem = 0;
+}
+
 } // namespace amaze
 } // namespace marengo

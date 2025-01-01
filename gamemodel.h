@@ -86,6 +86,7 @@ public:
     {
         return m_livesRemaining;
     };
+    void resetMenuPosition();
     std::vector<MenuItem> getCurrentMenu();
     int getCurrentMenuItem()
     {
