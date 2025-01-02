@@ -16,7 +16,7 @@ namespace amaze {
 class Controller {
 public:
     Controller(GameModel& m, View& v, IGraphicsAdapter& s);
-    void mainLoop(int gameLevel);
+    void mainLoop(int gameLevel, const std::string& levelFile);
     void collisionChecks();
     void registerControlHandlers();
 

@@ -109,7 +109,7 @@ void Controller::registerControlHandlers()
         });
 }
 
-void Controller::mainLoop(int gameLevel)
+void Controller::mainLoop(int gameLevel, const std::string& levelFile)
 {
     // This is the main game control structure, called from main()
 
@@ -120,7 +120,11 @@ void Controller::mainLoop(int gameLevel)
     // Main game loop
     for (;;) {
         m_gameModel.getShipModel()->setVisible(!endingLevel);
-        m_gameModel.levelLoad(gameLevel);
+        if (!levelFile.empty()) {
+            m_gameModel.levelLoad(levelFile);
+        } else {
+            m_gameModel.levelLoad(gameLevel);
+        }
         m_gameModel.setGameState(GameState::Running);
 
         // Main loop per "life"
@@ -170,7 +174,7 @@ void Controller::mainLoop(int gameLevel)
                     m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
                         // We just reload the level, but display the menu
                         // in case the user wants a different level
-                        m_gameModel.levelLoad(m_gameModel.level());
+                        m_gameModel.levelLoad(m_gameModel.levelFileName());
                         m_gameModel.getShipModel()->setVisible(false);
                         m_gameModel.resetMenuPosition();
                         m_gameModel.setGameState(GameState::Menu);
@@ -189,7 +193,7 @@ void Controller::mainLoop(int gameLevel)
                     m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
                         // We just reload the level, but display the menu
                         // in case the user wants a different level
-                        m_gameModel.levelLoad(m_gameModel.level());
+                        m_gameModel.levelLoad(m_gameModel.levelFileName());
                         m_gameModel.getShipModel()->setVisible(false);
                         m_gameModel.resetMenuPosition();
                         m_gameModel.setGameState(GameState::Menu);

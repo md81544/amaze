@@ -47,7 +47,7 @@ public:
     explicit GameModel(const std::string& dataPath);
 
     // Reset the model to a state ready for a new Level:
-    void initialise(size_t level_number);
+    void initialise(const std::string& levelFileName);
     void levelLoad(size_t levelNum);
     void levelLoad(const std::string& filename);
 
@@ -55,8 +55,8 @@ public:
 
     void buildBreakableExplosionShape();
 
-    size_t level() const;
-    void setLevel(size_t value);
+    std::string levelFileName() const;
+    void setLevelFileName(const std::string& filename);
 
     std::string levelDescription() const;
     void setLevelDescription(const std::string& value);
@@ -103,7 +103,7 @@ private:
 
     std::string m_dataPath { "" };
 
-    size_t m_level { 0 };
+    std::string m_levelFileName;
     std::string m_levelDescription;
 
     // Container for all GameShapes in the game:

@@ -4,6 +4,7 @@
 #include "controller.h"
 #include "exceptions.h"
 #include "log.h"
+#include "programoptions.h"
 #include "view.h"
 
 #include <filesystem>
@@ -42,15 +43,6 @@ int main(int argc, char* argv[])
 
         mgo::ConfigReader config((cwd / "amaze.cfg").string());
 
-        int gameLevel = config.readLong("GameLevel", 0);
-        if(argc >1){
-            try{
-                int level = std::atoi(argv[1]);
-                gameLevel = level;
-            }
-            catch(...){}
-        }
-
         srand(static_cast<unsigned int>(time(NULL))); // TODO random device
 
         // Locate our data directory:
@@ -61,13 +53,39 @@ int main(int argc, char* argv[])
         int width = config.readLong("WindowWidth", 800);
         int height = config.readLong("WindowHeight", 500);
         bool useFullScreen = config.readBool("FullScreen", false);
+
+        // Command-line options override config file settings:
+        ProgramOptions programOptions(argc, argv);
+        if (programOptions.cmdOptionExists("-h") || programOptions.cmdOptionExists("--help")) {
+            std::print("Usage: amaze [-h] [-f] [-l (level FILE)] [level number]\n");
+            return 0;
+        }
+        if (programOptions.cmdOptionExists("-f")
+            || programOptions.cmdOptionExists("--fullscreen")) {
+            useFullScreen = true;
+        }
+        int gameLevel = config.readLong("GameLevel", 0);
+        if(programOptions.cmdOptionExists("-l")) {
+            int level;
+            try{
+                level = std::atoi(programOptions.getCmdOption("-l").c_str());
+                gameLevel = level;
+            } catch(...) {
+            }
+        }
+        // Specify a level FILE to load
+        std::string levelFile;
+        if (programOptions.cmdOptionExists("--file")) {
+            levelFile = programOptions.getCmdOption("--file");
+        }
+
         SfmlAdapter graphicsManager(width, height, useFullScreen, dataDir);
 
         GameModel gameModel(dataDir);
         View view(gameModel, graphicsManager);
 
         Controller controller(gameModel, view, graphicsManager);
-        controller.mainLoop(gameLevel);
+        controller.mainLoop(gameLevel, levelFile);
 
         // TODO model.preferencesSave();
 

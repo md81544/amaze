@@ -99,7 +99,7 @@ GameModel::GameModel(const std::string& dataPath)
     }
 }
 
-void GameModel::initialise(size_t levelNumber)
+void GameModel::initialise(const std::string& levelFileName)
 {
     // Resets the model to a state ready for a new Level
     m_livesRemaining = 1;
@@ -131,7 +131,7 @@ void GameModel::initialise(size_t levelNumber)
 
     // Add all moving objects
 
-    m_level = levelNumber;
+    m_levelFileName = levelFileName;
 
     m_shipModel->initialise();
 }
@@ -159,18 +159,26 @@ void GameModel::buildBreakableExplosionShape()
     m_breakableExplosionShape->resize(0.1);
 }
 
-size_t GameModel::level() const
+std::string GameModel::levelFileName() const
 {
-    return m_level;
+    return m_levelFileName;
 }
 
-void GameModel::setLevel(size_t value)
+void GameModel::setLevelFileName(const std::string& filename)
 {
-    m_level = value;
+    m_levelFileName = filename;
+}
+
+void GameModel::levelLoad(size_t levelNum)
+{
+    std::string filename = "level" + std::to_string(levelNum) + ".cfg";
+    std::filesystem::path levelFile(getDataPath());
+    levelFile.append(filename);
+    levelLoad(levelFile.string());
 }
 
 // TODO - put this in the controller?
-void GameModel::levelLoad(size_t levelNum)
+void GameModel::levelLoad(const std::string& filename)
 {
     // TODO convert this format to YAML or JSON?
     // The file format is as follows:
@@ -192,13 +200,9 @@ void GameModel::levelLoad(size_t levelNum)
     // TODO: move the actual file access out into a separate class
     // or method
 
-    initialise(levelNum);
+    initialise(filename);
 
-    std::string filename = "level" + std::to_string(levelNum) + ".cfg";
-    std::filesystem::path levelFile(getDataPath());
-    levelFile.append(filename);
-
-    std::ifstream in(levelFile.string());
+    std::ifstream in(filename);
     if (!in) {
         THROWUP(AmazeRuntimeException, "Failed to load Level file " + filename);
     }
@@ -305,7 +309,7 @@ void GameModel::levelLoad(size_t levelNum)
     }
     in.close();
     addPreviousObject(obj);
-    setLevel(levelNum);
+    setLevelFileName(filename);
 }
 
 void GameModel::addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& obj)
@@ -316,18 +320,6 @@ void GameModel::addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& ob
         }
         m_allDynamicGameShapes.push_back(std::move(obj));
     }
-}
-
-void GameModel::levelLoad(const std::string& filename)
-{
-    // This assumes the filename contains consecutive numbers, as per the usual levelxxx.cfg
-    std::string numString;
-    for (const auto c : filename) {
-        if (isdigit(c)) {
-            numString += c;
-        }
-    }
-    levelLoad(std::stoul(numString));
 }
 
 const std::string GameModel::getDataPath()
@@ -491,7 +483,8 @@ void GameModel::setBreakableExploding(bool value /* =true */)
     m_breakableExplosionShape->setVisible(value);
 }
 
-void GameModel::resetMenuPosition() {
+void GameModel::resetMenuPosition()
+{
     m_menu.resetMenuPosition();
 }
 
