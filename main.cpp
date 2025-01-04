@@ -57,20 +57,25 @@ int main(int argc, char* argv[])
         // Command-line options override config file settings:
         ProgramOptions programOptions(argc, argv);
         if (programOptions.cmdOptionExists("-h") || programOptions.cmdOptionExists("--help")) {
-            std::print("Usage: amaze [-h] [-f] [-l (level FILE)] [level number]\n");
+            std::print("Usage: amaze [-h|--help] [-f|--fullscreen] [-w|--windowed] [--file <level "
+                       "FILE>] [level number]\n");
             return 0;
         }
         if (programOptions.cmdOptionExists("-f")
             || programOptions.cmdOptionExists("--fullscreen")) {
             useFullScreen = true;
         }
+        if (programOptions.cmdOptionExists("-w")
+            || programOptions.cmdOptionExists("--windowed")) {
+            useFullScreen = false;
+        }
         int gameLevel = config.readLong("GameLevel", 0);
-        if(programOptions.cmdOptionExists("-l")) {
+        if (programOptions.cmdOptionExists("-l")) {
             int level;
-            try{
+            try {
                 level = std::atoi(programOptions.getCmdOption("-l").c_str());
                 gameLevel = level;
-            } catch(...) {
+            } catch (...) {
             }
         }
         // Specify a level FILE to load

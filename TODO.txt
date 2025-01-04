@@ -1,10 +1,10 @@
-* Menu -> Level Select: use names instead of filenames
+* Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
+
+* Teleport / portals
 
 * Emergency stop? Uses a life?
 * How about rocket flames can break breakable walls? i.e. if you back in and thrust
-* Why is the ship in the middle of the screen? Maybe move it lower down?
 * Black holes that attract the ship?
-* Teleport / portals
 * Splash screen
 * Change level data file format to YAML or JSON? Low priority
 * Keyboard controls don't work properly if joystick is attached

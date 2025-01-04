@@ -280,7 +280,16 @@ void SfmlAdapter::processInput(bool paused)
                     case sf::Keyboard::Up:
                     case sf::Keyboard::Space:
                         if (!paused) {
-                            m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+                            if(event.key.shift) {
+                                m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
+                            } else {
+                                m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+                            }
+                        }
+                        break;
+                    case sf::Keyboard::Down:
+                        if (!paused) {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
                         }
                         break;
                     case sf::Keyboard::Left:
@@ -307,6 +316,7 @@ void SfmlAdapter::processInput(bool paused)
             case sf::Event::KeyReleased:
                 switch (event.key.code) {
                     case sf::Keyboard::Up:
+                    case sf::Keyboard::Down:
                     case sf::Keyboard::Space:
                         m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                         break;
