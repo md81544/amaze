@@ -58,15 +58,14 @@ int main(int argc, char* argv[])
         ProgramOptions programOptions(argc, argv);
         if (programOptions.cmdOptionExists("-h") || programOptions.cmdOptionExists("--help")) {
             std::print("Usage: amaze [-h|--help] [-f|--fullscreen] [-w|--windowed] [--file <level "
-                       "FILE>] [level number]\n");
+                       "FILE>] [-l <level number>]\n");
             return 0;
         }
         if (programOptions.cmdOptionExists("-f")
             || programOptions.cmdOptionExists("--fullscreen")) {
             useFullScreen = true;
         }
-        if (programOptions.cmdOptionExists("-w")
-            || programOptions.cmdOptionExists("--windowed")) {
+        if (programOptions.cmdOptionExists("-w") || programOptions.cmdOptionExists("--windowed")) {
             useFullScreen = false;
         }
         int gameLevel = config.readLong("GameLevel", 0);
