@@ -13,6 +13,8 @@ namespace amaze {
 enum class GameShapeType {
     UNINITIALISED,
     NEUTRAL,
+    SHIP,
+    FLAMES,
     OBSTRUCTION,
     FUEL,
     PRISONER,

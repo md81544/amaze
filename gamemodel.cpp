@@ -352,10 +352,10 @@ ShipModel* GameModel::getShipModel() const
     return m_shipModel.get();
 }
 
-std::shared_ptr<GameShape> GameModel::collisionDetect() const
+std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect() const
 {
     for (const auto& obj : m_allDynamicGameShapes) {
-        if (obj == m_shipModel->shipGameShape()) {
+        if (obj == m_shipModel->shipGameShape() || obj == m_shipModel->flamesGameShape()) {
             // can't collide with itself :)
             continue;
         }
@@ -367,10 +367,14 @@ std::shared_ptr<GameShape> GameModel::collisionDetect() const
             continue;
         }
         if (m_shipModel->shipGameShape()->intersectCheck(obj)) {
-            return obj;
+            return { GameShapeType::SHIP, obj };
+        }
+        if (m_shipModel->flamesGameShape()->isVisible()
+            && m_shipModel->flamesGameShape()->intersectCheck(obj)) {
+            return { GameShapeType::FLAMES, obj };
         }
     }
-    return nullptr;
+    return { GameShapeType::NEUTRAL, nullptr };
 }
 
 void GameModel::process() // TODO more descriptive name

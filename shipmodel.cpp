@@ -32,10 +32,11 @@ ShipModel::ShipModel(
     m_shipGameShape->addLine(-6, 1, -6, -11, 3);
     m_shipGameShape->addLine(-6, -11, 0, -20, 3);
     m_shipGameShape->setName("Ship");
+    m_shipGameShape->setGameShapeType(GameShapeType::SHIP);
     m_shipGameShape->setVisible(true);
 
     m_flamesGameShape->setVisible(false);
-    m_flamesGameShape->setGameShapeType(GameShapeType::NEUTRAL);
+    m_flamesGameShape->setGameShapeType(GameShapeType::FLAMES);
     m_flamesGameShape->setName("Flames");
 
     buildExplosionShape();

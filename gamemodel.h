@@ -66,7 +66,7 @@ public:
     // Returns a non-owning pointer to the ship model
     ShipModel* getShipModel() const;
 
-    std::shared_ptr<GameShape> collisionDetect() const;
+    std::tuple<GameShapeType, std::shared_ptr<GameShape>> collisionDetect() const;
 
     void process();
     void processDynamicObjects(std::function<void(GameShape&)>) override;

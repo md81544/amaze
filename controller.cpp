@@ -221,17 +221,24 @@ end_loops:
 void Controller::collisionChecks()
 {
     // Collision detection
-    auto collider = m_gameModel.collisionDetect();
+    auto colliderTuple = m_gameModel.collisionDetect();
+    // collider is a tuple of GameShapeType and shared_ptr<GameShape>
+    std::shared_ptr<GameShape> collider = std::get<std::shared_ptr<GameShape>>(colliderTuple);
+    GameShapeType collideeType = std::get<GameShapeType>(colliderTuple);
     if (collider) {
         switch (collider->getGameShapeType()) {
             case GameShapeType::EXIT:
-                m_graphicsAdapter.soundPlay("success");
-                m_gameModel.setGameState(GameState::Succeeded);
+                if (collideeType != GameShapeType::FLAMES) {
+                    m_graphicsAdapter.soundPlay("success");
+                    m_gameModel.setGameState(GameState::Succeeded);
+                }
                 break;
             case GameShapeType::FUEL:
-                m_graphicsAdapter.soundPlay("collect");
-                collider->setIsActive(false);
-                m_gameModel.extraLife();
+                if (collideeType != GameShapeType::FLAMES) {
+                    m_graphicsAdapter.soundPlay("collect");
+                    collider->setIsActive(false);
+                    m_gameModel.extraLife();
+                }
                 break;
             case GameShapeType::KEY:
                 // currently an idea but not used
@@ -240,11 +247,16 @@ void Controller::collisionChecks()
                 break;
             case GameShapeType::OBSTRUCTION:
             case GameShapeType::MOVING:
-                m_gameModel.getShipModel()->setIsExploding(true);
-                m_gameModel.setGameState(GameState::Exploding);
+                if (collideeType != GameShapeType::FLAMES) {
+                    m_gameModel.getShipModel()->setIsExploding(true);
+                    m_gameModel.setGameState(GameState::Exploding);
+                }
                 break;
             case GameShapeType::BREAKABLE:
-                if (m_gameModel.lifeLost() > 0) {
+                if (collideeType == GameShapeType::FLAMES) {
+                    m_graphicsAdapter.soundPlay("breakable");
+                    m_gameModel.setBreakableExploding();
+                } else if (m_gameModel.lifeLost() > 0) {
                     m_graphicsAdapter.soundPlay("breakable");
                     m_gameModel.setBreakableExploding();
                 } else {

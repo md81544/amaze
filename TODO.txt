@@ -3,7 +3,6 @@
 * Teleport / portals
 
 * Emergency stop? Uses a life?
-* How about rocket flames can break breakable walls? i.e. if you back in and thrust
 * Black holes that attract the ship?
 * Splash screen
 * Change level data file format to YAML or JSON? Low priority
