@@ -371,7 +371,9 @@ std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect
         }
         if (m_shipModel->flamesGameShape()->isVisible()
             && m_shipModel->flamesGameShape()->intersectCheck(obj)) {
-            return { GameShapeType::FLAMES, obj };
+            if(obj->getGameShapeType() == GameShapeType::BREAKABLE) {
+                return { GameShapeType::FLAMES, obj };
+            }
         }
     }
     return { GameShapeType::NEUTRAL, nullptr };

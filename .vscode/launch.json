@@ -9,7 +9,8 @@
             "request": "launch",
             "name": "Debug",
             "program": "${workspaceFolder}/amaze",
-            "args": ["--file", "/Users/mcd/tmp/t"],
+            //"args": ["--file", "/Users/mcd/tmp/t"],
+            "args": ["-l", "13"],
             "cwd": "${workspaceFolder}"
         }
     ]
