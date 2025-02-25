@@ -9,3 +9,7 @@
 * Keyboard controls don't work properly if joystick is attached
 * (Just an idea) a black cut-out circle around the ship so that rotation doesn't affect
   how far you can look?
+* Sometimes when you respawn it is difficult to determine which way you were going:
+    * A compass?
+    * Maybe a breadcrumb trail?
+    * Or a replay of the last few saved positions?
