@@ -1,6 +1,3 @@
-SFML3: "Game Over" message doesn't time out after 300 frames now
- - it appears that the scheduler runs the code, but the menu isn't displayed. To investigate.
-
 * Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
 * Teleport / portals
