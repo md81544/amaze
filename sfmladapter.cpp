@@ -373,6 +373,8 @@ KeyControls SfmlAdapter::processMenuInput()
                 default:
                     break;
             }
+        } else {
+            break;
         }
     }
 
