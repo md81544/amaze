@@ -117,10 +117,14 @@ void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, in
     vertices[2].position = point2 - offset;
     vertices[3].position = point1 - offset;
 
+    sf::VertexArray triangleFan(sf::PrimitiveType::TriangleFan, 4);
+
     for (int i = 0; i < 4; ++i) {
         vertices[i].color = sf::Color(r, g, b);
+        triangleFan[i] = vertices[i];
     }
-    m_window.draw(vertices);
+
+    m_window.draw(triangleFan);
 }
 
 void SfmlAdapter::fillRectangle(

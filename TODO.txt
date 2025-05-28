@@ -1,5 +1,3 @@
-SFML3: lines aren't filled
-
 SFML3: "Game Over" used to time out, didn't it??
 
 * Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
