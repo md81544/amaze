@@ -1,4 +1,4 @@
-SFML3: "Game Over" used to time out, didn't it??
+SFML3: "Game Over" message doesn't time out after 300 frames now
 
 * Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
