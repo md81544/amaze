@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Prefer to link to any local copies of libraries
-link_directories(BEFORE ${CMAKE_SOURCE_DIR}/tmplibs/${CMAKE_SYSTEM_PROCESSOR})
+#link_directories(BEFORE ${CMAKE_SOURCE_DIR}/tmplibs/${CMAKE_SYSTEM_PROCESSOR})
 
 add_executable(amaze
     configreader.cpp

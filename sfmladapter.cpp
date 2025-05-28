@@ -4,6 +4,7 @@
 #include "log.h"
 
 #include <chrono>
+#include <optional>
 #include <thread>
 
 namespace marengo {
@@ -28,25 +29,27 @@ KeyControls joystickRateLimiter(KeyControls key)
 }
 
 SfmlAdapter::SfmlAdapter(
-    int screenWidth,
-    int screenHeight,
+    unsigned screenWidth,
+    unsigned screenHeight,
     bool useFullScreen,
     const std::string& dataDir)
     : m_window(
           useFullScreen ? sf::VideoMode::getDesktopMode()
-                        : sf::VideoMode(screenWidth, screenHeight),
+                        : sf::VideoMode({ screenWidth, screenHeight }),
           "Amaze",
-          useFullScreen ? sf::Style::Fullscreen : sf::Style::Default)
+          useFullScreen ? sf::State::Fullscreen : sf::State::Windowed)
     , m_screenHeight(screenHeight)
     , m_screenWidth(screenWidth)
 {
     m_window.setMouseCursorVisible(false);
     if (useFullScreen) {
         auto dm = sf::VideoMode::getDesktopMode();
-        m_screenHeight = dm.height;
-        m_screenWidth = dm.width;
+        m_screenHeight = dm.size.y;
+        m_screenWidth = dm.size.x;
     }
-    m_font.loadFromFile(dataDir + "/Oxanium-SemiBold.ttf");
+    if (!m_font.openFromFile(dataDir + "/Oxanium-SemiBold.ttf")) {
+        THROWUP(AmazeRuntimeException, "Font file load error");
+    }
 }
 
 SfmlAdapter::~SfmlAdapter() { }
@@ -96,11 +99,15 @@ void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, in
 {
     sf::Vector2f point1 { static_cast<float>(xFrom), static_cast<float>(yFrom) };
     sf::Vector2f point2 { static_cast<float>(xTo), static_cast<float>(yTo) };
-    sf::Vertex vertices[4];
+    sf::VertexArray vertices(sf::PrimitiveType::Lines, 4);
 
     sf::Vector2f direction = point2 - point1;
-    sf::Vector2f unitDirection
-        = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    sf::Vector2f unitDirection = direction;
+    float divisor = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    if (divisor != 0.f) {
+        unitDirection
+            = direction / std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    }
     sf::Vector2f unitPerpendicular(-unitDirection.y, unitDirection.x);
 
     sf::Vector2f offset = (width / 2.f) * unitPerpendicular;
@@ -113,7 +120,7 @@ void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, in
     for (int i = 0; i < 4; ++i) {
         vertices[i].color = sf::Color(r, g, b);
     }
-    m_window.draw(vertices, 4, sf::Quads);
+    m_window.draw(vertices);
 }
 
 void SfmlAdapter::fillRectangle(
@@ -128,12 +135,12 @@ void SfmlAdapter::fillRectangle(
 
 int SfmlAdapter::getPhysicalScreenWidth()
 {
-    return sf::VideoMode::getDesktopMode().width;
+    return sf::VideoMode::getDesktopMode().size.x;
 }
 
 int SfmlAdapter::getPhysicalScreenHeight()
 {
-    return sf::VideoMode::getDesktopMode().height;
+    return sf::VideoMode::getDesktopMode().size.y;
 }
 
 size_t SfmlAdapter::imageLoad(const std::string& /* fileName */)
@@ -164,24 +171,25 @@ void SfmlAdapter::drawStatusBar()
 
 void SfmlAdapter::drawText(const Text& text)
 {
-    sf::Text t;
-    t.setFont(m_font);
+    sf::Text t(m_font);
     t.setCharacterSize(text.characterSize);
     t.setString(text.text);
     t.setFillColor(sf::Color({ text.r, text.g, text.b }));
     // x and y position are optional, with no value signifying centered in that dimension
     sf::FloatRect textRect = t.getLocalBounds();
     if (!text.positionX.has_value() && !text.positionY.has_value()) {
-        t.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+        t.setOrigin(
+            { textRect.position.x + textRect.size.x / 2.0f,
+              textRect.position.y + textRect.size.y / 2.0f });
         t.setPosition(m_window.getView().getCenter());
     } else if (!text.positionX.has_value()) {
         // Centre horizontally
-        t.setOrigin(textRect.left + textRect.width / 2.0f, 0.f);
-        t.setPosition(m_window.getView().getCenter().x, text.positionY.value());
+        t.setOrigin({ textRect.position.x + textRect.size.x / 2.0f, 0.f });
+        t.setPosition({ m_window.getView().getCenter().x, text.positionY.value() });
     } else if (!text.positionY.has_value()) {
         // Centre vertically
-        t.setOrigin(0.f, textRect.top + textRect.height / 2.0f);
-        t.setPosition(text.positionX.value(), m_window.getView().getCenter().y);
+        t.setOrigin({ 0.f, textRect.position.y + textRect.size.y / 2.0f });
+        t.setPosition({ text.positionX.value(), m_window.getView().getCenter().y });
     } else {
         // If we get here we must have values for both x and y
         t.setPosition({ text.positionX.value(), text.positionY.value() });
@@ -238,9 +246,11 @@ void SfmlAdapter::registerControlHandler(
 
 void SfmlAdapter::processInput(bool paused)
 {
-    sf::Event event;
-
-    while (m_window.pollEvent(event)) {
+    for (;;) {
+        const std::optional event = m_window.pollEvent();
+        if (!event.has_value()) {
+            break;
+        }
         if (sf::Joystick::isConnected(0)) {
             if (!paused) {
                 float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
@@ -260,85 +270,81 @@ void SfmlAdapter::processInput(bool paused)
                 m_controlHandlers[KeyControls::MENU](true, 0.f);
             }
         }
-        switch (event.type) {
-            case sf::Event::LostFocus:
-                // Pause when window loses focus
-                if (!paused) {
-                    m_controlHandlers[KeyControls::PAUSE](true, 0.f);
-                }
-                break;
-            case sf::Event::KeyPressed:
-                switch (event.key.code) {
-                    case sf::Keyboard::Escape:
-                        if (paused) {
-                            // Escape also unpauses
-                            m_controlHandlers[KeyControls::PAUSE](true, 0.f);
-                        } else {
-                            m_controlHandlers[KeyControls::MENU](true, 0.f);
-                        }
-                        break;
-                    case sf::Keyboard::Up:
-                    case sf::Keyboard::Space:
-                        if (!paused) {
-                            if(event.key.shift) {
-                                m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
-                            } else {
-                                m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
-                            }
-                        }
-                        break;
-                    case sf::Keyboard::Down:
-                        if (!paused) {
-                            m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
-                        }
-                        break;
-                    case sf::Keyboard::Left:
-                    case sf::Keyboard::A:
-                    case sf::Keyboard::Comma:
-                        if (!paused) {
-                            m_controlHandlers[KeyControls::LEFT](true, 0.f);
-                        }
-                        break;
-                    case sf::Keyboard::Right:
-                    case sf::Keyboard::D:
-                    case sf::Keyboard::Period:
-                        if (!paused) {
-                            m_controlHandlers[KeyControls::RIGHT](true, 0.f);
-                        }
-                        break;
-                    case sf::Keyboard::P:
-                        m_controlHandlers[KeyControls::PAUSE](true, 0.f);
-                        break;
-                    default:
-                        break;
-                }
-                break;
-            case sf::Event::KeyReleased:
-                switch (event.key.code) {
-                    case sf::Keyboard::Up:
-                    case sf::Keyboard::Down:
-                    case sf::Keyboard::Space:
-                        m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
-                        break;
-                    case sf::Keyboard::Left:
-                    case sf::Keyboard::A:
-                    case sf::Keyboard::Comma:
-                        m_controlHandlers[KeyControls::LEFT](false, 0.f);
-                        break;
-                    case sf::Keyboard::Right:
-                    case sf::Keyboard::D:
-                    case sf::Keyboard::Period:
-                        m_controlHandlers[KeyControls::RIGHT](false, 0.f);
-                        break;
-                    default:
-                        break;
-                }
-                break;
 
-            // we don't process other types of events currently
-            default:
-                break;
+        if (event->is<sf::Event::FocusLost>()) {
+            // Pause when window loses focus
+            if (!paused) {
+                m_controlHandlers[KeyControls::PAUSE](true, 0.f);
+            }
         }
+        if (event->is<sf::Event::KeyPressed>()) {
+            switch (event->getIf<sf::Event::KeyPressed>()->scancode) {
+                case sf::Keyboard::Scancode::Escape:
+                    if (paused) {
+                        // Escape also unpauses
+                        m_controlHandlers[KeyControls::PAUSE](true, 0.f);
+                    } else {
+                        m_controlHandlers[KeyControls::MENU](true, 0.f);
+                    }
+                    break;
+                case sf::Keyboard::Scancode::Up:
+                case sf::Keyboard::Scancode::Space:
+                    if (!paused) {
+                        if (event->getIf<sf::Event::KeyPressed>()->shift) {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
+                        } else {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+                        }
+                    }
+                    break;
+                case sf::Keyboard::Scancode::Down:
+                    if (!paused) {
+                        m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
+                    }
+                    break;
+                case sf::Keyboard::Scancode::Left:
+                case sf::Keyboard::Scancode::A:
+                case sf::Keyboard::Scancode::Comma:
+                    if (!paused) {
+                        m_controlHandlers[KeyControls::LEFT](true, 0.f);
+                    }
+                    break;
+                case sf::Keyboard::Scancode::Right:
+                case sf::Keyboard::Scancode::D:
+                case sf::Keyboard::Scancode::Period:
+                    if (!paused) {
+                        m_controlHandlers[KeyControls::RIGHT](true, 0.f);
+                    }
+                    break;
+                case sf::Keyboard::Scancode::P:
+                    m_controlHandlers[KeyControls::PAUSE](true, 0.f);
+                    break;
+                default:
+                    break;
+            }
+        }
+        if (event->is<sf::Event::KeyReleased>()) {
+            switch (event->getIf<sf::Event::KeyReleased>()->scancode) {
+                case sf::Keyboard::Scancode::Up:
+                case sf::Keyboard::Scancode::Down:
+                case sf::Keyboard::Scancode::Space:
+                    m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                    break;
+                case sf::Keyboard::Scancode::Left:
+                case sf::Keyboard::Scancode::A:
+                case sf::Keyboard::Scancode::Comma:
+                    m_controlHandlers[KeyControls::LEFT](false, 0.f);
+                    break;
+                case sf::Keyboard::Scancode::Right:
+                case sf::Keyboard::Scancode::D:
+                case sf::Keyboard::Scancode::Period:
+                    m_controlHandlers[KeyControls::RIGHT](false, 0.f);
+                    break;
+                default:
+                    break;
+            }
+        }
+        // we don't process other types of events currently
     }
     return;
 }
@@ -348,25 +354,21 @@ KeyControls SfmlAdapter::processMenuInput()
     // If this function is called, the menu is displayed, so we react differently
     // to various keys. Note only one event is returned per call
 
-    sf::Event event;
-    while (m_window.pollEvent(event)) {
-        switch (event.type) {
-            case sf::Event::KeyPressed:
-                switch (event.key.code) {
-                    case sf::Keyboard::Escape:
-                        return KeyControls::EXIT;
-                    case sf::Keyboard::Enter:
-                        return KeyControls::ENTER;
-                    case sf::Keyboard::Down:
-                        return KeyControls::DOWN;
-                    case sf::Keyboard::Up:
-                        return KeyControls::UP;
-                    default:
-                        break;
-                }
-            // we don't process other types of events currently
-            default:
-                break;
+    for (;;) {
+        const std::optional event = m_window.pollEvent();
+        if (event->is<sf::Event::KeyPressed>()) {
+            switch (event->getIf<sf::Event::KeyPressed>()->scancode) {
+                case sf::Keyboard::Scancode::Escape:
+                    return KeyControls::EXIT;
+                case sf::Keyboard::Scancode::Enter:
+                    return KeyControls::ENTER;
+                case sf::Keyboard::Scancode::Down:
+                    return KeyControls::DOWN;
+                case sf::Keyboard::Scancode::Up:
+                    return KeyControls::UP;
+                default:
+                    break;
+            }
         }
     }
 
@@ -398,15 +400,14 @@ void SfmlAdapter::soundLoad(const std::string& key, const std::string& filename)
         THROWUP(AmazeRuntimeException, "Sound file load error");
     }
     m_soundBuffers[key] = buffer;
-    auto sound = std::make_shared<sf::Sound>();
-    sound->setBuffer(*buffer);
+    auto sound = std::make_shared<sf::Sound>(*buffer);
     m_sounds[key] = sound;
 }
 
 void SfmlAdapter::soundPlay(const std::string& key)
 {
     m_sounds[key]->setVolume(100.f);
-    if (m_sounds[key]->getStatus() != sf::Sound::Playing) {
+    if (m_sounds[key]->getStatus() != sf::Sound::Status::Playing) {
         m_sounds[key]->play();
     }
 }
@@ -414,8 +415,8 @@ void SfmlAdapter::soundPlay(const std::string& key)
 void SfmlAdapter::soundLoop(const std::string& key, float volume)
 {
     m_sounds[key]->setVolume(volume);
-    if (m_sounds[key]->getStatus() != sf::Sound::Playing) {
-        m_sounds[key]->setLoop(true);
+    if (m_sounds[key]->getStatus() != sf::Sound::Status::Playing) {
+        m_sounds[key]->setLooping(true);
         m_sounds[key]->play();
     }
 }
