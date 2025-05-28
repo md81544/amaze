@@ -19,7 +19,7 @@ namespace amaze {
 // TODO: add support for whole shapes via sf::LineStrip
 // (add to IGraphicsAdapter)
 
-class SfmlAdapter : public IGraphicsAdapter {
+class SfmlAdapter final : public IGraphicsAdapter {
 
 public:
     SfmlAdapter(

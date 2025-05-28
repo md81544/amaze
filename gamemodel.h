@@ -42,7 +42,7 @@ struct ShipPosition {
     double rotation;
 };
 
-class GameModel : public IModel {
+class GameModel final : public IModel {
 public:
     explicit GameModel(const std::string& dataPath);
 

@@ -24,7 +24,7 @@ enum class GameShapeType {
     MOVING
 };
 
-class GameShape : public Shape {
+class GameShape final : public Shape {
 public:
     GameShape();
 
