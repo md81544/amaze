@@ -52,17 +52,6 @@ double sine(double degrees)
     return std::sin(degrees * (bmc::two_pi<double>() / 360.0));
 }
 
-int sgn(double x)
-{
-    if (x > 0.0) {
-        return 1;
-    }
-    if (x < 0.0) {
-        return -1;
-    }
-    return 0;
-}
-
 bool doLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4)
 {
 
