@@ -13,7 +13,7 @@ void csvSplit(const std::string& s, char c, std::vector<std::string>& v);
 void csvSplit(const std::string& s, char c, std::vector<double>& v);
 double sine(double degrees);
 double cosine(double degrees);
-int sgn(int x);
+int sgn(double x);
 bool doLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long x4, long y4);
 
 template <typename T, std::size_t N> class RingBuffer {

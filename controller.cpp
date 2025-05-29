@@ -36,16 +36,17 @@ void Controller::registerControlHandlers()
     // function objects.
 
     // Rotate Left
-    m_graphicsAdapter.registerControlHandler(KeyControls::LEFT, [&](const bool isKeyDown, float) {
-        if (isKeyDown) {
-            m_gameModel.getShipModel()->setRotationDelta(1);
-        } else {
-            // if we are already rotating in this direction:
-            if (helperfunctions::sgn(m_gameModel.getShipModel()->rotationDelta()) == 1) {
-                m_gameModel.getShipModel()->setRotationDelta(0);
+    m_graphicsAdapter.registerControlHandler(
+        KeyControls::LEFT, [&](const bool isKeyDown, const float value) {
+            if (isKeyDown) {
+                m_gameModel.getShipModel()->setRotationDelta(value);
+            } else {
+                // if we are already rotating in this direction:
+                if (helperfunctions::sgn(m_gameModel.getShipModel()->rotationDelta()) == 1) {
+                    m_gameModel.getShipModel()->setRotationDelta(0);
+                }
             }
-        }
-    });
+        });
 
     // Rotate with analogue stick
     m_graphicsAdapter.registerControlHandler(
@@ -59,9 +60,9 @@ void Controller::registerControlHandlers()
 
     // Rotate Right
     m_graphicsAdapter.registerControlHandler(
-        KeyControls::RIGHT, [&](const bool isKeyDown, const float) {
+        KeyControls::RIGHT, [&](const bool isKeyDown, const float value) {
             if (isKeyDown) {
-                m_gameModel.getShipModel()->setRotationDelta(-1);
+                m_gameModel.getShipModel()->setRotationDelta(value);
             } else {
                 // if we are already rotating in this direction:
                 if (helperfunctions::sgn(m_gameModel.getShipModel()->rotationDelta()) == -1) {
