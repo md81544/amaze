@@ -127,16 +127,6 @@ void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, in
     m_window.draw(triangleFan);
 }
 
-void SfmlAdapter::fillRectangle(
-    int, // x,
-    int, // y,
-    int, // w,
-    int // h
-)
-{
-    // TODO
-}
-
 int SfmlAdapter::getPhysicalScreenWidth()
 {
     return sf::VideoMode::getDesktopMode().size.x;
@@ -255,6 +245,10 @@ void SfmlAdapter::processInput(bool paused)
         if (!event.has_value()) {
             break;
         }
+        if (event->is<sf::Event::Closed>()) {
+            m_controlHandlers[KeyControls::QUIT](true, 0.f);
+        }
+
         if (sf::Joystick::isConnected(0)) {
             if (!paused) {
                 float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);

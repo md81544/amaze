@@ -16,9 +16,6 @@
 namespace marengo {
 namespace amaze {
 
-// TODO: add support for whole shapes via sf::LineStrip
-// (add to IGraphicsAdapter)
-
 class SfmlAdapter final : public IGraphicsAdapter {
 
 public:
@@ -34,7 +31,6 @@ public:
     virtual int setDrawColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
     virtual void
     drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b) override;
-    virtual void fillRectangle(int x, int y, int w, int h) override;
     static int getPhysicalScreenWidth();
     static int getPhysicalScreenHeight();
     virtual int getWindoWidth() const override;
