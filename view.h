@@ -16,7 +16,7 @@ namespace amaze {
 class View {
 public:
     View(GameModel& model, IGraphicsAdapter& gm);
-    void update(); // this is called once per game loop iteration
+    void update(GameState gamestate); // this is called once per game loop iteration
     void rotateAndDrawShape(const GameShape& shape) const;
     void drawStaticShape(const GameShape& shape) const;
     void playSounds();

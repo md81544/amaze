@@ -34,7 +34,7 @@ void View::stopSounds()
     m_graphicsAdapter.soundFade("rocket", 400);
 }
 
-void View::update()
+void View::update(GameState gamestate)
 {
     // TODO: this should take a model as its parameter; we shouldn't be bound
     // to one model but should be able to accept any model implementing a
@@ -48,7 +48,8 @@ void View::update()
     // Dynamic shapes (i.e. shapes which rotate around the ship)
     m_model.processDynamicObjects([&](GameShape& shape) {
         if (shape.isVisible() && shape.IsActive()) {
-            if (shape.getGameShapeType() == GameShapeType::MOVING) {
+            if (shape.getGameShapeType() == GameShapeType::MOVING
+                && gamestate == GameState::Running) {
                 shape.move();
             }
             rotateAndDrawShape(shape);
