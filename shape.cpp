@@ -41,8 +41,7 @@ void Shape::makeFromText(
             double x = vertices[j * 2];
             double y = vertices[j * 2 + 1];
             if (prevX != -1 && prevY != -1 && x != -1 && y != -1) {
-                ShapeLine sl { prevX, prevY, x + textWidth, y, r, g, b, a, lineThickness,
-                               prevX, prevY, x + textWidth, y };
+                ShapeLine sl { prevX, prevY, x + textWidth, y, r, g, b, a, lineThickness };
                 addShapeLine(sl);
             }
             prevX = x + textWidth;
@@ -83,7 +82,7 @@ void Shape::setColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 
 void Shape::addLine(double x0, double y0, double x1, double y1, uint8_t thickness)
 {
-    addShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, thickness, x0, y0, x1, y1 });
+    addShapeLine(ShapeLine { x0, y0, x1, y1, m_R, m_G, m_B, m_A, thickness });
 }
 
 double Shape::getWidth() const
@@ -131,8 +130,7 @@ void Shape::rotate(double rotationDelta)
 {
     // This is not related to the rotation of the entire "world" around
     // the ship - this will simply cause a shape to rotate around its centre
-    // (Note - shapes' lines should be defined relative to this centre - but
-    // see setPosFromCentre() )
+    // (Note - shapes' lines should be defined relative to this centre
     if (rotationDelta == 0.0) {
         return;
     }
@@ -143,7 +141,6 @@ void Shape::rotate(double rotationDelta)
     double rd = std::fmod(rotationDelta, 360.0);
 
     for (ShapeLine line : m_ShapeLines) {
-        // adjust according to rotation
         double x0r = line.x0 * helperfunctions::cosine(rd) - line.y0 * helperfunctions::sine(rd);
         double y0r = line.x0 * helperfunctions::sine(rd) + line.y0 * helperfunctions::cosine(rd);
         double x1r = line.x1 * helperfunctions::cosine(rd) - line.y1 * helperfunctions::sine(rd);
@@ -295,10 +292,6 @@ void Shape::setPosFromCentre()
         sl.y0 -= centreY;
         sl.x1 -= centreX;
         sl.y1 -= centreY;
-        sl.originalX0 -= centreX;
-        sl.originalY0 -= centreY;
-        sl.originalX1 -= centreX;
-        sl.originalY1 -= centreY;
     }
 }
 

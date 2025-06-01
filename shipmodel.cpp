@@ -287,7 +287,7 @@ void ShipModel::buildExplosionShape()
         double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (rand() % 10));
         uint8_t r = (rand() % 128) + 96;
         m_explosionGameShape->addShapeLine(
-            ShapeLine { x1, y1, x2, y2, r, r, r, 255, 4, x1, y1, x2, y2 });
+            ShapeLine { x1, y1, x2, y2, r, r, r, 255, 4 });
     }
     // flames
     for (int n = 0; n < 60; ++n) {
@@ -299,20 +299,20 @@ void ShipModel::buildExplosionShape()
         double x2 = static_cast<double>(sine(n * 6.0) * 50);
         double y2 = static_cast<double>(cosine(n * 6.0) * 50);
         m_explosionGameShape->addShapeLine(
-            ShapeLine { x1, y1, x2, y2, 255, 255, 255, 255, 3, x1, y1, x2, y2 });
+            ShapeLine { x1, y1, x2, y2, 255, 255, 255, 255, 3 });
         x1 = static_cast<double>(sine(n * 6.0) * 50);
         y1 = static_cast<double>(cosine(n * 6.0) * 50);
         x2 = static_cast<double>(sine(n * 6.0) * 60);
         y2 = static_cast<double>(cosine(n * 6.0) * 60);
         m_explosionGameShape->addShapeLine(
-            ShapeLine { x1, y1, x2, y2, 250, 214, 116, 255, 2, x1, y1, x2, y2 });
+            ShapeLine { x1, y1, x2, y2, 250, 214, 116, 255, 2 });
         int i = rand() % 50;
         x1 = static_cast<double>(sine(n * 6.0) * 60);
         y1 = static_cast<double>(cosine(n * 6.0) * 60);
         x2 = static_cast<double>(sine(n * 6.0) * (70 + i));
         y2 = static_cast<double>(cosine(n * 6.0) * (70 + i));
         m_explosionGameShape->addShapeLine(
-            ShapeLine { x1, y1, x2, y2, 255, 0, 0, 255, 1, x1, y1, x2, y2 });
+            ShapeLine { x1, y1, x2, y2, 255, 0, 0, 255, 1 });
     }
     m_explosionGameShape->setName("Explosion");
     m_explosionGameShape->setVisible(false);

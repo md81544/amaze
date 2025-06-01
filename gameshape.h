@@ -2,6 +2,8 @@
 
 #include "shape.h"
 
+#include <optional>
+
 // TODO (perhaps?) might want to ditch the "gameShapeType"
 // and having sub classes depending on type. As currently
 // functionality is no different between different shape
@@ -56,6 +58,8 @@ private:
     GameShapeType m_gameShapeType { GameShapeType::UNINITIALISED };
 
     // The following are only used for moving objects
+    std::optional<double> m_originalX { std::nullopt };
+    std::optional<double> m_originalY { std::nullopt };
     float m_rotationDelta { 0.0f };
     float m_xDelta { 0.0f };
     float m_yDelta { 0.0f };

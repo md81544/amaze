@@ -1,3 +1,7 @@
+* Need to allow moving objects to both rotate and translate (centre needs to update)
+* If rotation is on for a moving object, an xDelta of 0.1 (for example) results in
+  no x motion..?
+
 * Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
 * Teleport / portals

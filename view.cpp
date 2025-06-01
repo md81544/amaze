@@ -114,14 +114,12 @@ void View::rotateAndDrawShape(const GameShape& shape) const
     double yOffset = m_graphicsAdapter.getWindowHeight() / 2;
 
     for (const auto& sl : shape.getVec()) {
-        // ShapeLine sl = shape.getVec()[ line ];
         double x0 = sl.x0 + shape.getPosX() - m_model.getShipModel()->x();
         double y0 = sl.y0 + shape.getPosY() - m_model.getShipModel()->y();
         double x1 = sl.x1 + shape.getPosX() - m_model.getShipModel()->x();
         double y1 = sl.y1 + shape.getPosY() - m_model.getShipModel()->y();
         // OK, when we get here, we have a line expressed
-        // relative to the origin of the ship.  We can apply the
-        // rotate now (unless the shape is marked "don't rotate")...
+        // relative to the origin OF THE SHIP.
         double dCos = helperfunctions::cosine(m_model.getShipModel()->rotation());
         double dSin = helperfunctions::sine(m_model.getShipModel()->rotation());
         double x0r, y0r, x1r, y1r;
@@ -135,7 +133,7 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         uint8_t b = sl.b;
         if (m_model.getGameState() == GameState::Menu
             || m_model.getGameState() == GameState::Paused) {
-            // Dim everything if the menu is displayed
+            // Dim everything
             r *= 0.4;
             g *= 0.4;
             b *= 0.4;

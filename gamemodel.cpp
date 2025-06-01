@@ -115,9 +115,9 @@ void GameModel::initialise(const std::string& levelFileName)
     // Grid lines on the background
     std::shared_ptr<GameShape> bkg(new GameShape);
     for (double n = 0; n <= 2000; n += 50) {
-        ShapeLine sl1 { n, 0, n, 2000, 0, 32, 0, 255, 4, n, 0, n, 2000 };
+        ShapeLine sl1 { n, 0, n, 2000, 0, 32, 0, 255, 4 };
         bkg->addShapeLine(sl1);
-        ShapeLine sl2 { 0, n, 2000, n, 0, 32, 0, 255, 4, 0, n, 2000, n };
+        ShapeLine sl2 { 0, n, 2000, n, 0, 32, 0, 255, 4 };
         bkg->addShapeLine(sl2);
     }
     bkg->setPos(0, 0);
@@ -151,8 +151,7 @@ void GameModel::buildBreakableExplosionShape()
         double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (rand() % 10));
         double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (rand() % 10));
         double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (rand() % 10));
-        m_breakableExplosionShape->addShapeLine(
-            ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6, x1, y1, x2, y2 });
+        m_breakableExplosionShape->addShapeLine(ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6 });
     }
     m_breakableExplosionShape->setName("BreakableExplosion");
     m_breakableExplosionShape->setVisible(false);
@@ -247,16 +246,17 @@ void GameModel::levelLoad(const std::string& filename)
                     } else if (vec[1] == "MOVING") {
                         obj->setGameShapeType(GameShapeType::MOVING);
                         if (vec.size() >= 8) {
+                            obj->setName(vec[2]);
                             obj->setXDelta(std::stof(vec[3]));
                             obj->setXMaxDifference(std::stof(vec[4]));
                             obj->setYDelta(std::stof(vec[5]));
                             obj->setYMaxDifference(std::stof(vec[6]));
-                            if (obj->getXDelta() == 0.0f && obj->getYDelta() == 0.0f) {
-                                // Movement and rotation are mutually exclusive because
-                                // movement affects the object's position around which
-                                // the object rotates (maybe a TODO to fix?)
-                                obj->setRotationDelta(std::stof(vec[7]));
-                            }
+                            // TODO if (obj->getXDelta() == 0.0f && obj->getYDelta() == 0.0f) {
+                            // Movement and rotation are mutually exclusive because
+                            // movement affects the object's position around which
+                            // the object rotates (maybe a TODO to fix?)
+                            obj->setRotationDelta(std::stof(vec[7]));
+                            // TODO }
                         }
                     }
                 }
@@ -272,11 +272,7 @@ void GameModel::levelLoad(const std::string& filename)
                         static_cast<uint8_t>(stoi(vec[6])), // g
                         static_cast<uint8_t>(stoi(vec[7])), // b
                         255, // alpha
-                        stoi(vec[5]), // thickness
-                        stod(vec[1]), // x0
-                        stod(vec[2]), // y0
-                        stod(vec[3]), // x1
-                        stod(vec[4]) // y1
+                        stoi(vec[5]) // thickness
                     };
                     if (vec.size() == 9) {
                         sl1.lineThickness = stoi(vec[8]);
@@ -371,7 +367,7 @@ std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect
         }
         if (m_shipModel->flamesGameShape()->isVisible()
             && m_shipModel->flamesGameShape()->intersectCheck(obj)) {
-            if(obj->getGameShapeType() == GameShapeType::BREAKABLE) {
+            if (obj->getGameShapeType() == GameShapeType::BREAKABLE) {
                 return { GameShapeType::FLAMES, obj };
             }
         }
