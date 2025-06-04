@@ -45,12 +45,14 @@ public:
     void setRotationDelta(float value);
     float getXDelta() const;
     float getYDelta() const;
-    void  setXDelta(float value);
-    void  setYDelta(float value);
+    void setXDelta(float value);
+    void setYDelta(float value);
     void setXMaxDifference(float value);
     void setYMaxDifference(float value);
     float getXMaxDifference() const;
     float getYMaxDifference() const;
+    float getGravity() const;
+    void setGravity(float value);
 
 private:
     bool m_isActive { true };
@@ -65,6 +67,7 @@ private:
     float m_yDelta { 0.0f };
     float m_xMaxDifference { 0.0f };
     float m_yMaxDifference { 0.0f };
+    //float m_gravity { 0.f };
 };
 
 } // namespace amaze

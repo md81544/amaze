@@ -5,6 +5,8 @@
 
 #include <vector>
 
+#include <iostream>
+
 namespace marengo {
 namespace amaze {
 
@@ -53,6 +55,27 @@ void View::update(GameState gamestate)
                 shape.move();
             }
             rotateAndDrawShape(shape);
+            // TEST CODE FOR GRAVITY ===============================================================
+            if (shape.getGameShapeType() == GameShapeType::MOVING) {
+                double xDiff = shape.getPosX() - m_model.getShipModel()->x();
+                double yDiff = shape.getPosY() - m_model.getShipModel()->y();
+                double distanceSquared = xDiff * xDiff + yDiff * yDiff;
+                if (distanceSquared == 0.0) {
+                    distanceSquared = 1.0;
+                }
+                double distance = std::sqrt(distanceSquared);
+                if (distance < 150.0) {
+                    auto* ship = m_model.getShipModel();
+                    double forceMagnitude
+                        = 10 / distanceSquared; // TODO maybe set the gravitational pull (10 in this
+                                                // case) in the shape's member variables?
+                    double fx = (xDiff / distance) * forceMagnitude;
+                    double fy = (yDiff / distance) * forceMagnitude;
+                    ship->setDx(ship->dX() - fx);
+                    ship->setDy(ship->dY() - fy);
+                }
+            }
+            // TEST CODE FOR GRAVITY ===============================================================
         }
     });
 

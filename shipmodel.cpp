@@ -3,6 +3,7 @@
 #include "helperfunctions.h"
 
 #include <cmath>
+#include <tuple>
 
 namespace marengo {
 namespace amaze {

@@ -1,11 +1,11 @@
 * Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
-* Teleport / portals
-
-* Emergency stop? Uses a life?
 * Black holes that attract the ship?
+
+* Teleport / portals
+* Emergency stop? Uses a life?
 * Splash screen
-* Change level data file format to YAML or JSON? Low priority
+* Change level data file format to YAML or JSON? Low/no priority
 * Keyboard controls don't work properly if joystick is attached
 * (Just an idea) a black cut-out circle around the ship so that rotation doesn't affect
   how far you can look?

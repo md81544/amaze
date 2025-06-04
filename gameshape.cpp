@@ -113,5 +113,14 @@ float GameShape::getYMaxDifference() const
     return m_yMaxDifference;
 }
 
+float GameShape::getGravity() const
+{
+    return 0.0f;
+}
+
+void GameShape::setGravity(float /*value*/)
+{
+}
+
 } // namespace amaze
 } // namespace marengo
