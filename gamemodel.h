@@ -69,7 +69,8 @@ public:
     std::tuple<GameShapeType, std::shared_ptr<GameShape>> collisionDetect() const;
 
     void process();
-    void processDynamicObjects(std::function<void(GameShape&)>) override;
+    std::vector<std::shared_ptr<GameShape>> getAllDynamicObjects();
+
     unsigned int getRotation() const override;
     // Save rocket position periodically to facilitate a restart after a life is used
     void savePosition();

@@ -47,14 +47,11 @@ void View::update()
     playSounds();
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
-    // TODO this seems unnecessarily obscure to pass a lambda to the model, it
-    // would be clearer if the model had a function to get a non-owning vector
-    // of const GameShape const * for the view to work on
-    m_model.processDynamicObjects([&](GameShape& shape) {
-        if (shape.isVisible() && shape.IsActive()) {
-            rotateAndDrawShape(shape);
+    for(const auto& shape : m_model.getAllDynamicObjects()) {
+        if (shape->isVisible() && shape->IsActive()) {
+            rotateAndDrawShape(*shape);
         }
-    });
+    }
 
     // Draw black rectangle at top of screen for status bar (and hiding the "notch" on
     // macs in full screen)

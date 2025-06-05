@@ -25,10 +25,6 @@ namespace amaze {
 
 class IModel {
 public:
-    // Perform an action against each dynamic object held.
-    // Usually used to display them.
-    virtual void processDynamicObjects(std::function<void(GameShape&)>) = 0;
-
     // Get what the current "world" rotation is for this model
     virtual unsigned int getRotation() const = 0;
 };

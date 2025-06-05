@@ -419,11 +419,9 @@ void GameModel::process() // TODO more descriptive name
     }
 }
 
-void GameModel::processDynamicObjects(std::function<void(GameShape&)> process)
+std::vector<std::shared_ptr<GameShape>> GameModel::getAllDynamicObjects()
 {
-    for (const auto& shape : m_allDynamicGameShapes) {
-        process(*shape);
-    }
+    return m_allDynamicGameShapes;
 }
 
 unsigned int GameModel::getRotation() const
