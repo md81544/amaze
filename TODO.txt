@@ -1,7 +1,3 @@
-* Gravity
-    * Shapes should have a different colour (or flash?) if they have gravity
-
-
 * Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
 * Teleport / portals
