@@ -67,7 +67,7 @@ private:
     float m_yDelta { 0.0f };
     float m_xMaxDifference { 0.0f };
     float m_yMaxDifference { 0.0f };
-    //float m_gravity { 0.f };
+    float m_gravity { 0.f };
 };
 
 } // namespace amaze

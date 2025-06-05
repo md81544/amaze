@@ -1,6 +1,8 @@
-* Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
+* Gravity
+    * Shapes should have a different colour (or flash?) if they have gravity
 
-* Black holes that attract the ship?
+
+* Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
 * Teleport / portals
 * Emergency stop? Uses a life?

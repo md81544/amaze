@@ -115,11 +115,12 @@ float GameShape::getYMaxDifference() const
 
 float GameShape::getGravity() const
 {
-    return 0.0f;
+    return m_gravity;
 }
 
-void GameShape::setGravity(float /*value*/)
+void GameShape::setGravity(float value)
 {
+    m_gravity = value;
 }
 
 } // namespace amaze
