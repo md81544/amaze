@@ -130,11 +130,11 @@ bool doLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long
     return true;
 }
 
-uint8_t rnd()
+uint8_t rnd(uint8_t max)
 {
     static std::random_device rd;
     static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> distrib(0, 255);
+    std::uniform_int_distribution<> distrib(0, max);
     return distrib(gen);
 }
 
