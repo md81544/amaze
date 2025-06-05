@@ -5,6 +5,7 @@
 #include "boost/math/constants/constants.hpp"
 
 #include <mutex>
+#include <random>
 #include <string>
 #include <thread>
 
@@ -127,6 +128,14 @@ bool doLinesIntersect(long x1, long y1, long x2, long y2, long x3, long y3, long
 
     // if we get here, the lines either intersect or are collinear.
     return true;
+}
+
+uint8_t rnd()
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> distrib(0, 255);
+    return distrib(gen);
 }
 
 } // namespace helperfunctions

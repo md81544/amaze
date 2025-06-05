@@ -407,7 +407,7 @@ void GameModel::process() // TODO more descriptive name
                 distanceSquared = 1.0;
             }
             double distance = std::sqrt(distanceSquared);
-            if (distance < 150.0) {
+            if (distance < shape->getGravity() * 25) {
                 auto* ship = getShipModel();
                 double forceMagnitude = shape->getGravity() / distanceSquared;
                 double fx = (xDiff / distance) * forceMagnitude;
