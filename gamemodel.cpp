@@ -409,9 +409,7 @@ void GameModel::process() // TODO more descriptive name
             double distance = std::sqrt(distanceSquared);
             if (distance < 150.0) {
                 auto* ship = getShipModel();
-                double forceMagnitude
-                    = 10 / distanceSquared; // TODO maybe set the gravitational pull (10 in this
-                                            // case) in the shape's member variables?
+                double forceMagnitude = shape->getGravity() / distanceSquared;
                 double fx = (xDiff / distance) * forceMagnitude;
                 double fy = (yDiff / distance) * forceMagnitude;
                 ship->setDx(ship->dX() - fx);
