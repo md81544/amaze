@@ -43,37 +43,16 @@ void View::update()
     // specific interface. This would enable us to use models for splash
     // screens / high score screens etc.
 
-    // This is where all state is "realised" i.e. images drawn, sounds played
-    // etc.
+    // This is where all state is "realised" e.g. images drawn, sounds played
     playSounds();
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
+    // TODO this seems unnecessarily obscure to pass a lambda to the model, it
+    // would be clearer if the model had a function to get a non-owning vector
+    // of const GameShape const * for the view to work on
     m_model.processDynamicObjects([&](GameShape& shape) {
         if (shape.isVisible() && shape.IsActive()) {
             rotateAndDrawShape(shape);
-
-            // TEST CODE FOR GRAVITY ===============================================================
-            // This should not be in the view!
-            if (shape.getGameShapeType() == GameShapeType::MOVING && shape.getGravity() != 0.f) {
-                double xDiff = shape.getPosX() - m_model.getShipModel()->x();
-                double yDiff = shape.getPosY() - m_model.getShipModel()->y();
-                double distanceSquared = xDiff * xDiff + yDiff * yDiff;
-                if (distanceSquared == 0.0) {
-                    distanceSquared = 1.0;
-                }
-                double distance = std::sqrt(distanceSquared);
-                if (distance < 150.0) {
-                    auto* ship = m_model.getShipModel();
-                    double forceMagnitude
-                        = 10 / distanceSquared; // TODO maybe set the gravitational pull (10 in this
-                                                // case) in the shape's member variables?
-                    double fx = (xDiff / distance) * forceMagnitude;
-                    double fy = (yDiff / distance) * forceMagnitude;
-                    ship->setDx(ship->dX() - fx);
-                    ship->setDy(ship->dY() - fy);
-                }
-            }
-            // TEST CODE FOR GRAVITY ===============================================================
         }
     });
 

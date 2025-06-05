@@ -399,8 +399,26 @@ void GameModel::process() // TODO more descriptive name
             && m_gameState == GameState::Running) {
             shape->move();
         }
+        if (shape->getGameShapeType() == GameShapeType::MOVING && shape->getGravity() != 0.f) {
+            double xDiff = shape->getPosX() - getShipModel()->x();
+            double yDiff = shape->getPosY() - getShipModel()->y();
+            double distanceSquared = xDiff * xDiff + yDiff * yDiff;
+            if (distanceSquared == 0.0) {
+                distanceSquared = 1.0;
+            }
+            double distance = std::sqrt(distanceSquared);
+            if (distance < 150.0) {
+                auto* ship = getShipModel();
+                double forceMagnitude
+                    = 10 / distanceSquared; // TODO maybe set the gravitational pull (10 in this
+                                            // case) in the shape's member variables?
+                double fx = (xDiff / distance) * forceMagnitude;
+                double fy = (yDiff / distance) * forceMagnitude;
+                ship->setDx(ship->dX() - fx);
+                ship->setDy(ship->dY() - fy);
+            }
+        }
     }
-    // TODO this is where gravity should be applied
 }
 
 void GameModel::processDynamicObjects(std::function<void(GameShape&)> process)
