@@ -50,12 +50,17 @@ void View::update(GameState gamestate)
     // Dynamic shapes (i.e. shapes which rotate around the ship)
     m_model.processDynamicObjects([&](GameShape& shape) {
         if (shape.isVisible() && shape.IsActive()) {
+
+            // THIS CODE SHOULD NOT BE IN THE VIEW--------------------------------------------------
             if (shape.getGameShapeType() == GameShapeType::MOVING
                 && gamestate == GameState::Running) {
                 shape.move();
             }
+            // THIS CODE SHOULD NOT BE IN THE VIEW--------------------------------------------------
+
             rotateAndDrawShape(shape);
             // TEST CODE FOR GRAVITY ===============================================================
+            // This should not be in the view!
             if (shape.getGameShapeType() == GameShapeType::MOVING) {
                 double xDiff = shape.getPosX() - m_model.getShipModel()->x();
                 double yDiff = shape.getPosY() - m_model.getShipModel()->y();
