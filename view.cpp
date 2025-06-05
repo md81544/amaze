@@ -36,7 +36,7 @@ void View::stopSounds()
     m_graphicsAdapter.soundFade("rocket", 400);
 }
 
-void View::update(GameState gamestate)
+void View::update()
 {
     // TODO: this should take a model as its parameter; we shouldn't be bound
     // to one model but should be able to accept any model implementing a
@@ -50,18 +50,11 @@ void View::update(GameState gamestate)
     // Dynamic shapes (i.e. shapes which rotate around the ship)
     m_model.processDynamicObjects([&](GameShape& shape) {
         if (shape.isVisible() && shape.IsActive()) {
-
-            // THIS CODE SHOULD NOT BE IN THE VIEW--------------------------------------------------
-            if (shape.getGameShapeType() == GameShapeType::MOVING
-                && gamestate == GameState::Running) {
-                shape.move();
-            }
-            // THIS CODE SHOULD NOT BE IN THE VIEW--------------------------------------------------
-
             rotateAndDrawShape(shape);
+
             // TEST CODE FOR GRAVITY ===============================================================
             // This should not be in the view!
-            if (shape.getGameShapeType() == GameShapeType::MOVING) {
+            if (shape.getGameShapeType() == GameShapeType::MOVING && shape.getGravity() != 0.f) {
                 double xDiff = shape.getPosX() - m_model.getShipModel()->x();
                 double yDiff = shape.getPosY() - m_model.getShipModel()->y();
                 double distanceSquared = xDiff * xDiff + yDiff * yDiff;

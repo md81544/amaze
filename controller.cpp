@@ -212,7 +212,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                     break;
             }
             m_graphicsAdapter.cls();
-            m_view.update(m_gameModel.getGameState());
+            m_view.update();
             m_graphicsAdapter.redraw();
         }
     }

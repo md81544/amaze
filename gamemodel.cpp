@@ -393,6 +393,14 @@ void GameModel::process() // TODO more descriptive name
         });
     }
     m_shipModel->process(m_gameState == GameState::Exploding);
+
+    for (const auto& shape : m_allDynamicGameShapes) {
+        if (shape->getGameShapeType() == GameShapeType::MOVING
+            && m_gameState == GameState::Running) {
+            shape->move();
+        }
+    }
+    // TODO this is where gravity should be applied
 }
 
 void GameModel::processDynamicObjects(std::function<void(GameShape&)> process)
