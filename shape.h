@@ -51,24 +51,24 @@ public:
     void setPosFromCentre();
 
 protected:
-    std::vector<ShapeLine> m_ShapeLines;
-    double m_Width { 0.0 };
-    double m_Height { 0.0 };
-    double m_X { 0.0 };
-    double m_Y { 0.0 };
-    double m_Scale { 1.0 };
-    int m_Rotation { 0 };
-    int m_PreviousRotation { 0 };
-    bool m_IsVisible { true };
-    double m_MinX { std::numeric_limits<double>::max() };
-    double m_MinY { std::numeric_limits<double>::max() };
-    double m_MaxX { std::numeric_limits<double>::min() };
-    double m_MaxY { std::numeric_limits<double>::min() };
+    std::vector<ShapeLine> m_shapeLines;
+    double m_width { 0.0 };
+    double m_height { 0.0 };
+    double m_x { 0.0 };
+    double m_y { 0.0 };
+    double m_scale { 1.0 };
+    int m_rotation { 0 };
+    int m_previousRotation { 0 };
+    bool m_isVisible { true };
+    double m_minX { std::numeric_limits<double>::max() };
+    double m_minY { std::numeric_limits<double>::max() };
+    double m_maxX { std::numeric_limits<double>::min() };
+    double m_maxY { std::numeric_limits<double>::min() };
     // default colours for addLine:
-    uint8_t m_R { 255 };
-    uint8_t m_G { 255 };
-    uint8_t m_B { 255 };
-    uint8_t m_A { 255 };
+    uint8_t m_r { 255 };
+    uint8_t m_g { 255 };
+    uint8_t m_b { 255 };
+    uint8_t m_a { 255 };
     void updateShapeSize(double x0, double y0, double x1, double y1);
 };
 
