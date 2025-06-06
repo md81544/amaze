@@ -1,3 +1,5 @@
+* Regenerative power? Power level drops with thrust and refills over time
+
 * Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
 * Teleport / portals
