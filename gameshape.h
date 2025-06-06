@@ -53,6 +53,8 @@ public:
     float getYMaxDifference() const;
     float getGravity() const;
     void setGravity(float value);
+    float getPulsateAmount() const;
+    void setPulsateAmount(float amount);
 
 private:
     bool m_isActive { true };
@@ -68,6 +70,7 @@ private:
     float m_xMaxDifference { 0.0f };
     float m_yMaxDifference { 0.0f };
     float m_gravity { 0.f };
+    float m_pulsateAmount { 0.001f };
 };
 
 } // namespace amaze

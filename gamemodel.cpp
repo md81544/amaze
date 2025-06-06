@@ -400,6 +400,15 @@ void GameModel::process() // TODO more descriptive name
             shape->move();
         }
         if (shape->getGameShapeType() == GameShapeType::MOVING && shape->getGravity() != 0.f) {
+
+            if (shape->getScale() >= 1.01f) {
+                shape->setPulsateAmount( -0.001f );
+            }
+            if (shape->getScale() <= 0.99) {
+                shape->setPulsateAmount( 0.001f );
+            }
+            shape->resize(shape->getScale() + shape->getPulsateAmount());
+
             double xDiff = shape->getPosX() - getShipModel()->x();
             double yDiff = shape->getPosY() - getShipModel()->y();
             double distanceSquared = xDiff * xDiff + yDiff * yDiff;

@@ -123,5 +123,15 @@ void GameShape::setGravity(float value)
     m_gravity = value;
 }
 
+float GameShape::getPulsateAmount() const
+{
+    return m_pulsateAmount;
+}
+
+void GameShape::setPulsateAmount(float amount)
+{
+    m_pulsateAmount = amount;
+}
+
 } // namespace amaze
 } // namespace marengo
