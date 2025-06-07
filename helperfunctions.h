@@ -13,7 +13,7 @@ void csvSplit(const std::string& s, char c, std::vector<std::string>& v);
 void csvSplit(const std::string& s, char c, std::vector<double>& v);
 double sine(double degrees);
 double cosine(double degrees);
-uint8_t rnd(uint8_t max); // return [0-max)
+uint8_t rnd(uint8_t max); // return random integer from range [0-max)
 
 template <typename T>
     requires std::integral<T> || std::floating_point<T>
