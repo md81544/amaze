@@ -11,7 +11,7 @@
 
 namespace marengo {
 namespace amaze {
-namespace helperfunctions {
+namespace utils {
 
 void csvSplit(const std::string& s, char c, std::vector<std::string>& v)
 {

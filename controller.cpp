@@ -42,7 +42,7 @@ void Controller::registerControlHandlers()
                 m_gameModel.getShipModel()->setRotationDelta(value);
             } else {
                 // if we are already rotating in this direction:
-                if (helperfunctions::sgn(m_gameModel.getShipModel()->rotationDelta()) == 1) {
+                if (utils::sgn(m_gameModel.getShipModel()->rotationDelta()) == 1) {
                     m_gameModel.getShipModel()->setRotationDelta(0);
                 }
             }
@@ -65,7 +65,7 @@ void Controller::registerControlHandlers()
                 m_gameModel.getShipModel()->setRotationDelta(value);
             } else {
                 // if we are already rotating in this direction:
-                if (helperfunctions::sgn(m_gameModel.getShipModel()->rotationDelta()) == -1) {
+                if (utils::sgn(m_gameModel.getShipModel()->rotationDelta()) == -1) {
                     m_gameModel.getShipModel()->setRotationDelta(0);
                 }
             }

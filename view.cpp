@@ -117,8 +117,8 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         double y1 = sl.y1 + shape.getPosY() - m_model.getShipModel()->y();
         // OK, when we get here, we have a line expressed
         // relative to the origin OF THE SHIP.
-        double dCos = helperfunctions::cosine(m_model.getShipModel()->rotation());
-        double dSin = helperfunctions::sine(m_model.getShipModel()->rotation());
+        double dCos = utils::cosine(m_model.getShipModel()->rotation());
+        double dSin = utils::sine(m_model.getShipModel()->rotation());
         double x0r, y0r, x1r, y1r;
         x0r = x0 * dCos - y0 * dSin;
         y0r = x0 * dSin + y0 * dCos;
@@ -130,9 +130,9 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         uint8_t b = sl.b;
         // Special case for objects with gravity, we add random colours
         if (shape.getGravity() != 0.f) {
-            r = helperfunctions::rnd(193);
-            g = helperfunctions::rnd(193);
-            r = helperfunctions::rnd(193);
+            r = utils::rnd(193);
+            g = utils::rnd(193);
+            r = utils::rnd(193);
         }
         if (m_model.getGameState() == GameState::Menu
             || m_model.getGameState() == GameState::Paused) {

@@ -141,10 +141,10 @@ void Shape::rotate(double rotationDelta)
     double rd = std::fmod(rotationDelta, 360.0);
 
     for (ShapeLine line : m_shapeLines) {
-        double x0r = line.x0 * helperfunctions::cosine(rd) - line.y0 * helperfunctions::sine(rd);
-        double y0r = line.x0 * helperfunctions::sine(rd) + line.y0 * helperfunctions::cosine(rd);
-        double x1r = line.x1 * helperfunctions::cosine(rd) - line.y1 * helperfunctions::sine(rd);
-        double y1r = line.x1 * helperfunctions::sine(rd) + line.y1 * helperfunctions::cosine(rd);
+        double x0r = line.x0 * utils::cosine(rd) - line.y0 * utils::sine(rd);
+        double y0r = line.x0 * utils::sine(rd) + line.y0 * utils::cosine(rd);
+        double x1r = line.x1 * utils::cosine(rd) - line.y1 * utils::sine(rd);
+        double y1r = line.x1 * utils::sine(rd) + line.y1 * utils::cosine(rd);
 
         line.x0 = x0r;
         line.y0 = y0r;

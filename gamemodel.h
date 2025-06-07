@@ -116,7 +116,7 @@ private:
     std::shared_ptr<GameShape> m_breakableExplosionShape;
     bool m_breakableExploding { false };
 
-    helperfunctions::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
+    utils::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
     void rebuildShip();
     int m_livesRemaining { 1 };

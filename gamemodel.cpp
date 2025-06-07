@@ -27,7 +27,7 @@ std::string getLevelDescription(std::filesystem::path levelFile)
     std::string levelDescription { "Untitled" };
     getline(in, currentLine);
     std::vector<std::string> vec;
-    helperfunctions::csvSplit(currentLine, '~', vec);
+    utils::csvSplit(currentLine, '~', vec);
     if (vec.size() > 6) {
         levelDescription = vec[6];
     }
@@ -138,19 +138,19 @@ void GameModel::initialise(const std::string& levelFileName)
 
 void GameModel::buildBreakableExplosionShape()
 {
-    using namespace helperfunctions;
+    using namespace utils;
     if (!m_breakableExplosionShape) {
         m_breakableExplosionShape = std::make_shared<GameShape>();
     }
     m_breakableExplosionShape->clear();
     for (int n = 0; n < 11; ++n) {
-        if (helperfunctions::rnd(5) == 1) {
+        if (utils::rnd(5) == 1) {
             continue;
         }
-        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (helperfunctions::rnd(10)));
-        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (helperfunctions::rnd(10)));
-        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(10)));
-        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(10)));
+        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (utils::rnd(10)));
+        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (utils::rnd(10)));
+        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (utils::rnd(10)));
+        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (utils::rnd(10)));
         m_breakableExplosionShape->addShapeLine(ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6 });
     }
     m_breakableExplosionShape->setName("BreakableExplosion");
@@ -211,7 +211,7 @@ void GameModel::levelLoad(const std::string& filename)
     while (!in.eof()) {
         getline(in, currentLine);
         std::vector<std::string> vec;
-        helperfunctions::csvSplit(currentLine, '~', vec);
+        utils::csvSplit(currentLine, '~', vec);
         // When we get here, vec is a vector of all the items on the current
         // line.
         if (vec.size() == 0) {
