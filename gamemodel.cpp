@@ -144,13 +144,13 @@ void GameModel::buildBreakableExplosionShape()
     }
     m_breakableExplosionShape->clear();
     for (int n = 0; n < 11; ++n) {
-        if (helperfunctions::rnd(4) == 1) {
+        if (helperfunctions::rnd(5) == 1) {
             continue;
         }
-        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (helperfunctions::rnd(9)));
-        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (helperfunctions::rnd(9)));
-        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(9)));
-        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(9)));
+        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (helperfunctions::rnd(10)));
+        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (helperfunctions::rnd(10)));
+        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(10)));
+        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(10)));
         m_breakableExplosionShape->addShapeLine(ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6 });
     }
     m_breakableExplosionShape->setName("BreakableExplosion");

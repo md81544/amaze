@@ -130,9 +130,9 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         uint8_t b = sl.b;
         // Special case for objects with gravity, we add random colours
         if (shape.getGravity() != 0.f) {
-            r = helperfunctions::rnd(192);
-            g = helperfunctions::rnd(192);
-            r = helperfunctions::rnd(192);
+            r = helperfunctions::rnd(193);
+            g = helperfunctions::rnd(193);
+            r = helperfunctions::rnd(193);
         }
         if (m_model.getGameState() == GameState::Menu
             || m_model.getGameState() == GameState::Paused) {

@@ -235,39 +235,39 @@ void ShipModel::drawFlames()
     m_flamesGameShape->clear();
     for (int n = 0; n < 8; ++n) {
         m_flamesGameShape->setColour(180, 0, 0, 255);
-        int bottomY = lengthMultiplier * 80 + helperfunctions::rnd(19);
+        int bottomY = lengthMultiplier * 80 + helperfunctions::rnd(20);
         if (bottomY < 17) {
-            bottomY = 17 + helperfunctions::rnd(19);
+            bottomY = 17 + helperfunctions::rnd(20);
         }
         m_flamesGameShape->addLine(
-            4 - helperfunctions::rnd(7), 17, 10 - helperfunctions::rnd(19), bottomY, 3);
+            4 - helperfunctions::rnd(8), 17, 10 - helperfunctions::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 10; ++n) {
         m_flamesGameShape->setColour(255, 0, 0, 255);
-        int bottomY = lengthMultiplier * 40 + helperfunctions::rnd(19);
+        int bottomY = lengthMultiplier * 40 + helperfunctions::rnd(20);
         if (bottomY < 17) {
-            bottomY = 17 + helperfunctions::rnd(19);
+            bottomY = 17 + helperfunctions::rnd(20);
         }
         m_flamesGameShape->addLine(
-            4 - helperfunctions::rnd(7), 17, 10 - helperfunctions::rnd(19), bottomY, 3);
+            4 - helperfunctions::rnd(8), 17, 10 - helperfunctions::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(250, 214, 116, 255);
-        int bottomY = lengthMultiplier * 35 + helperfunctions::rnd(19);
+        int bottomY = lengthMultiplier * 35 + helperfunctions::rnd(20);
         if (bottomY < 17) {
-            bottomY = 17 + helperfunctions::rnd(19);
+            bottomY = 17 + helperfunctions::rnd(20);
         }
         m_flamesGameShape->addLine(
-            4 - helperfunctions::rnd(7), 17, 10 - helperfunctions::rnd(19), bottomY, 3);
+            4 - helperfunctions::rnd(8), 17, 10 - helperfunctions::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(255, 255, 255, 255);
-        int bottomY = lengthMultiplier * 20 + helperfunctions::rnd(19);
+        int bottomY = lengthMultiplier * 20 + helperfunctions::rnd(20);
         if (bottomY < 17) {
-            bottomY = 17 + helperfunctions::rnd(19);
+            bottomY = 17 + helperfunctions::rnd(20);
         }
         m_flamesGameShape->addLine(
-            4 - helperfunctions::rnd(7), 17, 4 - helperfunctions::rnd(7), bottomY, 3);
+            4 - helperfunctions::rnd(8), 17, 4 - helperfunctions::rnd(8), bottomY, 3);
     }
 
     // Ensure that the flames have the same rotation
@@ -283,19 +283,19 @@ void ShipModel::buildExplosionShape()
     m_explosionGameShape->clear();
     // debris:
     for (int n = 0; n < 11; ++n) {
-        if (helperfunctions::rnd(2) == 1) {
+        if (helperfunctions::rnd(3) == 1) {
             continue;
         }
-        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (helperfunctions::rnd(9)));
-        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (helperfunctions::rnd(9)));
-        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(9)));
-        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(9)));
-        uint8_t r = (helperfunctions::rnd(127)) + 96;
+        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (helperfunctions::rnd(10)));
+        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (helperfunctions::rnd(10)));
+        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(10)));
+        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(10)));
+        uint8_t r = (helperfunctions::rnd(128)) + 96;
         m_explosionGameShape->addShapeLine(ShapeLine { x1, y1, x2, y2, r, r, r, 255, 4 });
     }
     // flames
     for (int n = 0; n < 60; ++n) {
-        if (helperfunctions::rnd(2) == 1) {
+        if (helperfunctions::rnd(3) == 1) {
             continue;
         }
         double x1 = static_cast<double>(sine(n * 6.0) * 40);
@@ -308,7 +308,7 @@ void ShipModel::buildExplosionShape()
         x2 = static_cast<double>(sine(n * 6.0) * 60);
         y2 = static_cast<double>(cosine(n * 6.0) * 60);
         m_explosionGameShape->addShapeLine(ShapeLine { x1, y1, x2, y2, 250, 214, 116, 255, 2 });
-        int i = helperfunctions::rnd(49);
+        int i = helperfunctions::rnd(50);
         x1 = static_cast<double>(sine(n * 6.0) * 60);
         y1 = static_cast<double>(cosine(n * 6.0) * 60);
         x2 = static_cast<double>(sine(n * 6.0) * (70 + i));
