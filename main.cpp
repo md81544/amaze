@@ -43,8 +43,6 @@ int main(int argc, char* argv[])
 
         mgo::ConfigReader config((cwd / "amaze.cfg").string());
 
-        srand(static_cast<unsigned int>(time(NULL))); // TODO random device
-
         // Locate our data directory:
         std::string dataDir = (cwd / "data").string();
 
@@ -57,8 +55,9 @@ int main(int argc, char* argv[])
         // Command-line options override config file settings:
         ProgramOptions programOptions(argc, argv);
         if (programOptions.cmdOptionExists("-h") || programOptions.cmdOptionExists("--help")) {
-            std::print("Usage: amaze [-h|--help] [-f|--fullscreen] [-w|--windowed] [--file <level "
-                       "FILE>] [-l <level number>]\n");
+            std::print(
+                "Usage: amaze [-h|--help] [-f|--fullscreen] [-w|--windowed] [--file <level "
+                "FILE>] [-l <level number>]\n");
             return 0;
         }
         if (programOptions.cmdOptionExists("-f")

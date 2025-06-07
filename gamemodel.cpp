@@ -144,13 +144,13 @@ void GameModel::buildBreakableExplosionShape()
     }
     m_breakableExplosionShape->clear();
     for (int n = 0; n < 11; ++n) {
-        if (rand() % 5 == 1) {
+        if (helperfunctions::rnd(4) == 1) {
             continue;
         }
-        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (rand() % 10));
-        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (rand() % 10));
-        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (rand() % 10));
-        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (rand() % 10));
+        double x1 = static_cast<double>(sine(n * 30.0) * 20 + (helperfunctions::rnd(9)));
+        double y1 = static_cast<double>(cosine(n * 30.0) * 20 + (helperfunctions::rnd(9)));
+        double x2 = static_cast<double>(sine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(9)));
+        double y2 = static_cast<double>(cosine((n + 1) * 30.0) * 20 + (helperfunctions::rnd(9)));
         m_breakableExplosionShape->addShapeLine(ShapeLine { x1, y1, x2, y2, 255, 150, 50, 255, 6 });
     }
     m_breakableExplosionShape->setName("BreakableExplosion");
@@ -402,10 +402,10 @@ void GameModel::process() // TODO more descriptive name
         if (shape->getGameShapeType() == GameShapeType::MOVING && shape->getGravity() != 0.f) {
 
             if (shape->getScale() >= 1.01f) {
-                shape->setPulsateAmount( -0.001f );
+                shape->setPulsateAmount(-0.001f);
             }
             if (shape->getScale() <= 0.99) {
-                shape->setPulsateAmount( 0.001f );
+                shape->setPulsateAmount(0.001f);
             }
             shape->resize(shape->getScale() + shape->getPulsateAmount());
 
