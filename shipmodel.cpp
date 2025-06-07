@@ -1,6 +1,6 @@
 #include "shipmodel.h"
 #include "gamemodel.h"
-#include "helperfunctions.h"
+#include "utils.h"
 
 #include <cmath>
 #include <tuple>

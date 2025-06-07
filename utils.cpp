@@ -1,4 +1,4 @@
-#include "helperfunctions.h"
+#include "utils.h"
 #include "igraphicsadapter.h"
 #include "log.h"
 

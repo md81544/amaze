@@ -1,7 +1,7 @@
 #include "sfmladapter.h"
 #include "exceptions.h"
-#include "helperfunctions.h"
 #include "log.h"
+#include "utils.h"
 
 #include <chrono>
 #include <optional>

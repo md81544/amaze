@@ -1,6 +1,6 @@
 #include "shape.h"
-#include "helperfunctions.h"
 #include "log.h"
+#include "utils.h"
 #include "vectorfont.h"
 
 #include <cmath>

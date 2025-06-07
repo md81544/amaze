@@ -1,7 +1,7 @@
 #include "view.h"
-#include "helperfunctions.h"
 #include "log.h"
 #include "shape.h"
+#include "utils.h"
 
 #include <vector>
 
@@ -47,7 +47,7 @@ void View::update()
     playSounds();
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
-    for(const auto& shape : m_model.getAllDynamicObjects()) {
+    for (const auto& shape : m_model.getAllDynamicObjects()) {
         if (shape->isVisible() && shape->IsActive()) {
             rotateAndDrawShape(*shape);
         }

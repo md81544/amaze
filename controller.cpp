@@ -1,7 +1,7 @@
 #include "controller.h"
 #include "gameshape.h"
-#include "helperfunctions.h"
 #include "log.h"
+#include "utils.h"
 
 #include <chrono>
 #include <memory>

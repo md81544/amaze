@@ -5,11 +5,11 @@
 #include <tuple>
 
 #include "gameshape.h"
-#include "helperfunctions.h"
 #include "imodel.h"
 #include "menu.h"
 #include "scheduler.h"
 #include "shipmodel.h"
+#include "utils.h"
 
 // This class acts as the MVC "model" for the game.
 // Note other models exist and are aggredated here

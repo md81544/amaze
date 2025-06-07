@@ -13,7 +13,6 @@ add_executable(amaze
     controller.cpp
     gamemodel.cpp
     gameshape.cpp
-    helperfunctions.cpp
     log.cpp
     main.cpp
     menu.cpp
@@ -21,6 +20,7 @@ add_executable(amaze
     sfmladapter.cpp
     shape.cpp
     shipmodel.cpp
+    utils.cpp
     view.cpp
 )
 
