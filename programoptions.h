@@ -2,8 +2,8 @@
 #include <string>
 #include <vector>
 
-namespace marengo{
-namespace amaze{
+namespace marengo {
+namespace amaze {
 
 class ProgramOptions {
 public:
@@ -15,10 +15,9 @@ public:
     }
     const std::string& getCmdOption(const std::string& option) const
     {
-        std::vector<std::string>::const_iterator itr;
-        itr = std::find(this->m_tokens.begin(), this->m_tokens.end(), option);
-        if (itr != this->m_tokens.end() && ++itr != this->m_tokens.end()) {
-            return *itr;
+        auto it = std::find(this->m_tokens.begin(), this->m_tokens.end(), option);
+        if (it != this->m_tokens.end() && ++it != this->m_tokens.end()) {
+            return *it;
         }
         static const std::string empty_string("");
         return empty_string;
