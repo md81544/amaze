@@ -1,5 +1,7 @@
 #include "scheduler.h"
 
+#include <algorithm>
+
 namespace marengo {
 namespace amaze {
 

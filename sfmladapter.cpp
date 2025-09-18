@@ -305,9 +305,9 @@ void SfmlAdapter::processInput(bool paused)
                 case sf::Keyboard::Scancode::Comma:
                     if (!paused) {
                         if (event->getIf<sf::Event::KeyPressed>()->shift) {
-                            m_controlHandlers[KeyControls::LEFT](true, 0.25f);
+                            m_controlHandlers[KeyControls::LEFT](true, 0.1f);
                         } else {
-                            m_controlHandlers[KeyControls::LEFT](true, 1.f);
+                            m_controlHandlers[KeyControls::LEFT](true, 0.75f);
                         }
                     }
                     break;
@@ -316,9 +316,9 @@ void SfmlAdapter::processInput(bool paused)
                 case sf::Keyboard::Scancode::Period:
                     if (!paused) {
                         if (event->getIf<sf::Event::KeyPressed>()->shift) {
-                            m_controlHandlers[KeyControls::RIGHT](true, -0.25f);
+                            m_controlHandlers[KeyControls::RIGHT](true, -0.1f);
                         } else {
-                            m_controlHandlers[KeyControls::RIGHT](true, -1.f);
+                            m_controlHandlers[KeyControls::RIGHT](true, -0.75f);
                         }
                     }
                     break;
