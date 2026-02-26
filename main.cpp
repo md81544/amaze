@@ -8,7 +8,8 @@
 #include "view.h"
 
 #include <filesystem>
-#include <print>
+#include <format>
+#include <iostream>
 
 // MVC intentions
 // What goes where in the MVC pattern can be a matter for debate; here's
@@ -55,9 +56,10 @@ int main(int argc, char* argv[])
         // Command-line options override config file settings:
         ProgramOptions programOptions(argc, argv);
         if (programOptions.cmdOptionExists("-h") || programOptions.cmdOptionExists("--help")) {
-            std::print(
-                "Usage: amaze [-h|--help] [-f|--fullscreen] [-w|--windowed] [--file <level "
-                "FILE>] [-l <level number>]\n");
+            std::cout
+                << "Usage: amaze [-h|--help] [-f|--fullscreen] [-w|--windowed] [--file <level "
+                   "FILE>] [-l <level number>]"
+                << std::endl;
             return 0;
         }
         if (programOptions.cmdOptionExists("-f")
@@ -94,15 +96,16 @@ int main(int argc, char* argv[])
 
         return 0;
     } catch (const marengo::amaze::AmazeBaseException& ex) {
-        std::print(
+        std::cout << std::format(
             "Exception ({0}) thrown in {1} +{2} ({3}) : {4}\n",
             typeid(ex).name(),
             ex.file(),
             ex.line(),
             ex.function(),
-            ex.what());
+            ex.what())
+                  << std::endl;
     } catch (const std::exception& e) {
-        std::print("Exception encountered: {}\n", e.what());
+        std::cout << std::format("Exception encountered: {}\n", e.what()) << std::endl;
     }
     return 1;
 }
