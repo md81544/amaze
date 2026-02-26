@@ -2,6 +2,7 @@
 
 #include "menu.h"
 
+#include <cstdint>
 #include <functional>
 #include <optional>
 
