@@ -4,6 +4,7 @@
 #include "utils.h"
 
 #include <chrono>
+#include <cmath>
 #include <optional>
 #include <thread>
 
@@ -362,7 +363,7 @@ KeyControls SfmlAdapter::processMenuInput()
 
     for (;;) {
         const std::optional event = m_window.pollEvent();
-        if (event->is<sf::Event::KeyPressed>()) {
+        if (event.has_value() && event->is<sf::Event::KeyPressed>()) {
             switch (event->getIf<sf::Event::KeyPressed>()->scancode) {
                 case sf::Keyboard::Scancode::Escape:
                     return KeyControls::EXIT;
