@@ -328,3 +328,5 @@ amaze
 .DS_Store
 build/
 libs/
+.cache
+compile_commands.json
