@@ -1,12 +1,9 @@
 #include "sfmladapter.h"
 #include "exceptions.h"
-#include "log.h"
-#include "utils.h"
 
 #include <chrono>
 #include <cmath>
 #include <optional>
-#include <thread>
 
 namespace marengo {
 namespace amaze {
@@ -256,11 +253,11 @@ void SfmlAdapter::processInput(bool paused)
                 m_controlHandlers[KeyControls::LR_ANALOGUE](true, -x);
                 // Right trigger or right stick accelerates
                 float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
-                float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
-                if (v > -90.f) {
-                    m_controlHandlers[KeyControls::ACCELERATE](true, (v + 100.f) / 10.f);
-                } else if (r < -20.f) {
-                    m_controlHandlers[KeyControls::ACCELERATE](true, r * -.2f);
+                // float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
+                if (v < -20.f) {
+                    m_controlHandlers[KeyControls::ACCELERATE](true, -v / 10.f);
+                    //} else if (r < -20.f) {
+                    //    m_controlHandlers[KeyControls::ACCELERATE](true, r * -.2f);
                 } else {
                     m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                 }
@@ -384,7 +381,7 @@ KeyControls SfmlAdapter::processMenuInput()
     if (sf::Joystick::isConnected(0)) {
         // Either stick works for up/down
         float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
-        float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
+        float r = 0.f; // sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
         if (y > 30.f || r > 30.f) {
             return joystickRateLimiter(KeyControls::DOWN);
         } else if (y < -30.f || r < -30.f) {
