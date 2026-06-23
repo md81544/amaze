@@ -22,8 +22,7 @@ add_executable(${APP_NAME}
     controller.cpp
     gamemodel.cpp
     gameshape.cpp
-    joystick.cpp
-    log.cpp
+    gamepad.cpp
     main.cpp
     menu.cpp
     scheduler.cpp

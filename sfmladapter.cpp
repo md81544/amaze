@@ -1,8 +1,11 @@
 #include "sfmladapter.h"
 #include "exceptions.h"
+#include "gamepad.h"
+#include "log.h"
 
 #include <chrono>
 #include <cmath>
+#include <format>
 #include <optional>
 
 namespace marengo {
@@ -247,23 +250,28 @@ void SfmlAdapter::processInput(bool paused)
             m_controlHandlers[KeyControls::QUIT](true, 0.f);
         }
 
-        if (sf::Joystick::isConnected(0)) {
-            if (!paused) {
-                float x = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::X);
-                m_controlHandlers[KeyControls::LR_ANALOGUE](true, -x);
-                // Right trigger or right stick accelerates
-                float v = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::V);
-                // float r = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
-                if (v < -20.f) {
-                    m_controlHandlers[KeyControls::ACCELERATE](true, -v / 10.f);
-                    //} else if (r < -20.f) {
-                    //    m_controlHandlers[KeyControls::ACCELERATE](true, r * -.2f);
-                } else {
-                    m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
-                }
-            }
-            if (sf::Joystick::isButtonPressed(0, 9)) {
-                m_controlHandlers[KeyControls::MENU](true, 0.f);
+        auto gamepadEvents = m_gamepad.getEvents();
+        for (const auto& evt : gamepadEvents) {
+            switch (evt.eventType) {
+                case gamepad::EventType::Analogue:
+                    {
+                        m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
+                        float v = evt.analogue.rightY;
+                        mgo::Log::debug(std::format("v = {}", v));
+                        if (v > 0.1) {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
+                        } else {
+                            m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                        }
+                        break;
+                    }
+                case gamepad::EventType::ButtonPressed:
+                    if (evt.buttonType == gamepad::ButtonType::Start) {
+                        m_controlHandlers[KeyControls::MENU](true, 0.f);
+                    }
+                default:
+                    // do nothing
+                    break;
             }
         }
 
@@ -377,6 +385,31 @@ KeyControls SfmlAdapter::processMenuInput()
             break;
         }
     }
+        auto gamepadEvents = m_gamepad.getEvents();
+        for (const auto& evt : gamepadEvents) {
+            switch (evt.eventType) {
+                case gamepad::EventType::Analogue:
+                    {
+                        m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
+                        float v = evt.analogue.rightY;
+                        mgo::Log::debug(std::format("v = {}", v));
+                        if (v > 0.1) {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
+                        } else {
+                            m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                        }
+                        break;
+                    }
+                case gamepad::EventType::ButtonPressed:
+                    if (evt.buttonType == gamepad::ButtonType::Start) {
+                        m_controlHandlers[KeyControls::MENU](true, 0.f);
+                    }
+                default:
+                    // do nothing
+                    break;
+            }
+        }
+
 
     if (sf::Joystick::isConnected(0)) {
         // Either stick works for up/down

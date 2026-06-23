@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
         std::filesystem::path exe(argv[0]);
         std::filesystem::path cwd = exe.remove_filename();
 
-        INIT_MGOLOG((cwd / "debug.log").string());
+        mgo::Log::init((cwd / "debug.log").string());
 
         mgo::ConfigReader config((cwd / "amaze.cfg").string());
 

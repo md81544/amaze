@@ -4,9 +4,10 @@
 
 #include "igraphicsadapter.h"
 #include "menu.h"
+#include "gamepad.h"
 
-#include "SFML/Audio.hpp"
-#include "SFML/Graphics.hpp"
+#include "SFML/Audio.hpp" // IWYU pragma: keep
+#include "SFML/Graphics.hpp" // IWYU pragma: keep
 
 #include <functional>
 #include <memory>
@@ -64,6 +65,7 @@ private:
     std::unordered_map<std::string, std::shared_ptr<sf::Sound>> m_sounds;
     sf::Clock m_clock;
     sf::Font m_font; // we only use one font for all text currently
+    gamepad::Gamepad m_gamepad;
 };
 
 } // namespace amaze

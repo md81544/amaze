@@ -1,12 +1,10 @@
 #include "controller.h"
 #include "gameshape.h"
-#include "log.h"
+#include "log.h" // IWYU pragma: keep
 #include "utils.h"
 
-#include <chrono>
 #include <filesystem>
 #include <memory>
-#include <thread>
 
 namespace marengo {
 namespace amaze {
@@ -52,8 +50,8 @@ void Controller::registerControlHandlers()
     // Rotate with analogue stick
     m_graphicsAdapter.registerControlHandler(
         KeyControls::LR_ANALOGUE, [&](const bool /* isKeyDown */, const float value) {
-            double rotationDelta = value / 50.0;
-            if (std::abs(rotationDelta) < 0.25) {
+            double rotationDelta = value;
+            if (std::abs(rotationDelta) < 0.1) {
                 rotationDelta = 0.0;
             }
             m_gameModel.getShipModel()->setRotationDelta(rotationDelta);
