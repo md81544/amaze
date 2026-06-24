@@ -391,7 +391,8 @@ KeyControls SfmlAdapter::processMenuInput()
                 if (evt.buttonType == gamepad::ButtonType::DPadUp) {
                     return KeyControls::UP;
                 }
-                if (evt.buttonType == gamepad::ButtonType::East) {
+                if (evt.buttonType == gamepad::ButtonType::East
+                    || evt.buttonType == gamepad::ButtonType::Start) {
                     return KeyControls::EXIT;
                 }
                 if (evt.buttonType == gamepad::ButtonType::South) {

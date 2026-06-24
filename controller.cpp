@@ -137,6 +137,9 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
 
             switch (m_gameModel.getGameState()) {
                 case GameState::Menu:
+                    m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
+                    m_gameModel.getShipModel()->setIsAccelerating(false, 0.f);
+                    m_view.stopSounds();
                     {
                         KeyControls key = m_graphicsAdapter.processMenuInput();
                         if (key == KeyControls::EXIT) {
@@ -162,6 +165,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                     }
                     break;
                 case GameState::Paused:
+                    m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
                     m_graphicsAdapter.processInput(true);
                     m_view.stopSounds();
                     break;
@@ -187,6 +191,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                     break;
                 case GameState::Succeeded:
                     m_view.stopSounds();
+                    m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
                     m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
                     m_gameModel.getShipModel()->setIsAccelerating(false);
                     m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);

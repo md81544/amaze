@@ -29,7 +29,6 @@ void View::playSounds()
 
 void View::stopSounds()
 {
-    // This is currently just called when we go into paused state
     m_graphicsAdapter.soundFade("rocket", 400);
 }
 
