@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <cmath>
+#include <cstdint>
 #include <optional>
 
 namespace marengo {
@@ -251,9 +252,14 @@ void SfmlAdapter::processInput(bool paused)
                     m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
                     // Right stick for acceleration
                     float v = evt.analogue.rightY;
-                    if (v > 0.1) {
+                    if (v > 0.1f) {
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
-                        m_gamepad.rumble(0, 10000, 5000);
+                        if (v > 0.4f) {
+                            m_gamepad.rumble(
+                                static_cast<uint16_t>(static_cast<float>(0x2000) * v),
+                                static_cast<uint16_t>(static_cast<float>(0xA000) * v),
+                                5000);
+                        }
                     } else {
                         m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                         m_gamepad.rumble(0, 0, 0);

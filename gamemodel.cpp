@@ -1,6 +1,5 @@
 #include "gamemodel.h"
 #include "exceptions.h"
-#include "log.h"
 
 #include <cassert>
 #include <chrono>
@@ -8,9 +7,7 @@
 #include <filesystem>
 #include <fstream>
 #include <map>
-#include <numeric>
 #include <regex>
-#include <sstream>
 #include <thread>
 
 namespace marengo {
