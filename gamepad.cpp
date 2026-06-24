@@ -4,6 +4,7 @@
 #include <SDL3/SDL_gamepad.h>
 #include <SDL3/SDL_joystick.h>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <format>
 
@@ -288,6 +289,15 @@ Gamepad::~Gamepad()
 bool Gamepad::isGamePadAttached()
 {
     return !m_gamepads.empty();
+}
+
+void Gamepad::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
+{
+    if (m_gamepads.empty()) {
+        return;
+    }
+    auto gamepad = m_gamepads.begin()->second;
+    SDL_RumbleGamepad(gamepad, lowFreqIntensity, highFreqIntensity, durationMs);
 }
 
 } // namespace gamepad

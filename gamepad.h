@@ -75,6 +75,7 @@ public:
     // of events that have happened since the last call.
     std::vector<Event> getEvents();
     bool isGamePadAttached();
+    void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs);
 
 private:
     std::unordered_map<SDL_JoystickID, SDL_Gamepad*> m_gamepads;

@@ -253,8 +253,10 @@ void SfmlAdapter::processInput(bool paused)
                     float v = evt.analogue.rightY;
                     if (v > 0.1) {
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
+                        m_gamepad.rumble(0, 1000, 5000);
                     } else {
                         m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                        m_gamepad.rumble(0, 0, 0);
                     }
                     break;
                 }
@@ -389,10 +391,10 @@ KeyControls SfmlAdapter::processMenuInput()
                 if (evt.buttonType == gamepad::ButtonType::DPadUp) {
                     return KeyControls::UP;
                 }
-                if (evt.buttonType == gamepad::ButtonType::East ) {
+                if (evt.buttonType == gamepad::ButtonType::East) {
                     return KeyControls::EXIT;
                 }
-                if ( evt.buttonType == gamepad::ButtonType::South) {
+                if (evt.buttonType == gamepad::ButtonType::South) {
                     return KeyControls::ENTER;
                 }
             default:
