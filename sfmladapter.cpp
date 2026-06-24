@@ -253,7 +253,7 @@ void SfmlAdapter::processInput(bool paused)
                     float v = evt.analogue.rightY;
                     if (v > 0.1) {
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
-                        m_gamepad.rumble(0, 1000, 5000);
+                        m_gamepad.rumble(0, 10000, 5000);
                     } else {
                         m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                         m_gamepad.rumble(0, 0, 0);
@@ -463,6 +463,11 @@ void SfmlAdapter::soundFade(const std::string& key, const int /* msecs */)
         newVolume = 0.f;
     }
     m_sounds[key]->setVolume(newVolume);
+}
+
+void SfmlAdapter::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
+{
+    m_gamepad.rumble(lowFreqIntensity, highFreqIntensity, durationMs);
 }
 
 } // namespace amaze

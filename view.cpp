@@ -1,11 +1,8 @@
 #include "view.h"
-#include "log.h"
 #include "shape.h"
 #include "utils.h"
 
 #include <vector>
-
-#include <iostream>
 
 namespace marengo {
 namespace amaze {
@@ -107,8 +104,8 @@ void View::rotateAndDrawShape(const GameShape& shape) const
     // We treat the viewport as representing 480 coordinate units wide,
     // regardless of its physical dimensions:
     double scale = m_graphicsAdapter.getWindoWidth() / 480.0;
-    double xOffset = m_graphicsAdapter.getWindoWidth() / 2;
-    double yOffset = m_graphicsAdapter.getWindowHeight() / 2;
+    double xOffset = m_graphicsAdapter.getWindoWidth() / 2.0;
+    double yOffset = m_graphicsAdapter.getWindowHeight() / 2.0;
 
     for (const auto& sl : shape.getVec()) {
         double x0 = sl.x0 + shape.getPosX() - m_model.getShipModel()->x();

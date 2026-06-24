@@ -2,9 +2,9 @@
 
 // All SFML-specific code should go in this class
 
+#include "gamepad.h"
 #include "igraphicsadapter.h"
 #include "menu.h"
-#include "gamepad.h"
 
 #include "SFML/Audio.hpp" // IWYU pragma: keep
 #include "SFML/Graphics.hpp" // IWYU pragma: keep
@@ -54,6 +54,8 @@ public:
     virtual void soundPlay(const std::string& key) override;
     virtual void soundLoop(const std::string& key, float volume) override;
     virtual void soundFade(const std::string& key, const int msecs) override;
+    virtual void
+    rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs) override;
 
 private:
     sf::RenderWindow m_window;

@@ -167,6 +167,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                     break;
                 case GameState::Dead:
                     // We get here when the ship has finished exploding
+                    m_graphicsAdapter.rumble(0, 0, 0);
                     if (m_gameModel.lifeLost() != 0) {
                         m_gameModel.restart();
                         break;
@@ -200,6 +201,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                     });
                     break;
                 case GameState::Exploding:
+                    m_graphicsAdapter.rumble(0xFFFF, 0xFFFF, 1000);
                     m_gameModel.process(); // perform all processing required per loop
                     break;
                 case GameState::Running:

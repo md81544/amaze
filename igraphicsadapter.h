@@ -33,8 +33,8 @@ struct Text {
     uint8_t g { 0 };
     uint8_t b { 0 };
     unsigned characterSize;
-    std::optional<float> positionX;  // no value means centered in X
-    std::optional<float> positionY;  // no value means centered in Y
+    std::optional<float> positionX; // no value means centered in X
+    std::optional<float> positionY; // no value means centered in Y
 };
 
 class IGraphicsAdapter {
@@ -79,6 +79,10 @@ public:
     virtual void soundPlay(const std::string& key) = 0;
     virtual void soundLoop(const std::string& key, float volume) = 0;
     virtual void soundFade(const std::string& key, const int msecs) = 0;
+
+    // Physical
+    virtual void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
+        = 0;
 };
 
 } // namespace amaze
