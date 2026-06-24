@@ -1,11 +1,9 @@
 #include "sfmladapter.h"
 #include "exceptions.h"
 #include "gamepad.h"
-#include "log.h"
 
 #include <chrono>
 #include <cmath>
-#include <format>
 #include <optional>
 
 namespace marengo {
@@ -13,6 +11,7 @@ namespace amaze {
 
 namespace {
 
+[[maybe_unused]]
 KeyControls joystickRateLimiter(KeyControls key)
 {
     static bool firstCall = true;
@@ -242,22 +241,16 @@ void SfmlAdapter::registerControlHandler(
 void SfmlAdapter::processInput(bool paused)
 {
     for (;;) {
-        const std::optional event = m_window.pollEvent();
-        if (!event.has_value()) {
-            break;
-        }
-        if (event->is<sf::Event::Closed>()) {
-            m_controlHandlers[KeyControls::QUIT](true, 0.f);
-        }
-
+        // Process SDL gamepad events:
         auto gamepadEvents = m_gamepad.getEvents();
         for (const auto& evt : gamepadEvents) {
             switch (evt.eventType) {
                 case gamepad::EventType::Analogue:
                     {
+                        // Left stick for rotation
                         m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
+                        // Right stick for acceleration
                         float v = evt.analogue.rightY;
-                        mgo::Log::debug(std::format("v = {}", v));
                         if (v > 0.1) {
                             m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
                         } else {
@@ -273,6 +266,14 @@ void SfmlAdapter::processInput(bool paused)
                     // do nothing
                     break;
             }
+        }
+        // Process SFML events:
+        const std::optional event = m_window.pollEvent();
+        if (!event.has_value()) {
+            break;
+        }
+        if (event->is<sf::Event::Closed>()) {
+            m_controlHandlers[KeyControls::QUIT](true, 0.f);
         }
 
         if (event->is<sf::Event::FocusLost>()) {
@@ -392,7 +393,6 @@ KeyControls SfmlAdapter::processMenuInput()
                     {
                         m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
                         float v = evt.analogue.rightY;
-                        mgo::Log::debug(std::format("v = {}", v));
                         if (v > 0.1) {
                             m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
                         } else {
@@ -411,23 +411,23 @@ KeyControls SfmlAdapter::processMenuInput()
         }
 
 
-    if (sf::Joystick::isConnected(0)) {
-        // Either stick works for up/down
-        float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
-        float r = 0.f; // sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
-        if (y > 30.f || r > 30.f) {
-            return joystickRateLimiter(KeyControls::DOWN);
-        } else if (y < -30.f || r < -30.f) {
-            return joystickRateLimiter(KeyControls::UP);
-        }
-        if (sf::Joystick::isButtonPressed(0, 1)) {
-            return joystickRateLimiter(KeyControls::ENTER);
-        }
-        if (sf::Joystick::isButtonPressed(0, 2)) {
-            return joystickRateLimiter(KeyControls::EXIT);
-        }
-        // TODO - menu button to return KeyControls::EXIT
-    }
+    //if (sf::Joystick::isConnected(0)) {
+    //    // Either stick works for up/down
+    //    float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
+    //    float r = 0.f; // sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
+    //    if (y > 30.f || r > 30.f) {
+    //        return joystickRateLimiter(KeyControls::DOWN);
+    //    } else if (y < -30.f || r < -30.f) {
+    //        return joystickRateLimiter(KeyControls::UP);
+    //    }
+    //    if (sf::Joystick::isButtonPressed(0, 1)) {
+    //        return joystickRateLimiter(KeyControls::ENTER);
+    //    }
+    //    if (sf::Joystick::isButtonPressed(0, 2)) {
+    //        return joystickRateLimiter(KeyControls::EXIT);
+    //    }
+    //    // TODO - menu button to return KeyControls::EXIT
+    //}
 
     return KeyControls::NONE;
 }

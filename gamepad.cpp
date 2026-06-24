@@ -4,8 +4,8 @@
 #include <SDL3/SDL_gamepad.h>
 #include <SDL3/SDL_joystick.h>
 #include <cmath>
+#include <cstdlib>
 #include <format>
-#include <tuple>
 
 namespace marengo {
 namespace amaze {
@@ -22,14 +22,12 @@ float normaliseAxis(int16_t value)
     return value / 32768.0f;
 }
 
-[[maybe_unused]]
-std::tuple<float, float> applyDeadzone(float x, float y, float deadzone = 0.15f)
+float applyDeadzone(float value)
 {
-    float mag = std::sqrt(x * x + y * y);
-    if (mag < deadzone) {
-        return {};
+    if (std::abs(value) < 0.2f) {
+        return 0.f;
     }
-    return std::make_tuple(x, y);
+    return value;
 }
 
 [[maybe_unused]]
@@ -237,7 +235,7 @@ Gamepad::~Gamepad()
                 // TODO we're not caring about gamepad id here, so if multiple sticks
                 // are attached they will affect the output.
                 {
-                    float value = normaliseAxis(sdlEvent.gaxis.value);
+                    float value = applyDeadzone(normaliseAxis(sdlEvent.gaxis.value));
                     switch (sdlEvent.gaxis.axis) {
                         case SDL_GAMEPAD_AXIS_LEFTX:
                             m_analogueStatus.leftX = value;
