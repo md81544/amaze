@@ -330,4 +330,5 @@ build/
 libs/
 .cache
 compile_commands.json
-debug.log.previous
+debug.log*
+

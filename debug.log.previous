@@ -1,25 +1,13 @@
-2026-06-24T10:30:50.370|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:143|Connected PS4 Controller
+2026-06-24T11:12:20.551|DEBUG|/home/mcd/src/amaze/gamepad.cpp:143|Connected PS4 Controller
 Type: PlayStation 4
 Id: 1
-2026-06-24T10:30:50.459|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:175|Connected PS4 Controller
+2026-06-24T11:12:20.577|DEBUG|/home/mcd/src/amaze/gamepad.cpp:175|Connected PS4 Controller
 Type: PlayStation 4
 Id: 1
-2026-06-24T10:30:52.105|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|Start pressed
-2026-06-24T10:30:52.238|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|Start released
-2026-06-24T10:30:59.156|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|South (A / Cross) pressed
-2026-06-24T10:30:59.297|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|South (A / Cross) released
-2026-06-24T10:31:00.265|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|South (A / Cross) pressed
-2026-06-24T10:31:00.423|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|South (A / Cross) released
-2026-06-24T10:31:03.258|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|South (A / Cross) pressed
-2026-06-24T10:31:03.398|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|South (A / Cross) released
-2026-06-24T10:33:26.635|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|Start pressed
-2026-06-24T10:33:26.777|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|Start released
-2026-06-24T10:33:36.789|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|Start pressed
-2026-06-24T10:33:36.932|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|Start released
-2026-06-24T10:33:37.497|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|Start pressed
-2026-06-24T10:33:37.628|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|Start released
-2026-06-24T10:33:38.236|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|East (B / Circle) pressed
-2026-06-24T10:33:38.334|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|East (B / Circle) released
-2026-06-24T10:33:48.152|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|Other pressed
-2026-06-24T10:33:48.412|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:221|Other released
-2026-06-24T10:34:02.860|DEBUG|/Users/mcd/src/amaze/gamepad.cpp:208|South (A / Cross) pressed
+2026-06-24T11:12:23.402|DEBUG|/home/mcd/src/amaze/gamepad.cpp:208|Start pressed
+2026-06-24T11:12:23.460|DEBUG|/home/mcd/src/amaze/gamepad.cpp:221|Start released
+2026-06-24T11:12:25.797|DEBUG|/home/mcd/src/amaze/gamepad.cpp:208|South (A / Cross) pressed
+2026-06-24T11:12:25.868|DEBUG|/home/mcd/src/amaze/gamepad.cpp:221|South (A / Cross) released
+2026-06-24T11:12:29.399|DEBUG|/home/mcd/src/amaze/gamepad.cpp:208|South (A / Cross) pressed
+2026-06-24T11:12:29.520|DEBUG|/home/mcd/src/amaze/gamepad.cpp:221|South (A / Cross) released
+2026-06-24T11:13:42.983|DEBUG|/home/mcd/src/amaze/gamepad.cpp:208|South (A / Cross) pressed
