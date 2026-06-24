@@ -11,7 +11,6 @@ namespace amaze {
 
 namespace {
 
-[[maybe_unused]]
 KeyControls joystickRateLimiter(KeyControls key)
 {
     static bool firstCall = true;
@@ -240,34 +239,36 @@ void SfmlAdapter::registerControlHandler(
 
 void SfmlAdapter::processInput(bool paused)
 {
-    for (;;) {
-        // Process SDL gamepad events:
-        auto gamepadEvents = m_gamepad.getEvents();
-        for (const auto& evt : gamepadEvents) {
-            switch (evt.eventType) {
-                case gamepad::EventType::Analogue:
-                    {
-                        // Left stick for rotation
-                        m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
-                        // Right stick for acceleration
-                        float v = evt.analogue.rightY;
-                        if (v > 0.1) {
-                            m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
-                        } else {
-                            m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
-                        }
-                        break;
+    // This is called once per frame.
+
+    // Process SDL gamepad events:
+    auto gamepadEvents = m_gamepad.getEvents();
+    for (const auto& evt : gamepadEvents) {
+        switch (evt.eventType) {
+            case gamepad::EventType::Analogue:
+                {
+                    // Left stick for rotation
+                    m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
+                    // Right stick for acceleration
+                    float v = evt.analogue.rightY;
+                    if (v > 0.1) {
+                        m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
+                    } else {
+                        m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                     }
-                case gamepad::EventType::ButtonPressed:
-                    if (evt.buttonType == gamepad::ButtonType::Start) {
-                        m_controlHandlers[KeyControls::MENU](true, 0.f);
-                    }
-                default:
-                    // do nothing
                     break;
-            }
+                }
+            case gamepad::EventType::ButtonPressed:
+                if (evt.buttonType == gamepad::ButtonType::Start) {
+                    m_controlHandlers[KeyControls::MENU](true, 0.f);
+                }
+            default:
+                // do nothing
+                break;
         }
-        // Process SFML events:
+    }
+    // Process SFML events:
+    for (;;) {
         const std::optional event = m_window.pollEvent();
         if (!event.has_value()) {
             break;
@@ -367,6 +368,39 @@ KeyControls SfmlAdapter::processMenuInput()
     // If this function is called, the menu is displayed, so we react differently
     // to various keys. Note only one event is returned per call
 
+    // Process SDL gamepad events:
+    auto gamepadEvents = m_gamepad.getEvents();
+    for (const auto& evt : gamepadEvents) {
+        switch (evt.eventType) {
+            case gamepad::EventType::Analogue:
+                {
+                    if (evt.analogue.leftY < 0.f || evt.analogue.rightY < 0.f) {
+                        return joystickRateLimiter(KeyControls::DOWN);
+                    }
+                    if (evt.analogue.leftY > 0.f || evt.analogue.rightY > 0.f) {
+                        return joystickRateLimiter(KeyControls::UP);
+                    }
+                    break;
+                }
+            case gamepad::EventType::ButtonPressed:
+                if (evt.buttonType == gamepad::ButtonType::DPadDown) {
+                    return KeyControls::DOWN;
+                }
+                if (evt.buttonType == gamepad::ButtonType::DPadUp) {
+                    return KeyControls::UP;
+                }
+                if (evt.buttonType == gamepad::ButtonType::East ) {
+                    return KeyControls::EXIT;
+                }
+                if ( evt.buttonType == gamepad::ButtonType::South) {
+                    return KeyControls::ENTER;
+                }
+            default:
+                // do nothing
+                break;
+        }
+    }
+
     for (;;) {
         const std::optional event = m_window.pollEvent();
         if (event.has_value() && event->is<sf::Event::KeyPressed>()) {
@@ -386,48 +420,6 @@ KeyControls SfmlAdapter::processMenuInput()
             break;
         }
     }
-        auto gamepadEvents = m_gamepad.getEvents();
-        for (const auto& evt : gamepadEvents) {
-            switch (evt.eventType) {
-                case gamepad::EventType::Analogue:
-                    {
-                        m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
-                        float v = evt.analogue.rightY;
-                        if (v > 0.1) {
-                            m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
-                        } else {
-                            m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
-                        }
-                        break;
-                    }
-                case gamepad::EventType::ButtonPressed:
-                    if (evt.buttonType == gamepad::ButtonType::Start) {
-                        m_controlHandlers[KeyControls::MENU](true, 0.f);
-                    }
-                default:
-                    // do nothing
-                    break;
-            }
-        }
-
-
-    //if (sf::Joystick::isConnected(0)) {
-    //    // Either stick works for up/down
-    //    float y = sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::Y);
-    //    float r = 0.f; // sf::Joystick::getAxisPosition(0, sf::Joystick::Axis::R);
-    //    if (y > 30.f || r > 30.f) {
-    //        return joystickRateLimiter(KeyControls::DOWN);
-    //    } else if (y < -30.f || r < -30.f) {
-    //        return joystickRateLimiter(KeyControls::UP);
-    //    }
-    //    if (sf::Joystick::isButtonPressed(0, 1)) {
-    //        return joystickRateLimiter(KeyControls::ENTER);
-    //    }
-    //    if (sf::Joystick::isButtonPressed(0, 2)) {
-    //        return joystickRateLimiter(KeyControls::EXIT);
-    //    }
-    //    // TODO - menu button to return KeyControls::EXIT
-    //}
 
     return KeyControls::NONE;
 }
