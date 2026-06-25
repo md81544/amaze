@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_COMPILER clang++)
 
 find_package(SDL3 REQUIRED)
+find_package(SFML COMPONENTS Graphics Window System Audio REQUIRED)
 
 # ---------------------------------------------------------------------------
 # Main executable
@@ -43,10 +44,10 @@ target_compile_options(${APP_NAME} PRIVATE
 )
 
 target_link_libraries(${APP_NAME} PRIVATE
-    sfml-graphics
-    sfml-window
-    sfml-system
-    sfml-audio
+    SFML::Graphics
+    SFML::Window
+    SFML::System
+    SFML::Audio
     SDL3::SDL3
 )
 
