@@ -26,7 +26,7 @@ KeyControls joystickRateLimiter(KeyControls key)
     return rc;
 }
 
-}
+} // anonymous namespace
 
 SfmlAdapter::SfmlAdapter(
     unsigned screenWidth,
@@ -199,7 +199,7 @@ void SfmlAdapter::drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlig
     Text t;
     t.g = 255;
     t.positionY = 300;
-    t.characterSize = 60;
+    t.characterSize = m_screenHeight / 30;
     t.text = menuItems[0].menuName;
     drawText(t);
     t.positionY.value() += 40;
@@ -214,9 +214,9 @@ void SfmlAdapter::drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlig
             t.g = 150;
             t.b = 0;
         }
-        t.characterSize = 50;
+        t.characterSize = m_screenHeight / 40;
         t.text = menuItem.text;
-        t.positionY.value() += 60;
+        t.positionY.value() += m_screenHeight / 34.f;
         drawText(t);
         ++itemCount;
     }
@@ -475,6 +475,11 @@ void SfmlAdapter::soundFade(const std::string& key, const int /* msecs */)
 void SfmlAdapter::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
 {
     m_gamepad.rumble(lowFreqIntensity, highFreqIntensity, durationMs);
+}
+
+float SfmlAdapter::getScalingFactor()
+{
+    return m_screenHeight / 1080.f;
 }
 
 } // namespace amaze

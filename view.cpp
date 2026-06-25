@@ -142,7 +142,7 @@ void View::rotateAndDrawShape(const GameShape& shape) const
             y0r * scale + yOffset,
             x1r * scale + xOffset,
             y1r * scale + yOffset,
-            sl.lineThickness,
+            sl.lineThickness * m_graphicsAdapter.getScalingFactor(),
             r,
             g,
             b);
@@ -160,7 +160,7 @@ void View::drawStaticShape(const GameShape& shape) const
             (sl.y0 + shape.getPosY()) * scale,
             (sl.x1 + shape.getPosX()) * scale,
             (sl.y1 + shape.getPosY()) * scale,
-            sl.lineThickness,
+            sl.lineThickness * m_graphicsAdapter.getScalingFactor(),
             sl.r,
             sl.g,
             sl.b);

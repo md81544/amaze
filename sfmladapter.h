@@ -56,6 +56,7 @@ public:
     virtual void soundFade(const std::string& key, const int msecs) override;
     virtual void
     rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs) override;
+    virtual float getScalingFactor() override;
 
 private:
     sf::RenderWindow m_window;

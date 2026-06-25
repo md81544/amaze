@@ -73,6 +73,11 @@ public:
     virtual void drawText(const Text& text) = 0;
     virtual void drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem) = 0;
 
+    // Screem
+    // Allows callers to scale things (currently just line drawing) according to the physical
+    // dimensions of the screen
+    virtual float getScalingFactor() = 0;
+
     // Sounds
     // load an sound & supply a key to reference it:
     virtual void soundLoad(const std::string& key, const std::string& filename) = 0;
