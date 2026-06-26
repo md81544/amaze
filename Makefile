@@ -56,6 +56,6 @@ test: $(BUILD_DIR_DEBUG)/Makefile
 # ---------------------------------------------------------------------------
 clean:
 	@rm -rf build $(APP_NAME)
-	@echo "-> build directories and symlink removed"
+	@echo "-> build directories removed"
 
 
