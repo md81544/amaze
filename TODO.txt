@@ -1,8 +1,12 @@
+* Gamepad identification (press "A" at start) to distinguish between Nintendo and others
+
+* Options screen (use LatheControl dialog approach)
+  - rumble intensity
+  - controls to use
+
 * Objects which are not obstacles - just decoration
 
 * Regenerative power? Power level drops with thrust and refills over time
-
-* Menu -> Level Select: use names instead of filenames (still need to add names to many levels)
 
 * Teleport / portals
 * Emergency stop? Uses a life?
@@ -11,6 +15,7 @@
 * Keyboard controls don't work properly if joystick is attached
 * (Just an idea) a black cut-out circle around the ship so that rotation doesn't affect
   how far you can look?
+   - or make the ship point east so most look-ahead is in front?
 * Sometimes when you respawn it is difficult to determine which way you were going:
     * A compass?
     * Maybe a breadcrumb trail?

@@ -23,12 +23,18 @@ float normaliseAxis(int16_t value)
     return value / 32768.0f;
 }
 
-float applyDeadzone(float value)
+float joystickCurve(float x, float exponent = 2.0f, float deadzone = 0.02f)
 {
-    if (std::abs(value) < 0.2f) {
+    x = std::clamp(x, -1.0f, 1.0f);
+    // Apply deadzone: remap [deadzone, 1] -> [0, 1]
+    float sign = x < 0.0f ? -1.f : 1.f;
+    float abs_x = std::abs(x);
+    if (abs_x < deadzone) {
         return 0.f;
     }
-    return value;
+    // Rescale so deadzone edge maps cleanly to 0, not a sudden jump
+    float scaled = (abs_x - deadzone) / (1.f - deadzone);
+    return std::clamp(sign * std::pow(scaled, exponent), -1.f, 1.f);
 }
 
 [[maybe_unused]]
@@ -236,7 +242,7 @@ Gamepad::~Gamepad()
                 // TODO we're not caring about gamepad id here, so if multiple sticks
                 // are attached they will affect the output.
                 {
-                    float value = applyDeadzone(normaliseAxis(sdlEvent.gaxis.value));
+                    float value = joystickCurve(normaliseAxis(sdlEvent.gaxis.value));
                     switch (sdlEvent.gaxis.axis) {
                         case SDL_GAMEPAD_AXIS_LEFTX:
                             m_analogueStatus.leftX = value;
