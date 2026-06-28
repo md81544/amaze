@@ -14,19 +14,19 @@ find_package(SFML COMPONENTS Graphics Window System Audio REQUIRED)
 # Main executable
 # ---------------------------------------------------------------------------
 add_executable(${APP_NAME}
-    configreader.cpp
-    controller.cpp
-    gamemodel.cpp
-    gameshape.cpp
-    gamepad.cpp
-    main.cpp
-    menu.cpp
-    scheduler.cpp
-    sfmladapter.cpp
-    shape.cpp
-    shipmodel.cpp
-    utils.cpp
-    view.cpp
+    src/configreader.cpp
+    src/controller.cpp
+    src/gamemodel.cpp
+    src/gameshape.cpp
+    src/gamepad.cpp
+    src/main.cpp
+    src/menu.cpp
+    src/scheduler.cpp
+    src/sfmladapter.cpp
+    src/shape.cpp
+    src/shipmodel.cpp
+    src/utils.cpp
+    src/view.cpp
 )
 
 # ---------------------------------------------------------------------------
