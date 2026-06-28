@@ -445,6 +445,19 @@ void SfmlAdapter::soundLoad(const std::string& key, const std::string& filename)
     m_sounds[key] = sound;
 }
 
+void SfmlAdapter::musicLoad(const std::string& filename)
+{
+    if (!m_music.openFromFile(filename)) {
+        THROWUP(AmazeRuntimeException, std::format("Music file load error ({})", filename));
+    }
+}
+
+void SfmlAdapter::musicPlayLoop() {
+    // Default volume is 100.f%
+    m_music.setLooping(true);
+    m_music.play();
+}
+
 void SfmlAdapter::soundPlay(const std::string& key)
 {
     m_sounds[key]->setVolume(100.f);

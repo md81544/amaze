@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <string_view>
 
 // Defines an adapter interface for the graphical toolkit
 // in use (currently SfmlAdapter implements this)
@@ -84,6 +85,8 @@ public:
     virtual void soundPlay(const std::string& key) = 0;
     virtual void soundLoop(const std::string& key, float volume) = 0;
     virtual void soundFade(const std::string& key, const int msecs) = 0;
+    virtual void musicLoad(const std::string& filename) = 0;
+    virtual void musicPlayLoop() = 0;
 
     // Physical
     virtual void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)

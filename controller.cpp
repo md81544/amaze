@@ -24,7 +24,7 @@ Controller::Controller(GameModel& m, View& v, IGraphicsAdapter& g)
     m_graphicsAdapter.soundLoad("collect", (dataPath / "collect.wav").string());
     m_graphicsAdapter.soundLoad("success", (dataPath / "success.wav").string());
     m_graphicsAdapter.soundLoad("breakable", (dataPath / "breakable.wav").string());
-    m_graphicsAdapter.soundLoad("music", (dataPath / "music.wav").string());
+    m_graphicsAdapter.musicLoad((dataPath / "music.ogg").string());
 }
 
 void Controller::registerControlHandlers()
@@ -117,7 +117,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
     // TODO splash screen?
     bool endingLevel = false;
     m_graphicsAdapter.setFrameRate(100);
-    m_graphicsAdapter.soundLoop("music", 50);
+    m_graphicsAdapter.musicPlayLoop();
 
     // Main game loop
     for (;;) {

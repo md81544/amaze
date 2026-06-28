@@ -54,6 +54,8 @@ public:
     virtual void soundPlay(const std::string& key) override;
     virtual void soundLoop(const std::string& key, float volume) override;
     virtual void soundFade(const std::string& key, const int msecs) override;
+    virtual void musicLoad(const std::string& filename) override;
+    virtual void musicPlayLoop() override;
     virtual void
     rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs) override;
     virtual float getScalingFactor() override;
@@ -65,6 +67,7 @@ private:
 
     std::unordered_map<KeyControls, std::function<void(const bool, const float)>> m_controlHandlers;
     std::unordered_map<std::string, std::shared_ptr<sf::SoundBuffer>> m_soundBuffers;
+    sf::Music m_music;
     std::unordered_map<std::string, std::shared_ptr<sf::Sound>> m_sounds;
     sf::Clock m_clock;
     sf::Font m_font; // we only use one font for all text currently
