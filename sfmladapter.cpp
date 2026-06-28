@@ -1,6 +1,7 @@
 #include "sfmladapter.h"
 #include "exceptions.h"
 #include "gamepad.h"
+#include "log.h"  // IWYU pragma: keep
 
 #include <chrono>
 #include <cmath>
@@ -252,7 +253,7 @@ void SfmlAdapter::processInput(bool paused)
                     m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
                     // Right stick for acceleration
                     float v = evt.analogue.rightY;
-                    if (v > 0.1f) {
+                    if (v > 0.05f) {
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
                         if (v > 0.4f) {
                             m_gamepad.rumble(
@@ -382,10 +383,10 @@ KeyControls SfmlAdapter::processMenuInput()
         switch (evt.eventType) {
             case gamepad::EventType::Analogue:
                 {
-                    if (evt.analogue.leftY < 0.f || evt.analogue.rightY < 0.f) {
+                    if (evt.analogue.leftY < -0.2f || evt.analogue.rightY < -0.2f) {
                         return joystickRateLimiter(KeyControls::DOWN);
                     }
-                    if (evt.analogue.leftY > 0.f || evt.analogue.rightY > 0.f) {
+                    if (evt.analogue.leftY > 0.2f || evt.analogue.rightY > 0.2f) {
                         return joystickRateLimiter(KeyControls::UP);
                     }
                     break;

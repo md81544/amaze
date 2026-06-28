@@ -23,18 +23,18 @@ float normaliseAxis(int16_t value)
     return value / 32768.0f;
 }
 
-float joystickCurve(float x, float exponent = 2.0f, float deadzone = 0.02f)
+// Allows for fine control near the middle of the stick's input
+// and much larger input when pushed further
+float joystickCurve(float input, float curve = 2.5f, float deadzone = 0.05f)
 {
-    x = std::clamp(x, -1.0f, 1.0f);
-    // Apply deadzone: remap [deadzone, 1] -> [0, 1]
-    float sign = x < 0.0f ? -1.f : 1.f;
-    float abs_x = std::abs(x);
-    if (abs_x < deadzone) {
+    input = std::clamp(input, -1.f, 1.f);
+    float sign  = input < 0.f ? -1.f : 1.f;
+    float abs_x = std::abs(input);
+    if (abs_x < deadzone)
         return 0.f;
-    }
-    // Rescale so deadzone edge maps cleanly to 0, not a sudden jump
-    float scaled = (abs_x - deadzone) / (1.f - deadzone);
-    return std::clamp(sign * std::pow(scaled, exponent), -1.f, 1.f);
+    float scaled = (abs_x - deadzone) / (1.f - deadzone); // [0, 1]
+    float result = (std::exp(curve * scaled) - 1.f) / (std::exp(curve) - 1.f);
+    return std::clamp(sign * result, -1.f, 1.f);
 }
 
 [[maybe_unused]]
@@ -239,7 +239,7 @@ Gamepad::~Gamepad()
                 // gets a snapshot of the final values of all sticks
                 // at every call to getEvents(). Otherwise there would be many
                 // events for each individual axis.
-                // TODO we're not caring about gamepad id here, so if multiple sticks
+                // TODO we're not caring about gamepad id here, so if multiple gamepads
                 // are attached they will affect the output.
                 {
                     float value = joystickCurve(normaliseAxis(sdlEvent.gaxis.value));
@@ -256,21 +256,15 @@ Gamepad::~Gamepad()
                         case SDL_GAMEPAD_AXIS_RIGHTY:
                             m_analogueStatus.rightY = -value;
                             break;
-                        case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
-                            m_analogueStatus.leftTrigger = (value + 1.0f) * 0.5f;
-                            break;
-
                         case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
-                            m_analogueStatus.rightTrigger = (value + 1.0f) * 0.5f;
+                            m_analogueStatus.rightTrigger = value;
+                            break;
+                        case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
+                            m_analogueStatus.leftTrigger = value;
                             break;
                         default:
                             // do nothing
                     }
-
-                    // state.leftStickPos = applyDeadzone(state.leftStickPos.x,
-                    // state.leftStickPos.y); state.rightStickPos
-                    //     = applyDeadzone(state.rightStickPos.x, state.rightStickPos.y);
-                    // break;
                 }
             default:
                 // do nothing
