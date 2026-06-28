@@ -1,9 +1,8 @@
 #include "shipmodel.h"
-#include "gamemodel.h"
+#include "log.h"  // IWYU pragma: keep
 #include "utils.h"
 
 #include <cmath>
-#include <tuple>
 
 namespace marengo {
 namespace amaze {
@@ -227,45 +226,33 @@ void ShipModel::process(bool isExploding)
 
 void ShipModel::drawFlames()
 {
-    // m_AccelerationAmount will be something like a maximum of 0.025
-    float lengthMultiplier = m_accelerationAmount * 40.f;
+    // m_accelerationAmount will be something like a maximum of 0.025
+    float lengthMultiplier = m_accelerationAmount * 80.f;
     if (lengthMultiplier > 1.f) {
         lengthMultiplier = 1.f;
     }
     m_flamesGameShape->clear();
     for (int n = 0; n < 8; ++n) {
         m_flamesGameShape->setColour(180, 0, 0, 255);
-        int bottomY = lengthMultiplier * 80 + utils::rnd(20);
-        if (bottomY < 17) {
-            bottomY = 17 + utils::rnd(20);
-        }
+        int bottomY = 17 + static_cast<int>(lengthMultiplier * 80.f + utils::rnd(20.f));
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 10; ++n) {
         m_flamesGameShape->setColour(255, 0, 0, 255);
-        int bottomY = lengthMultiplier * 40 + utils::rnd(20);
-        if (bottomY < 17) {
-            bottomY = 17 + utils::rnd(20);
-        }
+        int bottomY = 17 + static_cast<int>(lengthMultiplier * 40.f + utils::rnd(20.f));
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(250, 214, 116, 255);
-        int bottomY = lengthMultiplier * 35 + utils::rnd(20);
-        if (bottomY < 17) {
-            bottomY = 17 + utils::rnd(20);
-        }
+        int bottomY = 17 + static_cast<int>(lengthMultiplier * 35.f + utils::rnd(20.f));
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(255, 255, 255, 255);
-        int bottomY = lengthMultiplier * 20 + utils::rnd(20);
-        if (bottomY < 17) {
-            bottomY = 17 + utils::rnd(20);
-        }
+        int bottomY = 17 + static_cast<int>(lengthMultiplier * 20.f + utils::rnd(20.f));
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 4 - utils::rnd(8), bottomY, 3);
     }

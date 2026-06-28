@@ -1,9 +1,7 @@
 #pragma once
 
-#include <memory>
+#include <random>
 #include <vector>
-
-#include "igraphicsadapter.h"
 
 namespace marengo {
 namespace amaze {
@@ -14,7 +12,24 @@ void csvSplit(const std::string& s, char c, std::vector<double>& v);
 double sine(double degrees);
 double cosine(double degrees);
 uint8_t rnd(uint8_t max); // return random integer from range [0-max)
-
+template <typename T> T rnd(T max)
+{
+    if (max <= T(0)) {
+        return T(0);
+    }
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    if constexpr (std::is_floating_point_v<T>) {
+        std::uniform_real_distribution<T> distrib(T(0), max);
+        return distrib(gen);
+    } else {
+        if (max < T(2)) {
+            return T(0);
+        }
+        std::uniform_int_distribution<T> distrib(T(0), max - T(1));
+        return distrib(gen);
+    }
+}
 template <typename T>
     requires std::integral<T> || std::floating_point<T>
 int sgn(T x)

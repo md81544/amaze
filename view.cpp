@@ -2,6 +2,7 @@
 #include "shape.h"
 #include "utils.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace marengo {
@@ -16,7 +17,9 @@ View::View(GameModel& model, IGraphicsAdapter& gm)
 void View::playSounds()
 {
     if (m_model.getShipModel()->isAccelerating()) {
-        float vol = m_model.getShipModel()->accelerationAmount() * 1000.f;
+        float vol = m_model.getShipModel()->accelerationAmount() * 2000.f;
+        vol = std::clamp(vol, 2.f, 100.f);
+
         m_graphicsAdapter.soundLoop("rocket", vol);
     } else {
         m_graphicsAdapter.soundFade("rocket", 1000);

@@ -1,13 +1,9 @@
 #include "utils.h"
-#include "igraphicsadapter.h"
-#include "log.h"
 
 #include "boost/math/constants/constants.hpp"
 
-#include <mutex>
 #include <random>
 #include <string>
-#include <thread>
 
 namespace marengo {
 namespace amaze {

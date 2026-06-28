@@ -253,9 +253,9 @@ void SfmlAdapter::processInput(bool paused)
                     m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
                     // Right stick for acceleration
                     float v = evt.analogue.rightY;
-                    if (v > 0.05f) {
+                    if (v > 0.01f) {
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
-                        if (v > 0.4f) {
+                        if (v > 0.8f) {
                             m_gamepad.rumble(
                                 static_cast<uint16_t>(static_cast<float>(0x2000) * v),
                                 static_cast<uint16_t>(static_cast<float>(0xA000) * v),

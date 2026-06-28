@@ -25,7 +25,7 @@ float normaliseAxis(int16_t value)
 
 // Allows for fine control near the middle of the stick's input
 // and much larger input when pushed further
-float joystickCurve(float input, float curve = 2.5f, float deadzone = 0.05f)
+float joystickCurve(float input, float curve = 6.f, float deadzone = 0.05f)
 {
     input = std::clamp(input, -1.f, 1.f);
     float sign  = input < 0.f ? -1.f : 1.f;

@@ -52,7 +52,7 @@ void Controller::registerControlHandlers()
     m_graphicsAdapter.registerControlHandler(
         KeyControls::LR_ANALOGUE, [&](const bool /* isKeyDown */, const float value) {
             double rotationDelta = value;
-            if (std::abs(rotationDelta) < 0.1) {
+            if (std::abs(rotationDelta) < 0.01) {
                 rotationDelta = 0.0;
             }
             m_gameModel.getShipModel()->setRotationDelta(rotationDelta);
