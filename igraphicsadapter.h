@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <functional>
 #include <optional>
-#include <string_view>
 
 // Defines an adapter interface for the graphical toolkit
 // in use (currently SfmlAdapter implements this)
