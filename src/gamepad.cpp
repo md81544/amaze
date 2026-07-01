@@ -264,6 +264,7 @@ Gamepad::~Gamepad()
                             break;
                         default:
                             // do nothing
+                            break;
                     }
                 }
             default:
