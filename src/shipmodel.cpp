@@ -227,32 +227,32 @@ void ShipModel::process(bool isExploding)
 void ShipModel::drawFlames()
 {
     // m_accelerationAmount will be something like a maximum of 0.025
-    float lengthMultiplier = m_accelerationAmount * 80.f;
+    float lengthMultiplier = m_accelerationAmount * 800.f;
     if (lengthMultiplier > 1.f) {
         lengthMultiplier = 1.f;
     }
     m_flamesGameShape->clear();
     for (int n = 0; n < 8; ++n) {
         m_flamesGameShape->setColour(180, 0, 0, 255);
-        int bottomY = 17 + static_cast<int>(lengthMultiplier * 80.f + utils::rnd(20.f));
+        int bottomY = 22 + static_cast<int>(utils::rnd(50.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 10; ++n) {
         m_flamesGameShape->setColour(255, 0, 0, 255);
-        int bottomY = 17 + static_cast<int>(lengthMultiplier * 40.f + utils::rnd(20.f));
+        int bottomY = 22 + static_cast<int>(utils::rnd(40.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(250, 214, 116, 255);
-        int bottomY = 17 + static_cast<int>(lengthMultiplier * 35.f + utils::rnd(20.f));
+        int bottomY = 22 + static_cast<int>(utils::rnd(30.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(255, 255, 255, 255);
-        int bottomY = 17 + static_cast<int>(lengthMultiplier * 20.f + utils::rnd(20.f));
+        int bottomY = 22 + static_cast<int>(utils::rnd(20.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
             4 - utils::rnd(8), 17, 4 - utils::rnd(8), bottomY, 3);
     }
