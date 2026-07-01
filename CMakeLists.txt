@@ -1,14 +1,44 @@
 cmake_minimum_required(VERSION 3.20)
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
 endif()
+
 set(APP_NAME amaze)
 project(${APP_NAME})
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_COMPILER clang++)
+
 find_package(SDL3 REQUIRED)
 find_package(SFML COMPONENTS Graphics Window System Audio REQUIRED)
+
+include(FetchContent)
+find_package(SFML 3.0 COMPONENTS System Window Graphics REQUIRED)
+FetchContent_Declare(ImGui
+    GIT_REPOSITORY https://github.com/ocornut/imgui
+    GIT_TAG v1.91.1
+    GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
+    SYSTEM)
+FetchContent_MakeAvailable(ImGui)
+FetchContent_GetProperties(ImGui SOURCE_DIR IMGUI_DIR)
+set(IMGUI_SFML_FIND_SFML OFF)
+FetchContent_Declare(ImGui-SFML
+    GIT_REPOSITORY https://github.com/SFML/imgui-sfml
+    GIT_TAG v3.0
+    GIT_SHALLOW ON
+    EXCLUDE_FROM_ALL
+    SYSTEM)
+FetchContent_MakeAvailable(ImGui-SFML)
+
+# Silence warnings produced while compiling the fetched dependencies themselves.
+# SYSTEM (above) only suppresses warnings when *we* include their headers;
+# it doesn't touch the compilation of their own .cpp files.
+foreach(dep_target IN ITEMS imgui ImGui-SFML)
+    if(TARGET ${dep_target})
+        target_compile_options(${dep_target} PRIVATE -w)
+    endif()
+endforeach()
 
 # ---------------------------------------------------------------------------
 # Main executable
@@ -91,6 +121,7 @@ target_link_libraries(${APP_NAME} PRIVATE
     SFML::System
     SFML::Audio
     SDL3::SDL3
+    ImGui-SFML::ImGui-SFML
 )
 
 # Symlink to the app bundle (macOS) or binary (other platforms)
