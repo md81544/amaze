@@ -6,7 +6,6 @@
 
 #include "gameshape.h"
 #include "imodel.h"
-#include "menu.h"
 #include "scheduler.h"
 #include "shipmodel.h"
 #include "utils.h"
@@ -87,17 +86,6 @@ public:
     {
         return m_livesRemaining;
     };
-    void resetMenuPosition();
-    std::vector<MenuItem> getCurrentMenu();
-    int getCurrentMenuItem()
-    {
-        return m_menu.getCurrentlyHighlightedItem();
-    };
-    std::string getCurrentMenuItemData();
-    void menuDown();
-    void menuUp();
-    std::tuple<MenuItemId, std::optional<MenuItem>> menuSelect();
-    void setMenu(const std::string& menuName);
 
 private:
     void addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& obj);
@@ -112,7 +100,6 @@ private:
 
     std::unique_ptr<ShipModel> m_shipModel;
 
-    size_t m_averageFrameTime { 0 };
     std::shared_ptr<GameShape> m_breakableExplosionShape;
     bool m_breakableExploding { false };
 
@@ -121,7 +108,6 @@ private:
     void rebuildShip();
     int m_livesRemaining { 1 };
     Scheduler m_scheduler;
-    Menu m_menu;
 };
 
 } // namespace amaze

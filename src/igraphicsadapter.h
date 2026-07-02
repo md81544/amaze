@@ -1,10 +1,9 @@
 #pragma once
 
-#include "menu.h"
-
 #include <cstdint>
 #include <functional>
 #include <optional>
+#include <string>
 
 // Defines an adapter interface for the graphical toolkit
 // in use (currently SfmlAdapter implements this)
@@ -24,7 +23,15 @@ enum class KeyControls {
     DOWN, // only used for menus
     ENTER, // only used for menus
     EXIT, // only used for menus
-    NONE // only used for menus
+    NONE, // only used for menus
+};
+
+enum class MenuType {
+    None, // normal game play
+    Main,
+    LevelSelect,
+    Options,
+    Exit, // menu has just exited
 };
 
 struct Text {
@@ -56,7 +63,6 @@ public:
         std::function<void(const bool, const float)> controlHandler)
         = 0;
     virtual void processInput(bool paused) = 0;
-    virtual KeyControls processMenuInput() = 0;
 
     // Images
     // Load & display an image; any resources should be immediately discarded
@@ -71,7 +77,9 @@ public:
     virtual void imageUnload(size_t id) = 0;
     virtual void drawStatusBar() = 0;
     virtual void drawText(const Text& text) = 0;
-    virtual void drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem) = 0;
+    virtual MenuType menuDraw(MenuType menuType) = 0;
+    virtual void menuProcessInput() = 0;
+    virtual void setMouseCursorVisible(bool value) = 0;
 
     // Screem
     // Allows callers to scale things (currently just line drawing) according to the physical

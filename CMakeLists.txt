@@ -50,13 +50,13 @@ add_executable(${APP_NAME}
     src/gameshape.cpp
     src/gamepad.cpp
     src/main.cpp
-    src/menu.cpp
     src/scheduler.cpp
     src/sfmladapter.cpp
     src/shape.cpp
     src/shipmodel.cpp
     src/utils.cpp
     src/view.cpp
+    src/imgui.cpp
 )
 
 # ---------------------------------------------------------------------------

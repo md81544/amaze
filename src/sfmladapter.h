@@ -4,7 +4,7 @@
 
 #include "gamepad.h"
 #include "igraphicsadapter.h"
-#include "menu.h"
+#include "imgui.h"
 
 #include "SFML/Audio.hpp" // IWYU pragma: keep
 #include "SFML/Graphics.hpp" // IWYU pragma: keep
@@ -43,12 +43,13 @@ public:
     virtual void imageUnload(size_t id) override;
     virtual void drawStatusBar() override;
     virtual void drawText(const Text& text) override;
-    virtual void drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem) override;
+    virtual MenuType menuDraw(MenuType menuType) override;
+    virtual void menuProcessInput() override;
+    virtual void setMouseCursorVisible(bool value) override;
     virtual void registerControlHandler(
         KeyControls key,
         std::function<void(const bool, const float)> controlHandler) override;
     virtual void processInput(bool paused) override;
-    virtual KeyControls processMenuInput() override;
     // Sound processing
     virtual void soundLoad(const std::string& key, const std::string& filename) override;
     virtual void soundPlay(const std::string& key) override;
@@ -72,6 +73,7 @@ private:
     sf::Clock m_clock;
     sf::Font m_font; // we only use one font for all text currently
     gamepad::Gamepad m_gamepad;
+    Imgui m_imgui;
 };
 
 } // namespace amaze

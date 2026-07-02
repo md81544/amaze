@@ -3,7 +3,6 @@
 #include "utils.h"
 
 #include <algorithm>
-#include <vector>
 
 namespace marengo {
 namespace amaze {
@@ -93,11 +92,6 @@ void View::update()
         pm.text = "Game Over";
         pm.positionY = m_graphicsAdapter.getWindowHeight() * 0.3;
         m_graphicsAdapter.drawText(pm);
-    }
-
-    if (m_model.getGameState() == GameState::Menu) {
-        auto vec = m_model.getCurrentMenu();
-        m_graphicsAdapter.drawMenu(vec, m_model.getCurrentMenuItem());
     }
 }
 

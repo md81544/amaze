@@ -1,6 +1,7 @@
 #include "sfmladapter.h"
 #include "exceptions.h"
 #include "gamepad.h"
+#include "igraphicsadapter.h"
 #include "log.h"  // IWYU pragma: keep
 
 #include <chrono>
@@ -13,7 +14,7 @@ namespace amaze {
 
 namespace {
 
-KeyControls joystickRateLimiter(KeyControls key)
+[[maybe_unused]] KeyControls joystickRateLimiter(KeyControls key)
 {
     static bool firstCall = true;
     static auto lastGoodCall = std::chrono::system_clock::now();
@@ -41,6 +42,7 @@ SfmlAdapter::SfmlAdapter(
           useFullScreen ? sf::State::Fullscreen : sf::State::Windowed)
     , m_screenHeight(screenHeight)
     , m_screenWidth(screenWidth)
+    , m_imgui(m_window, dataDir)
 {
     m_window.setMouseCursorVisible(false);
     if (useFullScreen) {
@@ -192,35 +194,25 @@ void SfmlAdapter::drawText(const Text& text)
     m_window.draw(t);
 }
 
-void SfmlAdapter::drawMenu(std::vector<MenuItem> menuItems, int currentlyHighlightedItem)
+MenuType SfmlAdapter::menuDraw(MenuType menuType)
 {
-    if (menuItems.empty()) {
-        return;
+    // We use imgui-sfml for all menus.
+    // Showing the menu means all SFML/SDL input is routed to here 
+    // TODO call Imgui::render();
+    m_imgui.build(menuType);
+    return m_imgui.render();
+}
+
+void SfmlAdapter::menuProcessInput(){
+    m_imgui.processEvents();
+    // We can check button presses etc here
+    if (m_imgui.getQuitGame()) {
+        m_controlHandlers[KeyControls::QUIT](true, 0.f);
     }
-    Text t;
-    t.g = 255;
-    t.positionY = 300;
-    t.characterSize = m_screenHeight / 30;
-    t.text = menuItems[0].menuName;
-    drawText(t);
-    t.positionY.value() += 40;
-    int itemCount = 0;
-    for (const auto& menuItem : menuItems) {
-        if (itemCount == currentlyHighlightedItem) {
-            t.r = 255;
-            t.g = 255;
-            t.b = 255;
-        } else {
-            t.r = 0;
-            t.g = 150;
-            t.b = 0;
-        }
-        t.characterSize = m_screenHeight / 40;
-        t.text = menuItem.text;
-        t.positionY.value() += m_screenHeight / 34.f;
-        drawText(t);
-        ++itemCount;
-    }
+}
+
+void SfmlAdapter::setMouseCursorVisible(bool value){
+    m_window.setMouseCursorVisible(value);
 }
 
 void SfmlAdapter::imageDisplay(
@@ -241,7 +233,7 @@ void SfmlAdapter::registerControlHandler(
 
 void SfmlAdapter::processInput(bool paused)
 {
-    // This is called once per frame.
+    // This is called once per frame, unless a menu is active.
 
     // Process SDL gamepad events:
     auto gamepadEvents = m_gamepad.getEvents();
@@ -370,68 +362,6 @@ void SfmlAdapter::processInput(bool paused)
         // we don't process other types of events currently
     }
     return;
-}
-
-KeyControls SfmlAdapter::processMenuInput()
-{
-    // If this function is called, the menu is displayed, so we react differently
-    // to various keys. Note only one event is returned per call
-
-    // Process SDL gamepad events:
-    auto gamepadEvents = m_gamepad.getEvents();
-    for (const auto& evt : gamepadEvents) {
-        switch (evt.eventType) {
-            case gamepad::EventType::Analogue:
-                {
-                    if (evt.analogue.leftY < -0.2f || evt.analogue.rightY < -0.2f) {
-                        return joystickRateLimiter(KeyControls::DOWN);
-                    }
-                    if (evt.analogue.leftY > 0.2f || evt.analogue.rightY > 0.2f) {
-                        return joystickRateLimiter(KeyControls::UP);
-                    }
-                    break;
-                }
-            case gamepad::EventType::ButtonPressed:
-                if (evt.buttonType == gamepad::ButtonType::DPadDown) {
-                    return KeyControls::DOWN;
-                }
-                if (evt.buttonType == gamepad::ButtonType::DPadUp) {
-                    return KeyControls::UP;
-                }
-                if (evt.buttonType == gamepad::ButtonType::East
-                    || evt.buttonType == gamepad::ButtonType::Start) {
-                    return KeyControls::EXIT;
-                }
-                if (evt.buttonType == gamepad::ButtonType::South) {
-                    return KeyControls::ENTER;
-                }
-            default:
-                // do nothing
-                break;
-        }
-    }
-
-    for (;;) {
-        const std::optional event = m_window.pollEvent();
-        if (event.has_value() && event->is<sf::Event::KeyPressed>()) {
-            switch (event->getIf<sf::Event::KeyPressed>()->scancode) {
-                case sf::Keyboard::Scancode::Escape:
-                    return KeyControls::EXIT;
-                case sf::Keyboard::Scancode::Enter:
-                    return KeyControls::ENTER;
-                case sf::Keyboard::Scancode::Down:
-                    return KeyControls::DOWN;
-                case sf::Keyboard::Scancode::Up:
-                    return KeyControls::UP;
-                default:
-                    break;
-            }
-        } else {
-            break;
-        }
-    }
-
-    return KeyControls::NONE;
 }
 
 void SfmlAdapter::soundLoad(const std::string& key, const std::string& filename)

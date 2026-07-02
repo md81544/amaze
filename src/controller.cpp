@@ -1,5 +1,7 @@
 #include "controller.h"
+#include "gamemodel.h"
 #include "gameshape.h"
+#include "igraphicsadapter.h"
 #include "log.h" // IWYU pragma: keep
 #include "utils.h"
 
@@ -97,7 +99,6 @@ void Controller::registerControlHandlers()
 
     // Menu
     m_graphicsAdapter.registerControlHandler(KeyControls::MENU, [&](const bool, const float) {
-        m_gameModel.resetMenuPosition();
         m_gameModel.setGameState(GameState::Menu);
     });
 
@@ -116,6 +117,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
 
     // TODO splash screen?
     bool endingLevel = false;
+    MenuType currentMenu = MenuType::None;
     m_graphicsAdapter.setFrameRate(100);
     m_graphicsAdapter.musicPlayLoop();
 
@@ -139,31 +141,17 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
 
             switch (m_gameModel.getGameState()) {
                 case GameState::Menu:
-                    m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
-                    m_gameModel.getShipModel()->setIsAccelerating(false, 0.f);
-                    m_view.stopSounds();
-                    {
-                        KeyControls key = m_graphicsAdapter.processMenuInput();
-                        if (key == KeyControls::EXIT) {
-                            m_gameModel.setMenu("Main Menu");
-                            m_gameModel.getShipModel()->setVisible(true);
-                            m_gameModel.setGameState(GameState::Running);
-                        } else if (key == KeyControls::DOWN) {
-                            m_gameModel.menuDown();
-                        } else if (key == KeyControls::UP) {
-                            m_gameModel.menuUp();
-                        } else if (key == KeyControls::ENTER) {
-                            auto [selected, item] = m_gameModel.menuSelect();
-                            if (selected == MenuItemId::QUIT) {
-                                m_gameModel.setGameState(GameState::Quit);
-                            } else if (selected == MenuItemId::LEVEL_FILE) {
-                                if (item.has_value()) {
-                                    m_gameModel.setMenu("Main Menu");
-                                    m_gameModel.levelLoad(item.value().data);
-                                    m_gameModel.setGameState(GameState::Running);
-                                }
-                            }
-                        }
+                    if (currentMenu == MenuType::None) {
+                        currentMenu = MenuType::Main;
+                        m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
+                        m_gameModel.getShipModel()->setIsAccelerating(false, 0.f);
+                        m_view.stopSounds();
+                        m_graphicsAdapter.setMouseCursorVisible(true);
+                    }
+                    m_graphicsAdapter.menuProcessInput();
+                    if (currentMenu == MenuType::Exit) {
+                        currentMenu = MenuType::None;
+                        m_gameModel.setGameState(GameState::Running);
                     }
                     break;
                 case GameState::Paused:
@@ -183,7 +171,6 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                         // in case the user wants a different level
                         m_gameModel.levelLoad(m_gameModel.levelFileName());
                         m_gameModel.getShipModel()->setVisible(false);
-                        m_gameModel.resetMenuPosition();
                         m_gameModel.setGameState(GameState::Menu);
                     });
                     break;
@@ -203,7 +190,6 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                         // in case the user wants a different level
                         m_gameModel.levelLoad(m_gameModel.levelFileName());
                         m_gameModel.getShipModel()->setVisible(false);
-                        m_gameModel.resetMenuPosition();
                         m_gameModel.setGameState(GameState::Menu);
                     });
                     break;
@@ -221,6 +207,9 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
             }
             m_graphicsAdapter.cls();
             m_view.update();
+            if (m_gameModel.getGameState() == GameState::Menu) {
+                currentMenu = m_graphicsAdapter.menuDraw(currentMenu);
+            }
             m_graphicsAdapter.redraw();
         }
     }

@@ -6,8 +6,6 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
-#include <map>
-#include <regex>
 #include <thread>
 
 namespace marengo {
@@ -15,7 +13,7 @@ namespace amaze {
 
 namespace {
 
-std::string getLevelDescription(std::filesystem::path levelFile)
+[[maybe_unused]] std::string getLevelDescription(std::filesystem::path levelFile)
 {
     std::ifstream in(levelFile.string());
     if (!in) {
@@ -40,61 +38,6 @@ GameModel::GameModel(const std::string& dataPath)
 {
     m_shipModel
         = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
-
-    // Populate the menu structure
-    m_menu.addMenuItem(
-        "Main Menu", { "Main Menu", MenuItemId::LEVEL_SELECT, "Select Level", 0, "Select Level" });
-    m_menu.addMenuItem("Main Menu", { "Main Menu", MenuItemId::OPTIONS, "Options", 1 });
-    m_menu.addMenuItem("Main Menu", { "Main Menu", MenuItemId::QUIT, "Quit", 2 });
-
-    // Sub-menu for level selection
-    std::regex regexPattern("^level.*cfg$");
-    std::map<int, std::filesystem::path> sortedPaths;
-    for (const auto& entry : std::filesystem::directory_iterator(dataPath)) {
-        if (entry.is_regular_file()) {
-            const std::string fileName = entry.path().filename().string();
-            if (std::regex_match(fileName, regexPattern)) {
-                std::string num;
-                for (const auto c : fileName) {
-                    if (isdigit(c)) {
-                        num += c;
-                    }
-                }
-                sortedPaths[std::stoi(num)] = entry;
-            }
-        }
-    }
-    std::string menuNameBase = "Select Level";
-    std::string menuName = menuNameBase;
-    m_menu.addMenuItem(menuName, { menuName, MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
-    int counter = 1;
-    int menuCounter = 1;
-    for (const auto& p : sortedPaths) {
-        m_menu.addMenuItem(
-            menuName,
-            { menuName,
-              MenuItemId::LEVEL_FILE,
-              std::to_string(p.first) + " " + getLevelDescription(p.second),
-              counter,
-              std::nullopt,
-              p.second.string() });
-        ++counter;
-        if (counter > 10) {
-            // add to another submenu
-            std::string newMenuName = menuNameBase + " (" + std::to_string(menuCounter) + ")";
-            m_menu.addMenuItem(
-                menuName, { menuName, MenuItemId::LEVEL_SELECT, "<more>", counter, newMenuName });
-            ++menuCounter;
-            menuName = newMenuName;
-            m_menu.addMenuItem(
-                menuName, { menuName, MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
-            counter = 1;
-        }
-    }
-    if (counter > 1) {
-        m_menu.addMenuItem(
-            menuName, { menuName, MenuItemId::LEVEL_SELECT, "<back>", 0, "Main Menu" });
-    }
 }
 
 void GameModel::initialise(const std::string& levelFileName)
@@ -510,38 +453,6 @@ void GameModel::setBreakableExploding(bool value /* =true */)
 {
     m_breakableExploding = value;
     m_breakableExplosionShape->setVisible(value);
-}
-
-void GameModel::resetMenuPosition()
-{
-    m_menu.resetMenuPosition();
-}
-
-std::vector<MenuItem> GameModel::getCurrentMenu()
-{
-    std::string currentMenuName = m_menu.getCurrentMenuName();
-    auto vec = m_menu.getMenuItems(currentMenuName);
-    return vec;
-}
-
-void GameModel::menuDown()
-{
-    m_menu.highlightNextItem();
-}
-
-void GameModel::menuUp()
-{
-    m_menu.highlightPreviousItem();
-}
-
-std::tuple<MenuItemId, std::optional<MenuItem>> GameModel::menuSelect()
-{
-    return m_menu.selectCurrentItem();
-}
-
-void GameModel::setMenu(const std::string& menuName)
-{
-    m_menu.getMenuItems(menuName);
 }
 
 void GameModel::rebuildShip()
