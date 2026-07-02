@@ -63,7 +63,7 @@ void Imgui::processEvents()
     }
 }
 
-void Imgui::build(marengo::amaze::MenuType _)
+void Imgui::build(marengo::amaze::MenuType)
 {
     ImGui::SFML::Update(m_window, m_deltaClock.restart());
     ImGui::SetNextWindowSize(ImVec2(800, 400), ImGuiCond_Always);
@@ -90,7 +90,7 @@ void Imgui::build(marengo::amaze::MenuType _)
     if (ImGui::Button("Log state")) {
         mgo::Log::debug(
             std::format(
-                "thing={} other={} name={} gain={}",
+                "thing={} other={} name={} deadzone={}",
                 m_enableThing,
                 m_enableOtherThing,
                 m_nameBuffer,
