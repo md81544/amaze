@@ -67,6 +67,10 @@ void Imgui::build(marengo::amaze::MenuType _)
 {
     ImGui::SFML::Update(m_window, m_deltaClock.restart());
     ImGui::SetNextWindowSize(ImVec2(800, 400), ImGuiCond_Always);
+    auto sz = m_window.getSize();
+    // Position menu in centre:
+    ImGui::SetNextWindowPos(
+        { static_cast<float>(sz.x / 2.f - 400), static_cast<float>(sz.y / 2.f - 200) });
     ImGui::Begin(
         "Amaze",
         nullptr,
