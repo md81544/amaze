@@ -48,6 +48,7 @@ Imgui::Imgui(sf::RenderWindow& window, const std::string& dataDir)
     style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.f, 0.8f, 0.f, 0.5f);
     style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.f, 0.9f, 0.f, 0.5f);
     style.Colors[ImGuiCol_NavHighlight] = ImVec4(0.f, 0.65f, 0.f, 1.00f);
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.f, 1.f, 0.f, 1.00f);
     style.WindowRounding = 8.0f;
 }
 
