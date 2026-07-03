@@ -65,7 +65,7 @@ void Imgui::processEvents()
     }
 }
 
-void Imgui::build(marengo::amaze::MenuType)
+void Imgui::build(marengo::amaze::MenuType menuType)
 {
     ImGui::SFML::Update(m_window, m_deltaClock.restart());
     ImGui::SetNextWindowSize(ImVec2(800, 400), ImGuiCond_Always);
@@ -79,26 +79,20 @@ void Imgui::build(marengo::amaze::MenuType)
         ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_Modal
             | ImGuiWindowFlags_NoMove);
 
-    ImGui::Text("Main Menu");
-    ImGui::Separator();
+    switch (menuType) { // Currently there is only one menu
+        case marengo::amaze::MenuType::Main:
+            ImGui::Text("Options");
+            ImGui::Separator();
 
-    ImGui::Checkbox("Enable thing", &m_enableThing);
-    ImGui::Checkbox("Enable other thing", &m_enableOtherThing);
-
-    ImGui::InputText("Name", m_nameBuffer, sizeof(m_nameBuffer));
-
-    ImGui::SliderFloat("Stick dead zone %", &m_deadZone, 0.0f, 0.25f);
-
-    if (ImGui::Button("Log state")) {
-        mgo::Log::debug(
-            std::format(
-                "thing={} other={} name={} deadzone={}",
-                m_enableThing,
-                m_enableOtherThing,
-                m_nameBuffer,
-                m_deadZone));
+            ImGui::SliderInt("Background music volume %", &m_backgroundMusicVolume, 0, 100);
+            ImGui::SliderInt("Stick dead zone %", &m_deadZonePercent, 0, 25);
+            ImGui::Separator();
+            ImGui::Text("Level Selection");
+            ImGui::Separator();
+            break;
+        default:
+            break;
     }
-
     ImGui::SetCursorPosY(360.f);
     ImGui::Separator();
 

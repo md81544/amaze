@@ -29,15 +29,21 @@ public:
         return m_quitGame;
     }
 
+    int getBackgroundMusicVolumePercent()
+    {
+        return m_backgroundMusicVolume;
+    }
+
+    int getDeadZonePercent()
+    {
+        return m_deadZonePercent;
+    }
+
 private:
     sf::RenderWindow& m_window;
-    // TODO real member variables, need to add getters as well
-    // so we can query them from the caller
-    bool m_enableThing = false;
-    bool m_enableOtherThing = true;
-    char m_nameBuffer[128] = "This is some text";
+    int m_backgroundMusicVolume { 40 };
     bool m_quitGame { false };
-    float m_deadZone = 0.05;
+    int m_deadZonePercent { 5 };
     marengo::amaze::MenuType m_menuState;
     sf::Clock m_deltaClock;
 };
