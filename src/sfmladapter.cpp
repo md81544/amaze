@@ -2,7 +2,7 @@
 #include "exceptions.h"
 #include "gamepad.h"
 #include "igraphicsadapter.h"
-#include "log.h"  // IWYU pragma: keep
+#include "log.h" // IWYU pragma: keep
 
 #include <chrono>
 #include <cmath>
@@ -197,13 +197,14 @@ void SfmlAdapter::drawText(const Text& text)
 MenuType SfmlAdapter::menuDraw(MenuType menuType)
 {
     // We use imgui-sfml for all menus.
-    // Showing the menu means all SFML/SDL input is routed to here 
+    // Showing the menu means all SFML/SDL input is routed to here
     // TODO call Imgui::render();
     m_imgui.build(menuType);
     return m_imgui.render();
 }
 
-void SfmlAdapter::menuProcessInput(){
+void SfmlAdapter::menuProcessInput()
+{
     m_imgui.processEvents();
     // We can check button presses etc here
     if (m_imgui.getQuitGame()) {
@@ -211,7 +212,8 @@ void SfmlAdapter::menuProcessInput(){
     }
 }
 
-void SfmlAdapter::setMouseCursorVisible(bool value){
+void SfmlAdapter::setMouseCursorVisible(bool value)
+{
     m_window.setMouseCursorVisible(value);
 }
 
@@ -382,7 +384,8 @@ void SfmlAdapter::musicLoad(const std::string& filename)
     }
 }
 
-void SfmlAdapter::musicPlayLoop() {
+void SfmlAdapter::musicPlayLoop()
+{
     // Default volume is 100.f%
     m_music.setLooping(true);
     m_music.play();

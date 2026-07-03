@@ -138,9 +138,9 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                 goto end_loops;
             }
             m_gameModel.savePosition();
-
             switch (m_gameModel.getGameState()) {
                 case GameState::Menu:
+                    m_graphicsAdapter.setMouseCursorVisible(true);
                     if (currentMenu == MenuType::None) {
                         currentMenu = MenuType::Main;
                         m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
@@ -198,6 +198,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                     m_gameModel.process(); // perform all processing required per loop
                     break;
                 case GameState::Running:
+                    m_graphicsAdapter.setMouseCursorVisible(false);
                     m_graphicsAdapter.processInput(false);
                     m_gameModel.process(); // perform all processing required per loop
                     collisionChecks();

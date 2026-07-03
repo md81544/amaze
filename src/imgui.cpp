@@ -27,6 +27,7 @@ Imgui::Imgui(sf::RenderWindow& window, const std::string& dataDir)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.BackendFlags |= ImGuiBackendFlags_HasGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
     // Colours
     // Easiest approach: pick a built-in style, then tweak individual colours.
