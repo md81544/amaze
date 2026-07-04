@@ -1,0 +1,14 @@
+[Desktop Entry]
+Comment=
+Exec=/home/mcd/src/amaze/amaze
+Icon=/home/mcd/src/amaze/artwork/amaze.png
+Name=Amaze
+NoDisplay=false
+Path=
+PrefersNonDefaultGPU=false
+StartupNotify=false
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=
