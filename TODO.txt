@@ -1,10 +1,14 @@
 * Gamepad identification (press "A" at start) to distinguish between Nintendo and others
 
-* Options screen (use LatheControl dialog approach)
-  - rumble intensity
-  - controls to use
+* Save config (e.g. background music volume, stick deadzone, last level)
+
+* Rename master branch to main
+
+* Log level in cfg file
 
 * Objects which are not obstacles - just decoration
+
+* imgui config for resolution / windowed
 
 * Regenerative power? Power level drops with thrust and refills over time
 
@@ -12,7 +16,6 @@
 * Emergency stop? Uses a life?
 * Splash screen
 * Change level data file format to YAML or JSON? Low/no priority
-* Keyboard controls don't work properly if joystick is attached
 * (Just an idea) a black cut-out circle around the ship so that rotation doesn't affect
   how far you can look?
    - or make the ship point east so most look-ahead is in front?
@@ -20,3 +23,4 @@
     * A compass?
     * Maybe a breadcrumb trail?
     * Or a replay of the last few saved positions?
+    * Or just leave it as is

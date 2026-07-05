@@ -44,7 +44,7 @@ public:
     virtual void drawStatusBar() override;
     virtual void drawText(const Text& text) override;
     virtual MenuType menuDraw(MenuType menuType) override;
-    virtual void menuProcessInput() override;
+    virtual std::string menuProcessInput() override;
     virtual void setMouseCursorVisible(bool value) override;
     virtual void registerControlHandler(
         KeyControls key,
@@ -57,6 +57,7 @@ public:
     virtual void soundFade(const std::string& key, const int msecs) override;
     virtual void musicLoad(const std::string& filename) override;
     virtual void musicPlayLoop() override;
+    virtual void setMusicVolumePercent(float vol) override;
     virtual void
     rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs) override;
     virtual float getScalingFactor() override;

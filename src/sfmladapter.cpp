@@ -5,6 +5,7 @@
 #include "log.h" // IWYU pragma: keep
 
 #include <SFML/Window/Keyboard.hpp>
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -204,13 +205,15 @@ MenuType SfmlAdapter::menuDraw(MenuType menuType)
     return m_imgui.render();
 }
 
-void SfmlAdapter::menuProcessInput()
+std::string SfmlAdapter::menuProcessInput()
 {
     m_imgui.processEvents();
     // We can check button presses etc here
     if (m_imgui.getQuitGame()) {
         m_controlHandlers[KeyControls::QUIT](true, 0.f);
     }
+    setMusicVolumePercent(m_imgui.getBackgroundMusicVolumePercent());
+    return m_imgui.getLevelFilename(); // if not empty this is taken as a load command
 }
 
 void SfmlAdapter::setMouseCursorVisible(bool value)
@@ -392,7 +395,14 @@ void SfmlAdapter::musicPlayLoop()
 {
     // Default volume is 100.f%
     m_music.setLooping(true);
+    m_music.setVolume(100.f);
     m_music.play();
+}
+
+void SfmlAdapter::setMusicVolumePercent(float vol)
+{
+    float clampedVolume = std::clamp(vol, 0.f, 100.f);
+    m_music.setVolume(clampedVolume);
 }
 
 void SfmlAdapter::soundPlay(const std::string& key)

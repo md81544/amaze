@@ -78,7 +78,7 @@ public:
     virtual void drawStatusBar() = 0;
     virtual void drawText(const Text& text) = 0;
     virtual MenuType menuDraw(MenuType menuType) = 0;
-    virtual void menuProcessInput() = 0;
+    virtual std::string menuProcessInput() = 0;
     virtual void setMouseCursorVisible(bool value) = 0;
 
     // Screem
@@ -94,6 +94,7 @@ public:
     virtual void soundFade(const std::string& key, const int msecs) = 0;
     virtual void musicLoad(const std::string& filename) = 0;
     virtual void musicPlayLoop() = 0;
+    virtual void setMusicVolumePercent(float vol) = 0;
 
     // Physical
     virtual void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)

@@ -148,7 +148,13 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                         m_view.stopSounds();
                         m_graphicsAdapter.setMouseCursorVisible(true);
                     }
-                    m_graphicsAdapter.menuProcessInput();
+                    {
+                        std::string fileToLoad = m_graphicsAdapter.menuProcessInput();
+                        if (!fileToLoad.empty()) {
+                            m_gameModel.levelLoad(fileToLoad);
+                            mgo::Log::debug(std::format("fileToLoad = {}", fileToLoad));
+                        }
+                    }
                     if (currentMenu == MenuType::Exit) {
                         currentMenu = MenuType::None;
                         m_gameModel.setGameState(GameState::Running);

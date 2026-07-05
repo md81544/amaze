@@ -67,8 +67,8 @@ int main(int argc, char* argv[])
         std::filesystem::create_directories(logDir);
 #endif
         mgo::ConfigReader config(std::format("{}/amaze.cfg", configDir));
-        mgo::Log::init(std::format("{}/debug.log", logDir));
-        mgo::Log::debug("Starting amaze");
+        mgo::Log::init(std::format("{}/amaze.log", logDir));
+        mgo::Log::info("Starting amaze");
 
         // The window's dimensions' proportions should mirror the physical screen's dimensions so
         // everything is in proportion if we go fullscreen

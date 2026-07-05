@@ -40,13 +40,27 @@ public:
         return m_deadZonePercent;
     }
 
+    std::string getLevelFilename()
+    {
+        // Note! Calling this will reset m_fileSelectedIndex if a filename is returned
+        std::string rc;
+        if (m_fileSelectedIndex != -1) {
+            auto result = m_levelFileLister.getFilename(m_fileSelectedIndex);
+            if (result.has_value()) {
+                rc = *result;
+                m_fileSelectedIndex = -1;
+            }
+        }
+        return rc;
+    }
+
 private:
     sf::RenderWindow& m_window;
-    int m_backgroundMusicVolume { 40 };
+    int m_backgroundMusicVolume { 100 };
     bool m_quitGame { false };
     int m_deadZonePercent { 5 };
     int m_fileSelectedIndex { -1 };
-    marengo::amaze::MenuType m_menuState{ marengo::amaze::MenuType::None };
+    marengo::amaze::MenuType m_menuState { marengo::amaze::MenuType::None };
     sf::Clock m_deltaClock;
     marengo::amaze::LevelFileLister m_levelFileLister;
 };

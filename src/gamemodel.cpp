@@ -1,5 +1,6 @@
 #include "gamemodel.h"
 #include "exceptions.h"
+#include "log.h"
 
 #include <cassert>
 #include <chrono>
@@ -120,6 +121,7 @@ void GameModel::levelLoad(size_t levelNum)
 // TODO - put this in the controller?
 void GameModel::levelLoad(const std::string& filename)
 {
+    mgo::Log::debug(std::format("Loading from '{}'", filename));
     // TODO convert this format to YAML or JSON?
     // The file format is as follows:
     // The first line should be "!~<timelimit>~<fuel>~<x>~<y>~" followed by
@@ -144,6 +146,7 @@ void GameModel::levelLoad(const std::string& filename)
 
     std::ifstream in(filename);
     if (!in) {
+        mgo::Log::debug(std::format("Failed to load level file '{}'", filename));
         THROWUP(AmazeRuntimeException, "Failed to load Level file " + filename);
     }
     std::string currentLine;

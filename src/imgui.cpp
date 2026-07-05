@@ -95,7 +95,7 @@ void Imgui::build(marengo::amaze::MenuType menuType)
                 ImGui::SliderInt("Background music volume %", &m_backgroundMusicVolume, 0, 100);
                 ImGui::SliderInt("Stick dead zone %", &m_deadZonePercent, 0, 25);
                 ImGui::Separator();
-                ImGui::Text("Level Selection");
+                ImGui::Text("Level Selection (double click to load)");
                 ImGui::Separator();
                 auto filesMap = m_levelFileLister.getFileMap();
 
@@ -106,11 +106,12 @@ void Imgui::build(marengo::amaze::MenuType menuType)
                     for (const auto& pr : filesMap) {
                         bool isSelected = (m_fileSelectedIndex == count);
                         if (ImGui::Selectable(pr.second.description.c_str(), isSelected)) {
-                            m_fileSelectedIndex = count;
+                            // m_fileSelectedIndex = count;
                         }
                         if (ImGui::IsItemHovered()
                             && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
                             // double-clicked on item
+                            m_fileSelectedIndex = pr.second.number;
                             mgo::Log::debug(
                                 std::format(
                                     "Double clicked on \"{}\" ({})",
