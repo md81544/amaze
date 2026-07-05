@@ -50,6 +50,7 @@ add_executable(${APP_NAME}
     src/gameshape.cpp
     src/gamepad.cpp
     src/imgui.cpp
+    src/levelfilelister.cpp
     src/main.cpp
     src/scheduler.cpp
     src/sfmladapter.cpp

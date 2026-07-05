@@ -12,6 +12,7 @@
 // render() function after doing other window draws.
 
 #include "igraphicsadapter.h"
+#include "levelfilelister.h"
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Window/Event.hpp>
 
@@ -44,6 +45,8 @@ private:
     int m_backgroundMusicVolume { 40 };
     bool m_quitGame { false };
     int m_deadZonePercent { 5 };
-    marengo::amaze::MenuType m_menuState;
+    int m_fileSelectedIndex { -1 };
+    marengo::amaze::MenuType m_menuState{ marengo::amaze::MenuType::None };
     sf::Clock m_deltaClock;
+    marengo::amaze::LevelFileLister m_levelFileLister;
 };

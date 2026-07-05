@@ -1,12 +1,12 @@
 #pragma once
 
-#include <stdexcept>
 #include <string>
-#include <typeinfo>
 
 namespace marengo {
 namespace amaze {
 
+// TODO: replace THROWUP macro with modern C++
+// Exceptions should also automatically log
 #ifdef __linux
 #define THROWUP(ex, message) throw ex(__FILE__, __LINE__, __func__, message)
 #elif __APPLE__

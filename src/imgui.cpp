@@ -4,9 +4,11 @@
 
 #include <imgui-SFML.h>
 #include <imgui.h>
+#include <string>
 
 Imgui::Imgui(sf::RenderWindow& window, const std::string& dataDir)
     : m_window(window)
+    , m_levelFileLister(dataDir)
 {
     if (!ImGui::SFML::Init(window)) {
         mgo::Log::error("Could not initialise Imgui-Sfml");
@@ -40,6 +42,7 @@ Imgui::Imgui(sf::RenderWindow& window, const std::string& dataDir)
     style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.f, 0.9f, 0.0f, 1.00f);
     style.Colors[ImGuiCol_Button] = ImVec4(0.f, 0.45f, 0.f, 1.00f);
     style.Colors[ImGuiCol_ButtonHovered] = ImVec4(0.0f, 0.65f, 0.0f, 1.00f);
+    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.f, 1.f, 0.f, 1.00f);
     style.Colors[ImGuiCol_CheckMark] = ImVec4(0.f, 0.65f, 0.f, 1.00f);
     style.Colors[ImGuiCol_CheckMark] = ImVec4(0.f, 0.65f, 0.f, 1.00f);
     // The following affects all widgets, e.g. text input and checkboxes:
@@ -49,7 +52,11 @@ Imgui::Imgui(sf::RenderWindow& window, const std::string& dataDir)
     style.Colors[ImGuiCol_SliderGrab] = ImVec4(0.f, 0.8f, 0.f, 0.5f);
     style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.f, 0.9f, 0.f, 0.5f);
     style.Colors[ImGuiCol_NavHighlight] = ImVec4(0.f, 0.65f, 0.f, 1.00f);
-    style.Colors[ImGuiCol_ButtonActive] = ImVec4(0.f, 1.f, 0.f, 1.00f);
+    // Selectable items
+    style.Colors[ImGuiCol_Header] = ImVec4(0.f, 0.25f, 0.f, 1.00f); // selected item background
+    style.Colors[ImGuiCol_HeaderHovered]
+        = ImVec4(0.0f, 0.35f, 0.0f, 1.00f); // hovered item background
+    style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.f, 0.65f, 0.f, 1.00f); // item being clicked
     style.WindowRounding = 8.0f;
 }
 
@@ -81,15 +88,45 @@ void Imgui::build(marengo::amaze::MenuType menuType)
 
     switch (menuType) { // Currently there is only one menu
         case marengo::amaze::MenuType::Main:
-            ImGui::Text("Options");
-            ImGui::Separator();
+            {
+                ImGui::Text("Options");
+                ImGui::Separator();
 
-            ImGui::SliderInt("Background music volume %", &m_backgroundMusicVolume, 0, 100);
-            ImGui::SliderInt("Stick dead zone %", &m_deadZonePercent, 0, 25);
-            ImGui::Separator();
-            ImGui::Text("Level Selection");
-            ImGui::Separator();
-            break;
+                ImGui::SliderInt("Background music volume %", &m_backgroundMusicVolume, 0, 100);
+                ImGui::SliderInt("Stick dead zone %", &m_deadZonePercent, 0, 25);
+                ImGui::Separator();
+                ImGui::Text("Level Selection");
+                ImGui::Separator();
+                auto filesMap = m_levelFileLister.getFileMap();
+
+                if (ImGui::BeginListBox(
+                        "##filelist",
+                        ImVec2(-FLT_MIN, 9 * ImGui::GetTextLineHeightWithSpacing()))) {
+                    int count = 0;
+                    for (const auto& pr : filesMap) {
+                        bool isSelected = (m_fileSelectedIndex == count);
+                        if (ImGui::Selectable(pr.second.description.c_str(), isSelected)) {
+                            m_fileSelectedIndex = count;
+                        }
+                        if (ImGui::IsItemHovered()
+                            && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                            // double-clicked on item
+                            mgo::Log::debug(
+                                std::format(
+                                    "Double clicked on \"{}\" ({})",
+                                    pr.second.description,
+                                    pr.second.filename));
+                        }
+                        // Keep the selected item scrolled into view when nav moves to it
+                        if (isSelected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                        ++count;
+                    }
+                }
+                ImGui::EndListBox();
+                break;
+            }
         default:
             break;
     }

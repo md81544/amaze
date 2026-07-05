@@ -4,6 +4,7 @@
 #include "igraphicsadapter.h"
 #include "log.h" // IWYU pragma: keep
 
+#include <SFML/Window/Keyboard.hpp>
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -295,6 +296,9 @@ void SfmlAdapter::processInput(bool paused)
                     } else {
                         m_controlHandlers[KeyControls::MENU](true, 0.f);
                     }
+                    break;
+                case sf::Keyboard::Scancode::Tab:
+                    m_controlHandlers[KeyControls::MENU](true, 0.f);
                     break;
                 case sf::Keyboard::Scancode::Up:
                 case sf::Keyboard::Scancode::Space:
