@@ -2,6 +2,7 @@
 #include "exceptions.h"
 #include "utils.h"
 
+#include <expected>
 #include <filesystem>
 #include <fstream>
 #include <map>
@@ -59,6 +60,15 @@ LevelFileLister::LevelFileLister(std::string_view dataDir)
 std::map<int, FileData> LevelFileLister::getFileMap()
 {
     return m_fileDataMap;
+}
+
+std::expected<std::string, std::string> LevelFileLister::getFilename(int index)
+{
+    auto it = m_fileDataMap.find(index);
+    if (it != m_fileDataMap.end()) {
+        return it->second.filename;
+    }
+    return std::unexpected { "Could not locate level at index" };
 }
 
 } // namespace amaze

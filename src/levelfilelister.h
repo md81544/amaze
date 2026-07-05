@@ -1,5 +1,6 @@
 #pragma once
 
+#include <expected>
 #include <map>
 #include <string>
 #include <string_view>
@@ -21,6 +22,7 @@ class LevelFileLister {
         explicit LevelFileLister(std::string_view dataDir);
         ~LevelFileLister(){}
         std::map<int, FileData> getFileMap();
+        std::expected<std::string,std::string> getFilename(int index);
     private:
     std::map<int, FileData> m_fileDataMap;
 };
