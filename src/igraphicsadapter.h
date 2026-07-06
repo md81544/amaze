@@ -11,6 +11,12 @@
 namespace marengo {
 namespace amaze {
 
+struct MenuResults {
+    int musicVolumePercent { 100 };
+    int stickDeadZonePercent { 10 };
+    std::string levelFileToLoad;
+};
+
 enum class KeyControls {
     LEFT,
     RIGHT,
@@ -28,10 +34,10 @@ enum class KeyControls {
 
 enum class MenuType {
     None, // normal game play
-    Main,
-    LevelSelect,
-    Options,
-    Exit, // menu has just exited
+    Main, // Currently just one type of menu, we may want to add others
+    OK, // menu has just exited with "OK"
+    Cancel, // menu has just exited with "Cancel"
+    Exit, // user selected "exit game"
 };
 
 struct Text {
@@ -78,7 +84,8 @@ public:
     virtual void drawStatusBar() = 0;
     virtual void drawText(const Text& text) = 0;
     virtual MenuType menuDraw(MenuType menuType) = 0;
-    virtual std::string menuProcessInput() = 0;
+    virtual void menuProcessEvents() = 0;
+    virtual MenuResults menuGetResults() = 0;
     virtual void setMouseCursorVisible(bool value) = 0;
 
     // Screem

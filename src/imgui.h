@@ -23,44 +23,16 @@ public:
     void processEvents();
     void build(marengo::amaze::MenuType menuType);
     marengo::amaze::MenuType render();
-
-    // Getters for widget states
-    bool getQuitGame()
+    marengo::amaze::MenuResults menuGetResults()
     {
-        return m_quitGame;
-    }
-
-    int getBackgroundMusicVolumePercent()
-    {
-        return m_backgroundMusicVolume;
-    }
-
-    int getDeadZonePercent()
-    {
-        return m_deadZonePercent;
-    }
-
-    std::string getLevelFilename()
-    {
-        // Note! Calling this will reset m_fileSelectedIndex if a filename is returned
-        std::string rc;
-        if (m_fileSelectedIndex != -1) {
-            auto result = m_levelFileLister.getFilename(m_fileSelectedIndex);
-            if (result.has_value()) {
-                rc = *result;
-                m_fileSelectedIndex = -1;
-            }
-        }
-        return rc;
+        return m_results;
     }
 
 private:
-    sf::RenderWindow& m_window;
-    int m_backgroundMusicVolume { 100 };
-    bool m_quitGame { false };
-    int m_deadZonePercent { 5 };
-    int m_fileSelectedIndex { -1 };
-    marengo::amaze::MenuType m_menuState { marengo::amaze::MenuType::None };
     sf::Clock m_deltaClock;
+    sf::RenderWindow& m_window;
+    int m_currentListBoxIndex { -1 };
+    marengo::amaze::MenuType m_menuState { marengo::amaze::MenuType::None };
+    marengo::amaze::MenuResults m_results;
     marengo::amaze::LevelFileLister m_levelFileLister;
 };

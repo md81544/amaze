@@ -44,7 +44,8 @@ public:
     virtual void drawStatusBar() override;
     virtual void drawText(const Text& text) override;
     virtual MenuType menuDraw(MenuType menuType) override;
-    virtual std::string menuProcessInput() override;
+    virtual void menuProcessEvents() override;
+    virtual MenuResults menuGetResults() override;
     virtual void setMouseCursorVisible(bool value) override;
     virtual void registerControlHandler(
         KeyControls key,

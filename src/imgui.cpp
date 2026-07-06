@@ -36,7 +36,7 @@ Imgui::Imgui(sf::RenderWindow& window, const std::string& dataDir)
     ImGui::StyleColorsDark(); // or StyleColorsLight(), StyleColorsClassic()
 
     ImGuiStyle& style = ImGui::GetStyle();
-    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.f, 0.2f, 0.0f, 0.25f);
+    style.Colors[ImGuiCol_WindowBg] = ImVec4(0.f, 0.3f, 0.0f, 0.25f);
     style.Colors[ImGuiCol_TitleBg] = ImVec4(0.f, 0.5f, 0.f, 1.00f);
     style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.f, 0.5f, 0.f, 1.00f);
     style.Colors[ImGuiCol_NavWindowingHighlight] = ImVec4(0.f, 0.9f, 0.0f, 1.00f);
@@ -53,7 +53,7 @@ Imgui::Imgui(sf::RenderWindow& window, const std::string& dataDir)
     style.Colors[ImGuiCol_SliderGrabActive] = ImVec4(0.f, 0.9f, 0.f, 0.5f);
     style.Colors[ImGuiCol_NavHighlight] = ImVec4(0.f, 0.65f, 0.f, 1.00f);
     // Selectable items
-    style.Colors[ImGuiCol_Header] = ImVec4(0.f, 0.25f, 0.f, 1.00f); // selected item background
+    style.Colors[ImGuiCol_Header] = ImVec4(0.f, 0.85f, 0.f, 1.00f); // selected item background
     style.Colors[ImGuiCol_HeaderHovered]
         = ImVec4(0.0f, 0.35f, 0.0f, 1.00f); // hovered item background
     style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.f, 0.65f, 0.f, 1.00f); // item being clicked
@@ -92,10 +92,11 @@ void Imgui::build(marengo::amaze::MenuType menuType)
                 ImGui::Text("Options");
                 ImGui::Separator();
 
-                ImGui::SliderInt("Background music volume %", &m_backgroundMusicVolume, 0, 100);
-                ImGui::SliderInt("Stick dead zone %", &m_deadZonePercent, 0, 25);
+                ImGui::SliderInt(
+                    "Background music volume %", &m_results.musicVolumePercent, 0, 100);
+                ImGui::SliderInt("Stick dead zone %", &m_results.stickDeadZonePercent, 0, 25);
                 ImGui::Separator();
-                ImGui::Text("Level Selection (double click to load)");
+                ImGui::Text("Level Selection");
                 ImGui::Separator();
                 auto filesMap = m_levelFileLister.getFileMap();
 
@@ -104,19 +105,16 @@ void Imgui::build(marengo::amaze::MenuType menuType)
                         ImVec2(-FLT_MIN, 9 * ImGui::GetTextLineHeightWithSpacing()))) {
                     int count = 0;
                     for (const auto& pr : filesMap) {
-                        bool isSelected = (m_fileSelectedIndex == count);
+                        bool isSelected = (m_currentListBoxIndex == count);
                         if (ImGui::Selectable(pr.second.description.c_str(), isSelected)) {
-                            // m_fileSelectedIndex = count;
+                            m_currentListBoxIndex = count;
+                            m_results.levelFileToLoad = pr.second.filename;
                         }
                         if (ImGui::IsItemHovered()
                             && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-                            // double-clicked on item
-                            m_fileSelectedIndex = pr.second.number;
-                            mgo::Log::debug(
-                                std::format(
-                                    "Double clicked on \"{}\" ({})",
-                                    pr.second.description,
-                                    pr.second.filename));
+                            // double-clicked on item; acts as if OK is pressed
+                            m_results.levelFileToLoad = pr.second.filename;
+                            m_menuState = marengo::amaze::MenuType::OK;
                         }
                         // Keep the selected item scrolled into view when nav moves to it
                         if (isSelected) {
@@ -137,25 +135,25 @@ void Imgui::build(marengo::amaze::MenuType menuType)
     // Note we're explicitly setting the button's width here.
     // The height of zero means "use default".
     if (ImGui::Button("OK", ImVec2(80, 0))) {
-        m_menuState = marengo::amaze::MenuType::Exit;
+        m_menuState = marengo::amaze::MenuType::OK;
     }
 
     ImGui::SameLine(); // makes the next widget stack on the same line
 
     if (ImGui::Button("Cancel", ImVec2(80, 0))) {
-        m_menuState = marengo::amaze::MenuType::Exit;
+        m_menuState = marengo::amaze::MenuType::Cancel;
     }
 
     // Keyboard shortcuts
     // Note! Use IsKeyReleased() for keypresses to avoid repeats
     if (ImGui::IsKeyReleased(ImGuiKey_Escape)) {
-        m_menuState = marengo::amaze::MenuType::Exit;
+        m_menuState = marengo::amaze::MenuType::Cancel;
     }
 
     ImGui::SameLine();
 
     if (ImGui::Button("Exit Game", ImVec2(120, 0))) {
-        m_quitGame = true;
+        m_menuState = marengo::amaze::MenuType::Exit;
     }
 
     ImGui::End();
@@ -164,10 +162,12 @@ void Imgui::build(marengo::amaze::MenuType menuType)
 marengo::amaze::MenuType Imgui::render()
 {
     ImGui::SFML::Render(m_window);
-    if (m_menuState == marengo::amaze::MenuType::Exit) {
+    if (m_menuState == marengo::amaze::MenuType::OK
+        || m_menuState == marengo::amaze::MenuType::Cancel) {
+        auto rc = m_menuState;
         m_menuState = marengo::amaze::MenuType::None;
         m_window.setMouseCursorVisible(false);
-        return marengo::amaze::MenuType::Exit;
+        return rc;
     }
     return m_menuState;
 }

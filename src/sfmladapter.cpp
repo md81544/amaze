@@ -205,15 +205,14 @@ MenuType SfmlAdapter::menuDraw(MenuType menuType)
     return m_imgui.render();
 }
 
-std::string SfmlAdapter::menuProcessInput()
+void SfmlAdapter::menuProcessEvents()
 {
     m_imgui.processEvents();
-    // We can check button presses etc here
-    if (m_imgui.getQuitGame()) {
-        m_controlHandlers[KeyControls::QUIT](true, 0.f);
-    }
-    setMusicVolumePercent(m_imgui.getBackgroundMusicVolumePercent());
-    return m_imgui.getLevelFilename(); // if not empty this is taken as a load command
+}
+
+MenuResults SfmlAdapter::menuGetResults()
+{
+    return m_imgui.menuGetResults();
 }
 
 void SfmlAdapter::setMouseCursorVisible(bool value)

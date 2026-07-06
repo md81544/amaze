@@ -330,6 +330,6 @@ build/
 libs/
 .cache
 compile_commands.json
-debug.log*
+amaze.log*
 
 amaze.app

@@ -146,18 +146,21 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                         m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
                         m_gameModel.getShipModel()->setIsAccelerating(false, 0.f);
                         m_view.stopSounds();
-                        m_graphicsAdapter.setMouseCursorVisible(true);
                     }
-                    {
-                        std::string fileToLoad = m_graphicsAdapter.menuProcessInput();
-                        if (!fileToLoad.empty()) {
-                            m_gameModel.levelLoad(fileToLoad);
-                            mgo::Log::debug(std::format("fileToLoad = {}", fileToLoad));
+                    m_graphicsAdapter.menuProcessEvents(); // process SFML events
+                    if (currentMenu == MenuType::OK || currentMenu == MenuType::Cancel) {
+                        // User closed dialog with OK or Cancel
+                        if (currentMenu == MenuType::OK) {
+                            MenuResults results = m_graphicsAdapter.menuGetResults();
+                            if (!results.levelFileToLoad.empty()) {
+                                m_gameModel.levelLoad(results.levelFileToLoad);
+                            }
                         }
-                    }
-                    if (currentMenu == MenuType::Exit) {
                         currentMenu = MenuType::None;
                         m_gameModel.setGameState(GameState::Running);
+                    }
+                    if (currentMenu == MenuType::Exit) {
+                        m_gameModel.setGameState(GameState::Quit);
                     }
                     break;
                 case GameState::Paused:
