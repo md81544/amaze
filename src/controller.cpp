@@ -148,6 +148,9 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                         m_view.stopSounds();
                     }
                     m_graphicsAdapter.menuProcessEvents(); // process SFML events
+                    // Adjust background music immediately
+                    m_graphicsAdapter.setMusicVolumePercent(
+                        m_graphicsAdapter.menuGetResults().musicVolumePercent);
                     if (currentMenu == MenuType::OK || currentMenu == MenuType::Cancel) {
                         // User closed dialog with OK or Cancel
                         if (currentMenu == MenuType::OK) {
@@ -155,6 +158,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                             if (!results.levelFileToLoad.empty()) {
                                 m_gameModel.levelLoad(results.levelFileToLoad);
                             }
+                            // TODO: joytick deadzone
                         }
                         currentMenu = MenuType::None;
                         m_gameModel.setGameState(GameState::Running);

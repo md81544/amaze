@@ -34,7 +34,7 @@ public:
     drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b) override;
     static int getPhysicalScreenWidth();
     static int getPhysicalScreenHeight();
-    virtual int getWindoWidth() const override;
+    virtual int getWindowWidth() const override;
     virtual int getWindowHeight() const override;
     virtual int getTicks() const override;
     virtual void imageDisplay(const std::string& fileName, int x, int y) override;

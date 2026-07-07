@@ -74,7 +74,7 @@ int SfmlAdapter::getTicks() const
     return m_clock.getElapsedTime().asMilliseconds();
 }
 
-int SfmlAdapter::getWindoWidth() const
+int SfmlAdapter::getWindowWidth() const
 {
     return m_screenWidth;
 }
