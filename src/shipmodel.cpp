@@ -1,5 +1,5 @@
 #include "shipmodel.h"
-#include "log.h"  // IWYU pragma: keep
+#include "log.h" // IWYU pragma: keep
 #include "utils.h"
 
 #include <cmath>
@@ -236,25 +236,25 @@ void ShipModel::drawFlames()
         m_flamesGameShape->setColour(180, 0, 0, 255);
         int bottomY = 22 + static_cast<int>(utils::rnd(50.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
-            4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
+            4 - utils::rnd(8), 17, (10 - utils::rnd(20)) * lengthMultiplier, bottomY, 3);
     }
     for (int n = 0; n < 10; ++n) {
         m_flamesGameShape->setColour(255, 0, 0, 255);
         int bottomY = 22 + static_cast<int>(utils::rnd(40.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
-            4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
+            4 - utils::rnd(8), 17, (10 - utils::rnd(20)) * lengthMultiplier, bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(250, 214, 116, 255);
         int bottomY = 22 + static_cast<int>(utils::rnd(30.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
-            4 - utils::rnd(8), 17, 10 - utils::rnd(20), bottomY, 3);
+            4 - utils::rnd(8), 17, (10 - utils::rnd(20)) * lengthMultiplier, bottomY, 3);
     }
     for (int n = 0; n < 6; ++n) {
         m_flamesGameShape->setColour(255, 255, 255, 255);
         int bottomY = 22 + static_cast<int>(utils::rnd(20.f) * lengthMultiplier);
         m_flamesGameShape->addLine(
-            4 - utils::rnd(8), 17, 4 - utils::rnd(8), bottomY, 3);
+            4 - utils::rnd(8), 17, (4 - utils::rnd(8)) * lengthMultiplier, bottomY, 3);
     }
 
     // Ensure that the flames have the same rotation
