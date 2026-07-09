@@ -263,7 +263,7 @@ void SfmlAdapter::processInput(bool paused)
                     if (v > 0.01f) { // TODO configurable deadzone
                         m_gamepadInUse = true;
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
-                        if (v > 0.6f) {
+                        if (v > 0.1f) {
                             m_gamepad.rumble(
                                 static_cast<uint16_t>(static_cast<float>(0x2000) * v),
                                 static_cast<uint16_t>(static_cast<float>(0xA000) * v),
