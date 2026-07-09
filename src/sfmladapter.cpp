@@ -250,21 +250,29 @@ void SfmlAdapter::processInput(bool paused)
                     // Left stick for rotation
                     float r = evt.analogue.leftX;
                     if (std::abs(r) > 0.01f) { // TODO configurable deadzone
+                        m_gamepadInUse = true;
                         m_controlHandlers[KeyControls::LR_ANALOGUE](true, -r);
+                    } else {
+                        if (m_gamepadInUse) {
+                            m_controlHandlers[KeyControls::LR_ANALOGUE](false, 0.f);
+                        }
                     }
 
                     // Right stick for acceleration
                     float v = evt.analogue.rightY;
                     if (v > 0.01f) { // TODO configurable deadzone
+                        m_gamepadInUse = true;
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
-                        if (v > 0.8f) {
+                        if (v > 0.6f) {
                             m_gamepad.rumble(
                                 static_cast<uint16_t>(static_cast<float>(0x2000) * v),
                                 static_cast<uint16_t>(static_cast<float>(0xA000) * v),
                                 5000);
                         }
                     } else {
-                        m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                        if (m_gamepadInUse) {
+                            m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                        }
                         m_gamepad.rumble(0, 0, 0);
                     }
                     break;
@@ -310,6 +318,7 @@ void SfmlAdapter::processInput(bool paused)
                 case sf::Keyboard::Scancode::Up:
                 case sf::Keyboard::Scancode::Space:
                     if (!paused) {
+                        m_gamepadInUse = false;
                         if (event->getIf<sf::Event::KeyPressed>()->shift) {
                             m_controlHandlers[KeyControls::ACCELERATE](true, 1.f);
                         } else {
@@ -319,6 +328,7 @@ void SfmlAdapter::processInput(bool paused)
                     break;
                 case sf::Keyboard::Scancode::Down:
                     if (!paused) {
+                        m_gamepadInUse = false;
                         if (event->getIf<sf::Event::KeyPressed>()->shift) {
                             m_controlHandlers[KeyControls::ACCELERATE](true, 0.4f);
                         } else {
@@ -330,6 +340,7 @@ void SfmlAdapter::processInput(bool paused)
                 case sf::Keyboard::Scancode::A:
                 case sf::Keyboard::Scancode::Comma:
                     if (!paused) {
+                        m_gamepadInUse = false;
                         if (event->getIf<sf::Event::KeyPressed>()->shift) {
                             m_controlHandlers[KeyControls::LEFT](true, 0.1f);
                         } else {
@@ -341,6 +352,7 @@ void SfmlAdapter::processInput(bool paused)
                 case sf::Keyboard::Scancode::D:
                 case sf::Keyboard::Scancode::Period:
                     if (!paused) {
+                        m_gamepadInUse = false;
                         if (event->getIf<sf::Event::KeyPressed>()->shift) {
                             m_controlHandlers[KeyControls::RIGHT](true, -0.1f);
                         } else {

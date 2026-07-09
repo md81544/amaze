@@ -76,6 +76,7 @@ private:
     sf::Font m_font; // we only use one font for all text currently
     gamepad::Gamepad m_gamepad;
     Imgui m_imgui;
+    bool m_gamepadInUse { false };
 };
 
 } // namespace amaze
