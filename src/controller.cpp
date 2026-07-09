@@ -118,7 +118,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
     // TODO splash screen?
     bool endingLevel = false;
     MenuType currentMenu = MenuType::None;
-    m_graphicsAdapter.setFrameRate(100);
+    m_graphicsAdapter.setFrameRate(120);
     m_graphicsAdapter.musicPlayLoop();
 
     // Main game loop
@@ -161,6 +161,7 @@ void Controller::mainLoop(int gameLevel, const std::string& levelFile)
                             // TODO: joytick deadzone
                         }
                         currentMenu = MenuType::None;
+                        m_gameModel.getShipModel()->setVisible(true);
                         m_gameModel.setGameState(GameState::Running);
                     }
                     if (currentMenu == MenuType::Exit) {

@@ -1,5 +1,3 @@
-* Gamepad identification (press "A" at start) to distinguish between Nintendo and others
-
 * Save config (e.g. background music volume, stick deadzone, last level)
 
 * Rename master branch to main

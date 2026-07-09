@@ -9,6 +9,7 @@
 #include <chrono>
 #include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <optional>
 
 namespace marengo {
@@ -247,10 +248,14 @@ void SfmlAdapter::processInput(bool paused)
             case gamepad::EventType::Analogue:
                 {
                     // Left stick for rotation
-                    m_controlHandlers[KeyControls::LR_ANALOGUE](true, -evt.analogue.leftX);
+                    float r = evt.analogue.leftX;
+                    if (std::abs(r) > 0.01f) { // TODO configurable deadzone
+                        m_controlHandlers[KeyControls::LR_ANALOGUE](true, -r);
+                    }
+
                     // Right stick for acceleration
                     float v = evt.analogue.rightY;
-                    if (v > 0.01f) {
+                    if (v > 0.01f) { // TODO configurable deadzone
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
                         if (v > 0.8f) {
                             m_gamepad.rumble(
@@ -306,15 +311,19 @@ void SfmlAdapter::processInput(bool paused)
                 case sf::Keyboard::Scancode::Space:
                     if (!paused) {
                         if (event->getIf<sf::Event::KeyPressed>()->shift) {
-                            m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 1.f);
                         } else {
-                            m_controlHandlers[KeyControls::ACCELERATE](true, 25.f);
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 6.f);
                         }
                     }
                     break;
                 case sf::Keyboard::Scancode::Down:
                     if (!paused) {
-                        m_controlHandlers[KeyControls::ACCELERATE](true, 5.f);
+                        if (event->getIf<sf::Event::KeyPressed>()->shift) {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 0.4f);
+                        } else {
+                            m_controlHandlers[KeyControls::ACCELERATE](true, 1.f);
+                        }
                     }
                     break;
                 case sf::Keyboard::Scancode::Left:
