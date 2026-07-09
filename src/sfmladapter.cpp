@@ -10,6 +10,7 @@
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <imgui.h>
 #include <optional>
 
 namespace marengo {
@@ -201,13 +202,71 @@ MenuType SfmlAdapter::menuDraw(MenuType menuType)
 {
     // We use imgui-sfml for all menus.
     // Showing the menu means all SFML/SDL input is routed to here
-    // TODO call Imgui::render();
     m_imgui.build(menuType);
     return m_imgui.render();
 }
 
 void SfmlAdapter::menuProcessEvents()
 {
+    // Process any gamepad events
+    ImGuiIO& io = ImGui::GetIO();
+    auto gamepadEvents = m_gamepad.getEvents();
+    for (const auto& evt : gamepadEvents) {
+        switch (evt.eventType) {
+            case gamepad::EventType::Analogue:
+                {
+                    // Right stick for menu navigation
+                    float r = evt.analogue.rightY;
+                    if (r < -0.01f) { // TODO configurable deadzone
+                        io.AddKeyEvent(ImGuiKey_DownArrow, true);
+                    } else {
+                        io.AddKeyEvent(ImGuiKey_DownArrow, false);
+                    }
+                    if (r > 0.01f) { // TODO configurable deadzone
+                        io.AddKeyEvent(ImGuiKey_UpArrow, true);
+                    } else {
+                        io.AddKeyEvent(ImGuiKey_UpArrow, false);
+                    }
+                    r = evt.analogue.rightX;
+                    if (r < -0.01f) { // TODO configurable deadzone
+                        io.AddKeyEvent(ImGuiKey_LeftArrow, true);
+                    } else {
+                        io.AddKeyEvent(ImGuiKey_LeftArrow, false);
+                    }
+                    if (r > 0.01f) { // TODO configurable deadzone
+                        io.AddKeyEvent(ImGuiKey_RightArrow, true);
+                    } else {
+                        io.AddKeyEvent(ImGuiKey_RightArrow, false);
+                    }
+                    // Left stick for value adjustments on sliders
+                    float lx = evt.analogue.leftX;
+                    if (lx > 0.01) { // TODO configurable deadzone
+                        io.AddKeyEvent(ImGuiKey_GamepadDpadRight,  true);
+                    }
+                    if (lx < -0.01) { // TODO configurable deadzone
+                        io.AddKeyEvent(ImGuiKey_GamepadDpadLeft,  true);
+                    }
+                    io.AddKeyAnalogEvent(
+                        ImGuiKey_GamepadLStickLeft, lx < 0.01f, lx < 0.01f ? -lx : 0.0f);
+                    io.AddKeyAnalogEvent(
+                        ImGuiKey_GamepadLStickRight, lx > 0.01f, lx > 0.01f ? lx : 0.0f);
+                }
+            case gamepad::EventType::ButtonPressed:
+                io.AddKeyEvent(ImGuiKey_Space, false);
+                io.AddKeyEvent(ImGuiKey_GamepadFaceRight, false);
+                if (evt.buttonType == gamepad::ButtonType::South) {
+                    io.AddKeyEvent(ImGuiKey_Space, true);
+                } else if (evt.buttonType == gamepad::ButtonType::East) {
+                    io.AddKeyEvent(ImGuiKey_GamepadFaceRight, true);
+                } else if (evt.buttonType == gamepad::ButtonType::DPadLeft) {
+                    io.AddKeyEvent(ImGuiKey_LeftArrow, true);
+                }
+            default:
+                // do nothing
+                break;
+        }
+    }
+    // Let Imgui handle normal keyboard events:
     m_imgui.processEvents();
 }
 

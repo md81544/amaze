@@ -113,6 +113,7 @@ target_compile_options(${APP_NAME} PRIVATE
     -Wextra
     -Werror
     -Wpedantic
+    -ffast-math
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-O3>
 )
