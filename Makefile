@@ -49,7 +49,7 @@ $(BUILD_DIR_RELEASE)/Makefile:
 # ---------------------------------------------------------------------------
 test: $(BUILD_DIR_DEBUG)/Makefile
 	$(CMAKE) --build $(BUILD_DIR_DEBUG) --target $(APP_NAME)_tests -- -j$(JOBS)
-	@$(BUILD_DIR_DEBUG)/$(APP_NAME)_tests --reporter console || true
+	@$(BUILD_DIR_DEBUG)/$(APP_NAME)_tests --reporter console
 
 # ---------------------------------------------------------------------------
 # Clean
