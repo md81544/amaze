@@ -16,7 +16,7 @@ namespace {
 void checkFileExists(const std::string& filename)
 {
     if (!QFileInfo::exists(QString::fromStdString(filename))) {
-        THROWUP(AmazeRuntimeException, std::format("File not found ({})", filename));
+        throw AmazeRuntimeException(std::format("File not found ({})", filename));
     }
 }
 
@@ -40,7 +40,7 @@ QSoundEffect& Audio::sound(const std::string& key)
 {
     auto it = m_sounds.find(key);
     if (it == m_sounds.end()) {
-        THROWUP(AmazeRuntimeException, std::format("Sound not loaded ({})", key));
+        throw AmazeRuntimeException(std::format("Sound not loaded ({})", key));
     }
     return *it->second;
 }

@@ -57,7 +57,7 @@ public:
     std::shared_ptr<GameShape> flamesGameShape() const;
     std::shared_ptr<GameShape> explosionGameShape() const;
 
-    void process(bool isExploding);
+    void tick(bool isExploding);
     void drawFlames();
     void buildExplosionShape();
 

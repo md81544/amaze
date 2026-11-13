@@ -79,7 +79,10 @@ public:
 
 private:
     std::unordered_map<SDL_JoystickID, SDL_Gamepad*> m_gamepads;
-    AnalogueStatus m_analogueStatus;
+    // If several gamepads are attached, the one last used (button pressed or
+    // stick/trigger moved) is reported and rumbled
+    SDL_JoystickID m_activeGamepad { 0 };
+    std::unordered_map<SDL_JoystickID, AnalogueStatus> m_analogueStatus;
     AnalogueStatus m_previousAnalogueStatus;
     float m_deadZone { 0.05f };
 };

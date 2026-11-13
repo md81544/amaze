@@ -60,11 +60,11 @@ void Controller::registerControlHandlers()
     m_shell.registerControlHandler(KeyControls::LEFT, [&](const bool isKeyDown, const float value) {
         if (isKeyDown) {
             startPlayIfReady();
-            m_gameModel.getShipModel()->setRotationDelta(value);
+            m_gameModel.shipModel().setRotationDelta(value);
         } else {
             // if we are already rotating in this direction:
-            if (utils::sgn(m_gameModel.getShipModel()->rotationDelta()) == 1) {
-                m_gameModel.getShipModel()->setRotationDelta(0);
+            if (utils::sgn(m_gameModel.shipModel().rotationDelta()) == 1) {
+                m_gameModel.shipModel().setRotationDelta(0);
             }
         }
     });
@@ -78,7 +78,7 @@ void Controller::registerControlHandlers()
             } else {
                 startPlayIfReady();
             }
-            m_gameModel.getShipModel()->setRotationDelta(rotationDelta);
+            m_gameModel.shipModel().setRotationDelta(rotationDelta);
         });
 
     // Rotate Right
@@ -86,11 +86,11 @@ void Controller::registerControlHandlers()
         KeyControls::RIGHT, [&](const bool isKeyDown, const float value) {
             if (isKeyDown) {
                 startPlayIfReady();
-                m_gameModel.getShipModel()->setRotationDelta(value);
+                m_gameModel.shipModel().setRotationDelta(value);
             } else {
                 // if we are already rotating in this direction:
-                if (utils::sgn(m_gameModel.getShipModel()->rotationDelta()) == -1) {
-                    m_gameModel.getShipModel()->setRotationDelta(0);
+                if (utils::sgn(m_gameModel.shipModel().rotationDelta()) == -1) {
+                    m_gameModel.shipModel().setRotationDelta(0);
                 }
             }
         });
@@ -101,9 +101,9 @@ void Controller::registerControlHandlers()
             if (isKeyDown) {
                 startPlayIfReady();
                 float accln = acceleration / 1000.f;
-                m_gameModel.getShipModel()->setIsAccelerating(true, accln);
+                m_gameModel.shipModel().setIsAccelerating(true, accln);
             } else {
-                m_gameModel.getShipModel()->setIsAccelerating(false, 0.f);
+                m_gameModel.shipModel().setIsAccelerating(false, 0.f);
             }
         });
 
@@ -258,7 +258,7 @@ void Controller::processMenu()
     if (m_currentMenu == MenuType::None) {
         m_currentMenu = MenuType::Main;
         m_shell.rumble(0, 0, 0); // turn off any rumbles
-        m_gameModel.getShipModel()->setIsAccelerating(false, 0.f);
+        m_gameModel.shipModel().setIsAccelerating(false, 0.f);
         m_view.stopSounds();
     }
     m_shell.processMenuInput();
@@ -283,7 +283,7 @@ void Controller::processMenu()
             }
         }
         m_currentMenu = MenuType::None;
-        m_gameModel.getShipModel()->setVisible(true);
+        m_gameModel.shipModel().setVisible(true);
         if (m_levelStartPending) {
             beginLevel();
         } else {
@@ -325,32 +325,32 @@ void Controller::tick()
                 // in case the user wants a different level
                 m_gameModel.levelLoad(m_gameModel.levelFileName());
                 m_levelStartPending = true;
-                m_gameModel.getShipModel()->setVisible(false);
+                m_gameModel.shipModel().setVisible(false);
                 m_gameModel.setGameState(GameState::Menu);
             });
             break;
         case GameState::Succeeded:
             m_view.stopSounds();
             m_shell.rumble(0, 0, 0); // turn off any rumbles
-            m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
-            m_gameModel.getShipModel()->setIsAccelerating(false);
-            m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
+            m_gameModel.shipModel().shipGameShape()->resize(1.2);
+            m_gameModel.shipModel().setIsAccelerating(false);
+            m_gameModel.shipModel().flamesGameShape()->setVisible(false);
             m_gameModel.setBreakableExploding(false);
             m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
                 // We just reload the level, but display the menu
                 // in case the user wants a different level
                 m_gameModel.levelLoad(m_gameModel.levelFileName());
                 m_levelStartPending = true;
-                m_gameModel.getShipModel()->setVisible(false);
+                m_gameModel.shipModel().setVisible(false);
                 m_gameModel.setGameState(GameState::Menu);
             });
             break;
         case GameState::Exploding:
             m_shell.rumble(0xFFFF, 0xFFFF, 1000);
-            m_gameModel.process(); // perform all processing required per tick
+            m_gameModel.tick();
             break;
         case GameState::Running:
-            m_gameModel.process(); // perform all processing required per tick
+            m_gameModel.tick();
             collisionChecks();
             break;
         default:
@@ -397,7 +397,7 @@ void Controller::collisionChecks()
             case GameShapeType::OBSTRUCTION:
             case GameShapeType::MOVING:
                 if (collideeType != GameShapeType::FLAMES) {
-                    m_gameModel.getShipModel()->setIsExploding(true);
+                    m_gameModel.shipModel().setIsExploding(true);
                     m_gameModel.setGameState(GameState::Exploding);
                 }
                 break;
@@ -409,7 +409,7 @@ void Controller::collisionChecks()
                     m_audio.soundPlay("breakable");
                     m_gameModel.setBreakableExploding();
                 } else {
-                    m_gameModel.getShipModel()->setIsExploding(true);
+                    m_gameModel.shipModel().setIsExploding(true);
                     m_gameModel.setGameState(GameState::Exploding);
                 }
                 collider->setIsActive(false); // Breakable objects can be destroyed

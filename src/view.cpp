@@ -30,7 +30,7 @@ View::View(GameModel& model, Audio& audio, const std::string& dataDir)
     int fontId = QFontDatabase::addApplicationFont(
         QString::fromStdString(dataDir + "/Oxanium-SemiBold.ttf"));
     if (fontId < 0) {
-        THROWUP(AmazeRuntimeException, "Font file load error");
+        throw AmazeRuntimeException("Font file load error");
     }
     m_font = QFont(QFontDatabase::applicationFontFamilies(fontId).at(0));
 }
@@ -38,8 +38,8 @@ View::View(GameModel& model, Audio& audio, const std::string& dataDir)
 void View::playSounds()
 {
     // (No rocket noise while waiting to start, even if thrust is held)
-    if (m_model.getShipModel()->isAccelerating() && m_model.getGameState() != GameState::GetReady) {
-        float vol = m_model.getShipModel()->accelerationAmount() * 2000.f;
+    if (m_model.shipModel().isAccelerating() && m_model.getGameState() != GameState::GetReady) {
+        float vol = m_model.shipModel().accelerationAmount() * 2000.f;
         vol = std::clamp(vol, 2.f, 100.f);
 
         m_audio.soundLoop("rocket", vol);
@@ -59,11 +59,6 @@ void View::stopSounds()
 
 void View::draw(QPainter& painter, const QSizeF& canvasSize) const
 {
-    // TODO: this should take a model as its parameter; we shouldn't be bound
-    // to one model but should be able to accept any model implementing a
-    // specific interface. This would enable us to use models for splash
-    // screens / high score screens etc.
-
     // This is where all state is "realised" as images drawn. (Sounds are handled
     // separately in playSounds(), which is called at the fixed simulation rate.)
 
@@ -72,8 +67,8 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
 
     // Dynamic shapes (i.e. shapes which rotate around the ship): the view is
     // centred on the ship, and the arena rotates around it
-    const auto* ship = m_model.getShipModel();
-    QTransform arenaTransform = arenaToCanvas(ship->x(), ship->y(), ship->rotation(), canvasSize);
+    const auto& ship = m_model.shipModel();
+    QTransform arenaTransform = arenaToCanvas(ship.x(), ship.y(), ship.rotation(), canvasSize);
     for (const auto& shape : m_model.getAllDynamicObjects()) {
         if (shape->isVisible() && shape->IsActive()) {
             drawShape(painter, arenaTransform, *shape);
@@ -120,7 +115,6 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
 
     if (m_model.gameIsPaused()) {
         drawText(painter, canvasSize, "Paused", QColor(255, 255, 0), 160, {}, messageY);
-        // TODO do we need pause if opening the menu does the same thing?
     }
 
     if (m_model.getGameState() == GameState::Succeeded) {

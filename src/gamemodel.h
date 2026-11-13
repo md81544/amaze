@@ -62,12 +62,15 @@ public:
 
     std::shared_ptr<GameShape> newGameShape();
 
-    // Returns a non-owning pointer to the ship model
-    ShipModel* getShipModel() const;
+    // The ship is replaced when a level loads or the ship respawns, so don't
+    // keep this reference beyond the current tick
+    ShipModel& shipModel();
+    const ShipModel& shipModel() const;
 
     std::tuple<GameShapeType, std::shared_ptr<GameShape>> collisionDetect() const;
 
-    void process();
+    // Advances moving objects, the ship, explosions etc. by one simulation tick
+    void tick();
     const std::vector<std::shared_ptr<GameShape>>& getAllDynamicObjects() const;
 
     // Save rocket position periodically to facilitate a restart after a life is used
@@ -87,8 +90,6 @@ public:
     };
 
 private:
-    void addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& obj);
-
     std::string m_dataPath { "" };
 
     std::string m_levelFileName;

@@ -4,10 +4,9 @@
 
 #include <optional>
 
-// TODO (perhaps?) might want to ditch the "gameShapeType"
-// and having sub classes depending on type. As currently
-// functionality is no different between different shape
-// types this seems overkill.
+// A shape's type affects little beyond what happens when the ship collides
+// with it (Controller::collisionChecks()) and whether it moves, so it's an
+// enum rather than subclasses.
 
 namespace marengo {
 namespace amaze {

@@ -152,15 +152,18 @@ int main(int argc, char* argv[])
 
         return 0;
     } catch (const marengo::amaze::AmazeBaseException& ex) {
+        // Logged against the throw site rather than here
+        mgo::Log::error(ex.what(), ex.location());
         std::cout << std::format(
             "Exception ({0}) thrown in {1} +{2} ({3}) : {4}\n",
             typeid(ex).name(),
-            ex.file(),
-            ex.line(),
-            ex.function(),
+            ex.location().file_name(),
+            ex.location().line(),
+            ex.location().function_name(),
             ex.what())
                   << std::endl;
     } catch (const std::exception& e) {
+        mgo::Log::error(std::format("Exception encountered: {}", e.what()));
         std::cout << std::format("Exception encountered: {}\n", e.what()) << std::endl;
     }
     return 1;

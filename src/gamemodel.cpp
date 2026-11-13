@@ -1,11 +1,9 @@
 #include "gamemodel.h"
-#include "exceptions.h"
+#include "levelfile.h"
 #include "log.h"
 
-#include <cassert>
 #include <cmath>
 #include <filesystem>
-#include <fstream>
 
 namespace marengo {
 namespace amaze {
@@ -95,151 +93,17 @@ void GameModel::levelLoad(size_t levelNum)
     levelLoad(levelFile.string());
 }
 
-// TODO - put this in the controller?
 void GameModel::levelLoad(const std::string& filename)
 {
     mgo::Log::debug(std::format("Loading from '{}'", filename));
-    // TODO convert this format to YAML or JSON?
-    // The file format is as follows:
-    // The first line should be "!~<timelimit>~<fuel>~<x>~<y>~" followed by
-    // the Level title (Description)
-    // Then each world object for the Level is described as follows:
-    // Objects start with the line "N~<ObjectClass (text)>~<Unique ID>"
-    // then the following can be used:
-    // L~<x0>~<y0>~<x1>~<y1>~<R>~<G>~<B>~<Thickness (optional) - draws a line
-    // P~<x>~<y> - set object's position
-    // T~<text>~<R>~<G>~<B>~<Thickness (optional) - create object from text
-    // C~<UniqueID> - copy the other object's shape
-    //
-
-    // All lines apply to the current object being described until a new
-    // "N~..."
-    // line is processed.
-
-    // TODO: move the actual file access out into a separate class
-    // or method
-
+    LevelData level = readLevelFile(filename);
     initialise(filename);
-
-    std::ifstream in(filename);
-    if (!in) {
-        mgo::Log::debug(std::format("Failed to load level file '{}'", filename));
-        THROWUP(AmazeRuntimeException, "Failed to load Level file " + filename);
-    }
-    std::string currentLine;
-    std::unique_ptr<GameShape> obj(new GameShape);
-    // TODO - object type : ObjectType cls = ObjectType::NEUTRAL;
-    while (!in.eof()) {
-        getline(in, currentLine);
-        std::vector<std::string> vec;
-        utils::csvSplit(currentLine, '~', vec);
-        // When we get here, vec is a vector of all the items on the current
-        // line.
-        if (vec.size() == 0) {
-            continue;
-        }
-        char c = vec[0][0];
-        switch (c) {
-            case '!': // timelimit (unused), fuel (unused), ship x, ship y, ship angle,
-                      // description (currently unused, but a TODO)
-                if (vec.size() < 6) {
-                    THROWUP(
-                        AmazeRuntimeException, "Malformed header line in Level file " + filename);
-                }
-                m_shipModel->setShipX(stod(vec[3]));
-                m_shipModel->setShipY(stod(vec[4]));
-                m_shipModel->setRotation(stod(vec[5]));
-                if (vec.size() > 6) {
-                    m_levelDescription = vec[6];
-                }
-                break;
-            case 'N': // New object, parameter 1 is type, parameter 2 appears unused
-                addPreviousObject(obj);
-                obj = std::unique_ptr<GameShape>(new GameShape);
-                obj->setGameShapeType(GameShapeType::NEUTRAL);
-                if (vec.size() > 1) {
-                    if (vec[1] == "OBSTRUCTION") {
-                        obj->setGameShapeType(GameShapeType::OBSTRUCTION);
-                    } else if (vec[1] == "FUEL") {
-                        obj->setGameShapeType(GameShapeType::FUEL);
-                    } else if (vec[1] == "PRISONER") {
-                        obj->setGameShapeType(GameShapeType::PRISONER);
-                    } else if (vec[1] == "KEY") {
-                        obj->setGameShapeType(GameShapeType::KEY);
-                    } else if (vec[1] == "EXIT") {
-                        obj->setGameShapeType(GameShapeType::EXIT);
-                    } else if (vec[1] == "BREAKABLE") {
-                        obj->setGameShapeType(GameShapeType::BREAKABLE);
-                    } else if (vec[1] == "MOVING") {
-                        obj->setGameShapeType(GameShapeType::MOVING);
-                        if (vec.size() >= 8) {
-                            obj->setName(vec[2]);
-                            obj->setXDelta(std::stof(vec[3]));
-                            obj->setXMaxDifference(std::stof(vec[4]));
-                            obj->setYDelta(std::stof(vec[5]));
-                            obj->setYMaxDifference(std::stof(vec[6]));
-                            obj->setRotationDelta(std::stof(vec[7]));
-                            if (vec.size() >= 9) {
-                                obj->setGravity(std::stof(vec[8]));
-                            }
-                        }
-                    }
-                }
-                break;
-            case 'L':
-                if (obj != nullptr && (vec.size() == 8 || vec.size() == 9)) {
-                    ShapeLine sl1 {
-                        stod(vec[1]), // x0
-                        stod(vec[2]), // y0
-                        stod(vec[3]), // x1
-                        stod(vec[4]), // y1
-                        static_cast<uint8_t>(stoi(vec[5])), // r
-                        static_cast<uint8_t>(stoi(vec[6])), // g
-                        static_cast<uint8_t>(stoi(vec[7])), // b
-                        255, // alpha
-                        1 // thickness (default if not supplied)
-                    };
-                    if (vec.size() == 9) {
-                        sl1.lineThickness = stoi(vec[8]);
-                    }
-                    obj->addShapeLine(sl1);
-                }
-                break;
-            case 'P':
-                if (obj != nullptr && vec.size() == 3) {
-                    obj->setPos(stoi(vec[1]), stoi(vec[2]));
-                }
-                break;
-            case 'T':
-                if (obj != nullptr && vec.size() == 5) {
-                    obj->makeFromText(vec[1], stoi(vec[2]), stoi(vec[3]), stoi(vec[4]), 255, 6);
-                }
-                if (obj != nullptr && vec.size() == 6) {
-                    obj->makeFromText(
-                        vec[1], stoi(vec[2]), stoi(vec[3]), stoi(vec[4]), 255, stoi(vec[5]));
-                }
-                break;
-            case 'C':
-                // Think this is currently unused...
-                assert(false);
-                break;
-            default:
-                break;
-        }
-        currentLine.clear();
-    }
-    in.close();
-    addPreviousObject(obj);
-    setLevelFileName(filename);
-}
-
-void GameModel::addPreviousObject(std::unique_ptr<marengo::amaze::GameShape>& obj)
-{
-    if (obj->getGameShapeType() != GameShapeType::UNINITIALISED) {
-        if (obj->getGameShapeType() == GameShapeType::MOVING) {
-            obj->setPosFromCentre(); // converts all lines to relative to the object's centre
-        }
-        m_allDynamicGameShapes.push_back(std::move(obj));
+    m_shipModel->setShipX(level.shipX);
+    m_shipModel->setShipY(level.shipY);
+    m_shipModel->setRotation(level.shipRotation);
+    m_levelDescription = level.description;
+    for (auto& shape : level.shapes) {
+        m_allDynamicGameShapes.push_back(std::move(shape));
     }
 }
 
@@ -265,12 +129,14 @@ std::shared_ptr<GameShape> GameModel::newGameShape()
     return (gameShape);
 }
 
-ShipModel* GameModel::getShipModel() const
+ShipModel& GameModel::shipModel()
 {
-    // TODO returning pointer to internals? Yuck.
-    // replace this with member functions which internally
-    // reference m_shipModel.
-    return m_shipModel.get();
+    return *m_shipModel;
+}
+
+const ShipModel& GameModel::shipModel() const
+{
+    return *m_shipModel;
 }
 
 std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect() const
@@ -300,7 +166,7 @@ std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect
     return { GameShapeType::NEUTRAL, nullptr };
 }
 
-void GameModel::process() // TODO more descriptive name
+void GameModel::tick()
 {
     m_scheduler.processSchedule();
 
@@ -319,7 +185,7 @@ void GameModel::process() // TODO more descriptive name
             buildBreakableExplosionShape();
         });
     }
-    m_shipModel->process(m_gameState == GameState::Exploding);
+    m_shipModel->tick(m_gameState == GameState::Exploding);
 
     for (const auto& shape : m_allDynamicGameShapes) {
         if (shape->getGameShapeType() == GameShapeType::MOVING
@@ -336,20 +202,20 @@ void GameModel::process() // TODO more descriptive name
             }
             shape->resize(shape->getScale() + shape->getPulsateAmount());
 
-            double xDiff = shape->getPosX() - getShipModel()->x();
-            double yDiff = shape->getPosY() - getShipModel()->y();
+            double xDiff = shape->getPosX() - shipModel().x();
+            double yDiff = shape->getPosY() - shipModel().y();
             double distanceSquared = xDiff * xDiff + yDiff * yDiff;
             if (distanceSquared == 0.0) {
                 distanceSquared = 1.0;
             }
             double distance = std::sqrt(distanceSquared);
             if (distance < shape->getGravity() * 25) {
-                auto* ship = getShipModel();
+                auto& ship = shipModel();
                 double forceMagnitude = shape->getGravity() / distanceSquared;
                 double fx = (xDiff / distance) * forceMagnitude;
                 double fy = (yDiff / distance) * forceMagnitude;
-                ship->setDx(ship->dX() - fx);
-                ship->setDy(ship->dY() - fy);
+                ship.setDx(ship.dX() - fx);
+                ship.setDy(ship.dY() - fy);
             }
         }
     }

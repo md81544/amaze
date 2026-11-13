@@ -25,6 +25,7 @@ add_executable(${APP_NAME}
     src/gameshape.cpp
     src/gameshell.cpp
     src/gamewidget.cpp
+    src/levelfile.cpp
     src/levelfilelister.cpp
     src/main.cpp
     src/menudialog.cpp
@@ -139,11 +140,15 @@ find_package(Catch2 3 QUIET)
 if(Catch2_FOUND)
     add_executable(${APP_NAME}_tests
         tests/shape_tests.cpp
+        tests/levelfile_tests.cpp
         tests/viewtransform_tests.cpp
+        src/gameshape.cpp
+        src/levelfile.cpp
         src/shape.cpp
         src/utils.cpp
     )
     target_include_directories(${APP_NAME}_tests PRIVATE src)
+    target_compile_definitions(${APP_NAME}_tests PRIVATE AMAZE_DATA_DIR="${CMAKE_SOURCE_DIR}/data")
     # Same options as the game, so the code under test behaves the same
     target_compile_options(${APP_NAME}_tests PRIVATE ${AMAZE_COMPILE_OPTIONS})
     target_link_libraries(${APP_NAME}_tests PRIVATE Catch2::Catch2WithMain Qt6::Gui)

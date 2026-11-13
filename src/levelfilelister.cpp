@@ -18,7 +18,7 @@ std::string getLevelDescription(std::filesystem::path levelFile)
 {
     std::ifstream in(levelFile.string());
     if (!in) {
-        THROWUP(AmazeRuntimeException, "Failed to load Level file " + levelFile.string());
+        throw AmazeRuntimeException("Failed to load Level file " + levelFile.string());
     }
     std::string currentLine;
     std::string levelDescription { "Untitled" };

@@ -1,83 +1,43 @@
 #pragma once
 
+#include <source_location>
+#include <stdexcept>
 #include <string>
 
 namespace marengo {
 namespace amaze {
 
-// TODO: replace THROWUP macro with modern C++
-// Exceptions should also automatically log
-#ifdef __linux
-#define THROWUP(ex, message) throw ex(__FILE__, __LINE__, __func__, message)
-#elif __APPLE__
-#define THROWUP(ex, message) throw ex(__FILE__, __LINE__, __PRETTY_FUNCTION__, message)
-#else
-#define THROWUP(ex, message) throw ex(__FILE__, __LINE__, __FUNCSIG__, message)
-#endif
-
-class AmazeBaseException : public std::exception {
+// The source location defaults to where the exception is constructed, i.e.
+// the throw site. These are logged where they are caught, in main().
+class AmazeBaseException : public std::runtime_error {
 public:
-    AmazeBaseException(
-        const char* exceptionFile,
-        const unsigned int exceptionLine,
-        const char* exceptionFunction,
-        const std::string& message)
-        : fileName(exceptionFile)
-        , lineNumber(exceptionLine)
-        , functionSignature(exceptionFunction)
-        , details(message)
+    explicit AmazeBaseException(
+        const std::string& message,
+        const std::source_location& loc = std::source_location::current())
+        : std::runtime_error(message)
+        , m_location(loc)
     {
     }
-    virtual ~AmazeBaseException() {};
 
-    virtual const char* what() const noexcept override
+    const std::source_location& location() const
     {
-        return details.c_str();
-    }
-    std::string file() const
-    {
-        return fileName;
-    }
-    std::string function() const
-    {
-        return functionSignature;
-    }
-    unsigned int line() const
-    {
-        return lineNumber;
+        return m_location;
     }
 
 private:
-    std::string fileName;
-    unsigned int lineNumber;
-    std::string functionSignature;
-    std::string details;
+    std::source_location m_location;
 };
 
 // Exception thrown if the application cannot start up correctly.
 class AmazeStartupException : public AmazeBaseException {
 public:
-    AmazeStartupException(
-        const char* file,
-        unsigned int line,
-        const char* function,
-        const std::string& message)
-        : AmazeBaseException(file, line, function, message)
-    {
-    }
+    using AmazeBaseException::AmazeBaseException;
 };
 
 // Exception thrown if the application encounters a runtime error
 class AmazeRuntimeException : public AmazeBaseException {
 public:
-    AmazeRuntimeException(
-        const char* file,
-        unsigned int line,
-        const char* function,
-        const std::string& message)
-        : AmazeBaseException(file, line, function, message)
-    {
-    }
+    using AmazeBaseException::AmazeBaseException;
 };
 
 } // namespace amaze

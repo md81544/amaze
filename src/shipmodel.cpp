@@ -62,7 +62,7 @@ double ShipModel::x() const
 void ShipModel::setShipX(double value)
 {
     m_shipX = value;
-    // Keep the drawn ship in step, as it may be drawn before the next process()
+    // Keep the drawn ship in step, as it may be drawn before the next tick()
     m_shipGameShape->setPos(m_shipX, m_shipY);
 }
 
@@ -205,9 +205,9 @@ std::shared_ptr<GameShape> ShipModel::flamesGameShape() const
     return m_flamesGameShape;
 }
 
-void ShipModel::process(bool isExploding)
+void ShipModel::tick(bool isExploding)
 {
-    // process() is called each game loop by the controlller
+    // Called once per simulation tick by the GameModel
     setRotation(m_rotationDelta);
 
     updateShipPosition();

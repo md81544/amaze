@@ -140,7 +140,7 @@ Gamepad::Gamepad()
     // (it would turn them into SDL quit events, which we don't handle)
     SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
-        THROWUP(AmazeRuntimeException, "Could not initialise SDL for joystick");
+        throw AmazeRuntimeException("Could not initialise SDL for joystick");
     }
     int count = 0;
     // Any gamepads already connected?
@@ -210,12 +210,14 @@ Gamepad::~Gamepad()
                         SDL_CloseGamepad(it->second);
                         m_gamepads.erase(it);
                     }
+                    m_analogueStatus.erase(id);
                     break;
                 }
 
             case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
                 {
-                    auto id = sdlEvent.gdevice.which;
+                    auto id = sdlEvent.gbutton.which;
+                    m_activeGamepad = id;
                     auto btn = static_cast<SDL_GamepadButton>(sdlEvent.gbutton.button);
                     mgo::Log::debug(std::format("{} pressed", buttonName(btn)));
                     Event evt;
@@ -228,7 +230,7 @@ Gamepad::~Gamepad()
 
             case SDL_EVENT_GAMEPAD_BUTTON_UP:
                 {
-                    auto id = sdlEvent.gdevice.which;
+                    auto id = sdlEvent.gbutton.which;
                     auto btn = static_cast<SDL_GamepadButton>(sdlEvent.gbutton.button);
                     mgo::Log::debug(std::format("{} released", buttonName(btn)));
                     Event evt;
@@ -244,28 +246,31 @@ Gamepad::~Gamepad()
                 // gets a snapshot of the final values of all sticks
                 // at every call to getEvents(). Otherwise there would be many
                 // events for each individual axis.
-                // TODO we're not caring about gamepad id here, so if multiple gamepads
-                // are attached they will affect the output.
                 {
+                    auto id = sdlEvent.gaxis.which;
+                    auto& status = m_analogueStatus[id];
                     float value = joystickCurve(normaliseAxis(sdlEvent.gaxis.value), m_deadZone);
+                    if (value != 0.f) {
+                        m_activeGamepad = id;
+                    }
                     switch (sdlEvent.gaxis.axis) {
                         case SDL_GAMEPAD_AXIS_LEFTX:
-                            m_analogueStatus.leftX = value;
+                            status.leftX = value;
                             break;
                         case SDL_GAMEPAD_AXIS_LEFTY:
-                            m_analogueStatus.leftY = -value;
+                            status.leftY = -value;
                             break;
                         case SDL_GAMEPAD_AXIS_RIGHTX:
-                            m_analogueStatus.rightX = value;
+                            status.rightX = value;
                             break;
                         case SDL_GAMEPAD_AXIS_RIGHTY:
-                            m_analogueStatus.rightY = -value;
+                            status.rightY = -value;
                             break;
                         case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER:
-                            m_analogueStatus.rightTrigger = value;
+                            status.rightTrigger = value;
                             break;
                         case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
-                            m_analogueStatus.leftTrigger = value;
+                            status.leftTrigger = value;
                             break;
                         default:
                             // do nothing
@@ -278,17 +283,23 @@ Gamepad::~Gamepad()
                 break;
         }
     }
-    if (m_analogueStatus.leftTrigger != m_previousAnalogueStatus.leftTrigger
-        || m_analogueStatus.rightTrigger != m_previousAnalogueStatus.rightTrigger
-        || m_analogueStatus.leftX != m_previousAnalogueStatus.leftX
-        || m_analogueStatus.rightX != m_previousAnalogueStatus.rightX
-        || m_analogueStatus.leftY != m_previousAnalogueStatus.leftY
-        || m_analogueStatus.rightY != m_previousAnalogueStatus.rightY) {
+    // All zeros if the active gamepad has been disconnected
+    AnalogueStatus current;
+    if (auto it = m_analogueStatus.find(m_activeGamepad); it != m_analogueStatus.end()) {
+        current = it->second;
+    }
+    if (current.leftTrigger != m_previousAnalogueStatus.leftTrigger
+        || current.rightTrigger != m_previousAnalogueStatus.rightTrigger
+        || current.leftX != m_previousAnalogueStatus.leftX
+        || current.rightX != m_previousAnalogueStatus.rightX
+        || current.leftY != m_previousAnalogueStatus.leftY
+        || current.rightY != m_previousAnalogueStatus.rightY) {
         Event evt;
         evt.eventType = EventType::Analogue;
-        evt.analogue = m_analogueStatus;
+        evt.joystickId = m_activeGamepad;
+        evt.analogue = current;
         events.push_back(evt);
-        m_previousAnalogueStatus = m_analogueStatus;
+        m_previousAnalogueStatus = current;
     }
     return events;
 }
@@ -308,8 +319,11 @@ void Gamepad::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint
     if (m_gamepads.empty()) {
         return;
     }
-    auto gamepad = m_gamepads.begin()->second;
-    SDL_RumbleGamepad(gamepad, lowFreqIntensity, highFreqIntensity, durationMs);
+    auto it = m_gamepads.find(m_activeGamepad);
+    if (it == m_gamepads.end()) {
+        it = m_gamepads.begin();
+    }
+    SDL_RumbleGamepad(it->second, lowFreqIntensity, highFreqIntensity, durationMs);
 }
 
 } // namespace gamepad
