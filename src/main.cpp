@@ -1,4 +1,9 @@
+#ifdef AMAZE_QT
+#include "qtadapter.h"
+#include <QApplication>
+#else
 #include "sfmladapter.h"
+#endif
 
 #include "configreader.h"
 #include "controller.h"
@@ -106,13 +111,24 @@ int main(int argc, char* argv[])
             levelFile = programOptions.getCmdOption("--file");
         }
 
+#ifdef AMAZE_QT
+        QApplication app(argc, argv);
+        QtAdapter graphicsManager(width, height, useFullScreen, dataDir);
+#else
         SfmlAdapter graphicsManager(width, height, useFullScreen, dataDir);
+#endif
 
         GameModel gameModel(dataDir);
         View view(gameModel, graphicsManager);
 
         Controller controller(gameModel, view, graphicsManager);
+#ifdef AMAZE_QT
+        // Qt owns the event loop, and calls the controller once per displayed frame
+        controller.start(gameLevel, levelFile);
+        graphicsManager.run([&]() { return controller.frame(); });
+#else
         controller.mainLoop(gameLevel, levelFile);
+#endif
 
         // TODO model.preferencesSave();
 

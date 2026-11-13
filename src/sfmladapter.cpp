@@ -72,10 +72,18 @@ void SfmlAdapter::redraw()
     m_window.display();
 }
 
-void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b)
+void SfmlAdapter::drawLine(
+    float xFrom,
+    float yFrom,
+    float xTo,
+    float yTo,
+    float width,
+    int r,
+    int g,
+    int b)
 {
-    sf::Vector2f point1 { static_cast<float>(xFrom), static_cast<float>(yFrom) };
-    sf::Vector2f point2 { static_cast<float>(xTo), static_cast<float>(yTo) };
+    sf::Vector2f point1 { xFrom, yFrom };
+    sf::Vector2f point2 { xTo, yTo };
     sf::VertexArray vertices(sf::PrimitiveType::Lines, 4);
 
     sf::Vector2f direction = point2 - point1;

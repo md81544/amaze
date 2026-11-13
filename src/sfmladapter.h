@@ -30,7 +30,8 @@ public:
     virtual void cls() override;
     virtual void redraw() override;
     virtual void
-    drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b) override;
+    drawLine(float xFrom, float yFrom, float xTo, float yTo, float width, int r, int g, int b)
+        override;
     virtual int getWindowWidth() const override;
     virtual int getWindowHeight() const override;
     virtual int getTicks() const override;

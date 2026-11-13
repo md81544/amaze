@@ -52,16 +52,17 @@ public:
     virtual void setVsync(bool enabled) = 0;
     virtual void cls() = 0;
     virtual void redraw() = 0;
-    virtual void drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b)
-        = 0;
+    virtual void
+    drawLine(float xFrom, float yFrom, float xTo, float yTo, float width, int r, int g, int b) = 0;
+    // Dimensions of the drawing area. This may be a virtual size rather than physical
+    // pixels, e.g. if the adapter scales its drawing to the window.
     virtual int getWindowWidth() const = 0;
     virtual int getWindowHeight() const = 0;
     virtual int getTicks() const = 0;
 
     virtual void registerControlHandler(
         KeyControls key,
-        std::function<void(const bool, const float)> controlHandler)
-        = 0;
+        std::function<void(const bool, const float)> controlHandler) = 0;
     virtual void processInput(bool paused) = 0;
 
     virtual void drawStatusBar() = 0;

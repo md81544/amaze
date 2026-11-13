@@ -3,6 +3,7 @@
 #include "utils.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace marengo {
 namespace amaze {
@@ -97,9 +98,12 @@ void View::draw()
 
 void View::rotateAndDrawShape(const GameShape& shape) const
 {
-    // We treat the viewport as representing 480 coordinate units wide,
-    // regardless of its physical dimensions:
-    double scale = m_graphicsAdapter.getWindowWidth() / 480.0;
+    // The viewport always shows the same area of the arena (480x300 units
+    // worth), regardless of its physical dimensions, so a differently-shaped
+    // window doesn't let the player see more of the maze:
+    double width = m_graphicsAdapter.getWindowWidth();
+    double height = m_graphicsAdapter.getWindowHeight();
+    double scale = std::sqrt((width * height) / (480.0 * 300.0));
     double xOffset = m_graphicsAdapter.getWindowWidth() / 2.0;
     double yOffset = m_graphicsAdapter.getWindowHeight() / 2.0;
 
@@ -143,24 +147,6 @@ void View::rotateAndDrawShape(const GameShape& shape) const
             r,
             g,
             b);
-    }
-}
-
-void View::drawStaticShape(const GameShape& shape) const
-{
-    // Note that static images' coordinates' origin is TOP LEFT OF THE SCREEN
-    double scale = m_graphicsAdapter.getWindowWidth() / 480.0;
-
-    for (const auto& sl : shape.getVec()) {
-        m_graphicsAdapter.drawLine(
-            (sl.x0 + shape.getPosX()) * scale,
-            (sl.y0 + shape.getPosY()) * scale,
-            (sl.x1 + shape.getPosX()) * scale,
-            (sl.y1 + shape.getPosY()) * scale,
-            sl.lineThickness * m_graphicsAdapter.getScalingFactor(),
-            sl.r,
-            sl.g,
-            sl.b);
     }
 }
 

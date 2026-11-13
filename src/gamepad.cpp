@@ -134,6 +134,9 @@ ButtonType sdlToButtonType(SDL_GamepadButton button)
 
 Gamepad::Gamepad()
 {
+    // We only use SDL for gamepads, so don't let it intercept SIGINT/SIGTERM
+    // (it would turn them into SDL quit events, which we don't handle)
+    SDL_SetHint(SDL_HINT_NO_SIGNAL_HANDLERS, "1");
     if (!SDL_Init(SDL_INIT_GAMEPAD)) {
         THROWUP(AmazeRuntimeException, "Could not initialise SDL for joystick");
     }

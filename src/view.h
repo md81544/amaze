@@ -5,8 +5,9 @@
 // update the display according to the state held within the model.
 //
 // Note that the actual size of the window on the screen is determined
-// by the graphics adapter. The view simply treats this as a (roughly)
-// 20% x 15% window onto the Level arena.
+// by the graphics adapter. The view treats this as a window onto the Level
+// arena with a constant area (equivalent to 480x300 arena units), whatever
+// the window's size or shape.
 //
 // The "view" also includes other output, e.g. sounds.
 
@@ -18,7 +19,6 @@ public:
     View(GameModel& model, IGraphicsAdapter& gm);
     void draw(); // this is called once per displayed frame
     void rotateAndDrawShape(const GameShape& shape) const;
-    void drawStaticShape(const GameShape& shape) const;
     void playSounds(); // this is called once per simulation tick
     void stopSounds();
 
