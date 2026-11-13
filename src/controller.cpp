@@ -272,7 +272,12 @@ void Controller::processMenu()
         m_shell.setStickDeadZonePercent(results.stickDeadZonePercent);
         saveMenuOptions();
         if (m_currentMenu == MenuType::OK) {
-            if (!results.levelFileToLoad.empty()) {
+            // Don't restart the current level, e.g. when the menu was only
+            // opened to change the music volume
+            std::error_code ec;
+            bool isCurrentLevel = std::filesystem::equivalent(
+                results.levelFileToLoad, m_gameModel.levelFileName(), ec);
+            if (!results.levelFileToLoad.empty() && !isCurrentLevel) {
                 loadLevel(results.levelFileToLoad);
                 m_levelStartPending = true;
             }
