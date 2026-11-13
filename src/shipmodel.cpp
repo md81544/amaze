@@ -184,10 +184,30 @@ void ShipModel::updateShipPosition()
     }
 
     // calculate new position for ship
+    m_previousX = m_shipX;
+    m_previousY = m_shipY;
     m_shipX = m_shipX - m_dx;
     m_shipY = m_shipY - m_dy;
 
     m_shipGameShape->setPos(m_shipX, m_shipY);
+}
+
+QPointF ShipModel::lastMove() const
+{
+    return QPointF(m_shipX - m_previousX, m_shipY - m_previousY);
+}
+
+void ShipModel::revertPosition()
+{
+    m_shipX = m_previousX;
+    m_shipY = m_previousY;
+    m_shipGameShape->setPos(m_shipX, m_shipY);
+}
+
+void ShipModel::revertRotation()
+{
+    setRotation(-m_lastRotationDelta);
+    m_lastRotationDelta = 0.0; // so calling this twice doesn't rotate back again
 }
 
 void ShipModel::setVisible(bool value)
@@ -209,6 +229,7 @@ void ShipModel::tick(bool isExploding)
 {
     // Called once per simulation tick by the GameModel
     setRotation(m_rotationDelta);
+    m_lastRotationDelta = m_rotationDelta;
 
     updateShipPosition();
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <tuple>
 
@@ -68,6 +69,9 @@ public:
     const ShipModel& shipModel() const;
 
     std::tuple<GameShapeType, std::shared_ptr<GameShape>> collisionDetect() const;
+    // Bounces the ship off the obstacle(s) it's touching. Returns the speed of
+    // impact, i.e. how fast the ship was moving towards the obstacle.
+    double bounceShip();
 
     // Advances moving objects, the ship, explosions etc. by one simulation tick
     void tick();
@@ -106,6 +110,13 @@ private:
     utils::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
     void rebuildShip();
+    // Combined contact normal for all obstacles the ship is touching (see
+    // Shape::contactNormal())
+    std::optional<QPointF> shipContactNormal() const;
+    bool shipTouchesObstacle() const;
+    // Moves the ship away from obstacles it's touching, until it's clear or
+    // has moved a limited distance. Returns true if it's clear.
+    bool pushShipClear();
     int m_livesRemaining { 1 };
     Scheduler m_scheduler;
 };

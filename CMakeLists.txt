@@ -142,9 +142,13 @@ if(Catch2_FOUND)
         tests/shape_tests.cpp
         tests/levelfile_tests.cpp
         tests/viewtransform_tests.cpp
+        tests/bounce_tests.cpp
+        src/gamemodel.cpp
         src/gameshape.cpp
         src/levelfile.cpp
+        src/scheduler.cpp
         src/shape.cpp
+        src/shipmodel.cpp
         src/utils.cpp
     )
     target_include_directories(${APP_NAME}_tests PRIVATE src)

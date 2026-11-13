@@ -2,11 +2,32 @@
 #include "levelfile.h"
 #include "log.h"
 
+#include <algorithm>
 #include <cmath>
 #include <filesystem>
 
 namespace marengo {
 namespace amaze {
+
+namespace {
+
+// Proportion of the ship's speed towards an obstacle which it bounces back with
+constexpr double BOUNCE_RESTITUTION = 0.5;
+// Proportion of the ship's speed along an obstacle which it keeps on impact
+constexpr double BOUNCE_TANGENTIAL_RETAINED = 0.8;
+// If the ship is still touching an obstacle after a bounce (e.g. it rotated
+// into it, or a moving object moved into it), it's pushed clear in steps of
+// this size, up to a limit
+constexpr double PUSH_OUT_STEP = 0.25;
+constexpr int MAX_PUSH_OUT_STEPS = 40;
+
+bool isObstacle(GameShapeType type)
+{
+    return type == GameShapeType::OBSTRUCTION || type == GameShapeType::MOVING
+        || type == GameShapeType::BREAKABLE;
+}
+
+} // namespace
 
 GameModel::GameModel(const std::string& dataPath)
     : m_dataPath(dataPath)
@@ -164,6 +185,103 @@ std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect
         }
     }
     return { GameShapeType::NEUTRAL, nullptr };
+}
+
+std::optional<QPointF> GameModel::shipContactNormal() const
+{
+    QPointF sum;
+    bool touching = false;
+    for (const auto& obj : m_allDynamicGameShapes) {
+        if (!obj->IsActive() || !isObstacle(obj->getGameShapeType())) {
+            continue;
+        }
+        if (auto normal = m_shipModel->shipGameShape()->contactNormal(obj)) {
+            sum += *normal;
+            touching = true;
+        }
+    }
+    double length = std::hypot(sum.x(), sum.y());
+    if (!touching || length < 1e-9) {
+        return std::nullopt;
+    }
+    return sum / length;
+}
+
+bool GameModel::shipTouchesObstacle() const
+{
+    for (const auto& obj : m_allDynamicGameShapes) {
+        if (obj->IsActive() && isObstacle(obj->getGameShapeType())
+            && m_shipModel->shipGameShape()->intersectCheck(obj)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool GameModel::pushShipClear()
+{
+    auto& ship = *m_shipModel;
+    for (int n = 0; n < MAX_PUSH_OUT_STEPS; ++n) {
+        auto direction = shipContactNormal();
+        if (!direction) {
+            break;
+        }
+        ship.setShipX(ship.x() + direction->x() * PUSH_OUT_STEP);
+        ship.setShipY(ship.y() + direction->y() * PUSH_OUT_STEP);
+    }
+    return !shipTouchesObstacle();
+}
+
+double GameModel::bounceShip()
+{
+    auto& ship = *m_shipModel;
+    auto normal = shipContactNormal();
+    QPointF move = ship.lastMove();
+
+    // Go back to where the ship was before this tick's move. Unless it rotated
+    // into something (or a moving object moved into it) it's then clear.
+    ship.revertPosition();
+
+    double impactSpeed = 0.0;
+    if (normal) {
+        // Note the ship moves by -(dX, dY) each tick
+        QPointF motion(-ship.dX(), -ship.dY());
+        impactSpeed = -QPointF::dotProduct(motion, *normal);
+        if (impactSpeed > 0.0) {
+            // Reverse the part of the motion towards the obstacle, and slow the
+            // part along it a bit
+            QPointF towards = *normal * -impactSpeed;
+            QPointF along = motion - towards;
+            motion = along * BOUNCE_TANGENTIAL_RETAINED - towards * BOUNCE_RESTITUTION;
+            ship.setDx(-motion.x());
+            ship.setDy(-motion.y());
+        }
+
+        // Still make the part of this tick's move which was along the
+        // obstacle, so the ship slides along it rather than sticking to it
+        // when e.g. thrusting against it
+        double into = QPointF::dotProduct(move, *normal);
+        if (into < 0.0) {
+            QPointF slide = move - *normal * into;
+            ship.setShipX(ship.x() + slide.x());
+            ship.setShipY(ship.y() + slide.y());
+            if (shipTouchesObstacle()) {
+                ship.revertPosition();
+            }
+        }
+    }
+
+    // Rotating is never blocked by an obstacle, as that can leave the ship
+    // unable to turn away from it; the ship is pushed clear instead. Only if
+    // that isn't possible (e.g. somewhere too narrow to turn) is the rotation
+    // undone.
+    if (!pushShipClear()) {
+        ship.revertPosition();
+        ship.revertRotation();
+        pushShipClear();
+    }
+
+    return std::max(impactSpeed, 0.0);
 }
 
 void GameModel::tick()

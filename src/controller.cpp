@@ -28,6 +28,9 @@ constexpr std::chrono::milliseconds MAX_FRAME_TIME { 50 };
 constexpr int RESPAWN_DELAY_TICKS = 2 * TICKS_PER_SECOND;
 // Log frames or input processing that take longer than this (diagnostic only)
 constexpr std::chrono::milliseconds STALL_LOG_THRESHOLD { 50 };
+// Bounces slower than this (units per tick) are silent, e.g. the ship being
+// thrust gently against a wall
+constexpr double BOUNCE_SOUND_MIN_SPEED = 0.3;
 
 } // namespace
 
@@ -397,21 +400,17 @@ void Controller::collisionChecks()
             case GameShapeType::OBSTRUCTION:
             case GameShapeType::MOVING:
                 if (collideeType != GameShapeType::FLAMES) {
-                    m_gameModel.shipModel().setIsExploding(true);
-                    m_gameModel.setGameState(GameState::Exploding);
+                    bounceShip();
                 }
                 break;
             case GameShapeType::BREAKABLE:
-                if (collideeType == GameShapeType::FLAMES) {
-                    m_audio.soundPlay("breakable");
-                    m_gameModel.setBreakableExploding();
-                } else if (m_gameModel.lifeLost() > 0) {
-                    m_audio.soundPlay("breakable");
-                    m_gameModel.setBreakableExploding();
-                } else {
-                    m_gameModel.shipModel().setIsExploding(true);
-                    m_gameModel.setGameState(GameState::Exploding);
+                if (collideeType != GameShapeType::FLAMES) {
+                    // Bounce before it's destroyed, as only active objects
+                    // are bounced off
+                    bounceShip();
                 }
+                m_audio.soundPlay("breakable");
+                m_gameModel.setBreakableExploding();
                 collider->setIsActive(false); // Breakable objects can be destroyed
                 break;
             case GameShapeType::PRISONER:
@@ -422,6 +421,16 @@ void Controller::collisionChecks()
             default:
                 break;
         }
+    }
+}
+
+void Controller::bounceShip()
+{
+    double impactSpeed = m_gameModel.bounceShip();
+    if (impactSpeed >= BOUNCE_SOUND_MIN_SPEED) {
+        m_audio.soundPlay("collision");
+        auto intensity = static_cast<uint16_t>(std::min(impactSpeed / 3.0, 1.0) * 0xFFFF);
+        m_shell.rumble(intensity, intensity, 200);
     }
 }
 

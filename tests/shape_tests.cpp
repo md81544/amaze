@@ -6,6 +6,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include <array>
+#include <cmath>
 #include <initializer_list>
 #include <memory>
 
@@ -163,4 +164,45 @@ TEST_CASE("Rotation and resizing combine")
     CHECK(line.y0 == Catch::Approx(-30));
     // A point there in world coordinates collides
     CHECK(collide(shape, makeShape({ { -1, -30, 1, -30 } }, 100, 200)));
+}
+
+TEST_CASE("Contact normal points away from a touched line towards the shape's centre")
+{
+    // A wall along y = 10, from x = -50 to 50
+    auto wall = makeShape({ { -50, 10, 50, 10 } });
+
+    // A box centred on (0, 0) whose bottom edge is on the wall
+    auto above = makeShape(
+        { { -5, -10, 5, -10 }, { 5, -10, 5, 10 }, { 5, 10, -5, 10 }, { -5, 10, -5, -10 } });
+    auto normal = above->contactNormal(wall);
+    REQUIRE(normal.has_value());
+    CHECK(normal->x() == Catch::Approx(0.0).margin(1e-9));
+    CHECK(normal->y() == Catch::Approx(-1.0));
+
+    // The same box on the other side of the wall gets the opposite normal
+    auto below = makeShape(
+        { { -5, -10, 5, -10 }, { 5, -10, 5, 10 }, { 5, 10, -5, 10 }, { -5, 10, -5, -10 } }, 0, 20);
+    normal = below->contactNormal(wall);
+    REQUIRE(normal.has_value());
+    CHECK(normal->y() == Catch::Approx(1.0));
+}
+
+TEST_CASE("Contact normal from the end of a line points away from that end")
+{
+    // The end of a wall at (0, 0) pokes into a box centred on (10, 10)
+    auto wall = makeShape({ { -50, -50, 0, 0 } });
+    auto box = makeShape(
+        { { -5, -5, 5, -5 }, { 5, -5, 5, 5 }, { 5, 5, -5, 5 }, { -5, 5, -5, -5 } }, 4, 4);
+    auto normal = box->contactNormal(wall);
+    REQUIRE(normal.has_value());
+    CHECK(normal->x() == Catch::Approx(std::sqrt(0.5)));
+    CHECK(normal->y() == Catch::Approx(std::sqrt(0.5)));
+}
+
+TEST_CASE("No contact normal when not touching")
+{
+    auto wall = makeShape({ { -50, 10, 50, 10 } });
+    auto box
+        = makeShape({ { -5, -5, 5, -5 }, { 5, -5, 5, 5 }, { 5, 5, -5, 5 }, { -5, 5, -5, -5 } });
+    CHECK_FALSE(box->contactNormal(wall).has_value());
 }

@@ -5,6 +5,7 @@
 
 #include <QLineF>
 
+#include <algorithm>
 #include <cmath>
 #include <format>
 #include <sstream>
@@ -234,6 +235,52 @@ bool Shape::intersectCheck(std::shared_ptr<Shape> s) const
         }
     }
     return false;
+}
+
+std::optional<QPointF> Shape::contactNormal(const std::shared_ptr<Shape>& other) const
+{
+    QPointF centre(m_x, m_y);
+    QPointF sum;
+    bool touching = false;
+    for (const auto& theirs : other->getVec()) {
+        QLineF theirLine(
+            theirs.x0 + other->getPosX(),
+            theirs.y0 + other->getPosY(),
+            theirs.x1 + other->getPosX(),
+            theirs.y1 + other->getPosY());
+        bool touchesThisLine = false;
+        for (const auto& mine : m_shapeLines) {
+            QLineF myLine(mine.x0 + m_x, mine.y0 + m_y, mine.x1 + m_x, mine.y1 + m_y);
+            if (linesTouch(myLine, theirLine)) {
+                touchesThisLine = true;
+                break;
+            }
+        }
+        if (!touchesThisLine) {
+            continue;
+        }
+        touching = true;
+        // Direction from the closest point on their line to our centre. For a
+        // hit along a line this is perpendicular to it; for a hit on the end
+        // of a line (e.g. a corner) it points away from that end.
+        QPointF direction = theirLine.p2() - theirLine.p1();
+        double lengthSquared = QPointF::dotProduct(direction, direction);
+        double along = 0.0;
+        if (lengthSquared > 0.0) {
+            along = std::clamp(
+                QPointF::dotProduct(centre - theirLine.p1(), direction) / lengthSquared, 0.0, 1.0);
+        }
+        QPointF away = centre - (theirLine.p1() + direction * along);
+        double distance = std::hypot(away.x(), away.y());
+        if (distance > 0.0) {
+            sum += away / distance;
+        }
+    }
+    double length = std::hypot(sum.x(), sum.y());
+    if (!touching || length < 1e-9) {
+        return std::nullopt;
+    }
+    return sum / length;
 }
 
 const std::vector<ShapeLine>& Shape::getVec() const

@@ -1,8 +1,11 @@
 #pragma once
 
+#include <QPointF>
+
 #include <cstdint>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -47,6 +50,11 @@ public:
         int lineThickness);
     void clear();
     bool intersectCheck(std::shared_ptr<Shape>) const;
+    // If this shape touches the other one, returns a unit vector pointing
+    // away from the other shape's touched lines, towards this shape's centre
+    // (i.e. the direction to bounce in). Returns nullopt if not touching, or
+    // if the touched lines' directions cancel out.
+    std::optional<QPointF> contactNormal(const std::shared_ptr<Shape>& other) const;
     const std::vector<ShapeLine>& getVec() const;
     void setPosFromCentre();
 

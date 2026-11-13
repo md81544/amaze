@@ -50,6 +50,11 @@ public:
     void setShipY(double value);
 
     void updateShipPosition();
+    // How far the ship moved in the last tick()
+    QPointF lastMove() const;
+    // Undo the movement or rotation of the last tick()
+    void revertPosition();
+    void revertRotation();
 
     void setVisible(bool value);
 
@@ -66,6 +71,10 @@ private:
     double m_rotationDelta { 0.0 };
     double m_shipX { 0.0 };
     double m_shipY { 0.0 };
+    // Position and rotation change before the last tick(), for revertLastMove()
+    double m_previousX { 0.0 };
+    double m_previousY { 0.0 };
+    double m_lastRotationDelta { 0.0 };
     double m_dx { 0.0 };
     double m_dy { 0.0 };
     double m_velocity { 0.0 };

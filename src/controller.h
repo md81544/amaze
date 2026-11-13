@@ -40,6 +40,7 @@ private:
     void tick(); // once per simulation tick
     void render(QPainter& painter, const QSizeF& canvasSize); // once per displayed frame
     void collisionChecks();
+    void bounceShip(); // off whatever obstacle it's touching
     void registerControlHandlers();
 
     GameModel& m_gameModel;
