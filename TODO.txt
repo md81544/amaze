@@ -1,5 +1,8 @@
 * Log level in cfg file
 
+* Possible to address anti-aliasing of lines? (Particularly visible on red lines
+  and the ship in windowed mode where the lines are thinner).
+
 * (Low priority) Shapes could keep original geometry plus position/angle/scale and
   apply them via QTransform, rather than rewriting the lines when rotated/resized.
   Tidier, but measured rounding drift is negligible (~1e-9 units after 10 hours), so
