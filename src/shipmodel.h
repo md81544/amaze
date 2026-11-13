@@ -65,12 +65,12 @@ public:
 private:
     double m_rotation { 0.0 };
     double m_rotationDelta { 0.0 };
-    double m_shipX;
-    double m_shipY;
-    double m_dx;
-    double m_dy;
+    double m_shipX { 0.0 };
+    double m_shipY { 0.0 };
+    double m_dx { 0.0 };
+    double m_dy { 0.0 };
     double m_velocity { 0.0 };
-    double m_maxVelocity;
+    double m_maxVelocity { 0.0 };
     bool m_isAccelerating { false };
     float m_accelerationAmount { 0.f };
 

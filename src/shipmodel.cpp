@@ -62,6 +62,8 @@ double ShipModel::x() const
 void ShipModel::setShipX(double value)
 {
     m_shipX = value;
+    // Keep the drawn ship in step, as it may be drawn before the next process()
+    m_shipGameShape->setPos(m_shipX, m_shipY);
 }
 
 double ShipModel::y() const
@@ -72,6 +74,7 @@ double ShipModel::y() const
 void ShipModel::setShipY(double value)
 {
     m_shipY = value;
+    m_shipGameShape->setPos(m_shipX, m_shipY);
 }
 
 double ShipModel::rotation() const
