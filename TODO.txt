@@ -1,4 +1,4 @@
-* Save config (e.g. background music volume, stick deadzone, last level)
+* Save config (e.g. background music volume, stick deadzone, last level, window position/size)
 
 * Log level in cfg file
 
