@@ -1,9 +1,7 @@
 #pragma once
 
-// Note that we are using SDL, not SFML for gamepad input
-// SFML's handling of gamepads is a bit erratic, whereas
-// SDL normalises all gamepads such that right stick is always reported
-// rather SFML's method of presenting axes that may or may not exist depending
+// Gamepad input uses SDL (Qt 6 has no gamepad support). SDL normalises all
+// gamepads, e.g. the right stick is always reported the same way whatever
 // the gamepad type. All SDL code is encapsulated within this class and init
 // and quit is handled via RAII.
 

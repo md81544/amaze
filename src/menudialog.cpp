@@ -1,4 +1,4 @@
-#include "qtmenudialog.h"
+#include "menudialog.h"
 
 #include <QFormLayout>
 #include <QHBoxLayout>

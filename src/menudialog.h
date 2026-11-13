@@ -4,7 +4,7 @@
 // result is QDialog::Accepted (OK), QDialog::Rejected (Cancel), or
 // MenuDialog::ExitGame.
 
-#include "igraphicsadapter.h"
+#include "controls.h"
 #include "levelfilelister.h"
 
 #include <QDialog>

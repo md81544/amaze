@@ -1,16 +1,13 @@
-#ifdef AMAZE_QT
-#include "qtadapter.h"
-#include <QApplication>
-#else
-#include "sfmladapter.h"
-#endif
-
+#include "audio.h"
 #include "configreader.h"
 #include "controller.h"
 #include "exceptions.h"
+#include "gameshell.h"
 #include "log.h"
 #include "programoptions.h"
 #include "view.h"
+
+#include <QApplication>
 
 #include <filesystem>
 #include <format>
@@ -28,7 +25,7 @@
 //
 // VIEW
 // Basically just code which interprets what it finds in a model and
-// outputs it to the screen (with the aid of IGraphicsAdapter).
+// outputs it to the screen and speakers.
 //
 // CONTROLLER
 // The "binding" between Model and View - this should contain logic
@@ -111,24 +108,19 @@ int main(int argc, char* argv[])
             levelFile = programOptions.getCmdOption("--file");
         }
 
-#ifdef AMAZE_QT
         QApplication app(argc, argv);
-        QtAdapter graphicsManager(width, height, useFullScreen, dataDir);
-#else
-        SfmlAdapter graphicsManager(width, height, useFullScreen, dataDir);
-#endif
+        Audio audio;
+        GameShell shell(width, height, useFullScreen, dataDir);
 
         GameModel gameModel(dataDir);
-        View view(gameModel, graphicsManager);
+        View view(gameModel, audio, dataDir);
 
-        Controller controller(gameModel, view, graphicsManager);
-#ifdef AMAZE_QT
-        // Qt owns the event loop, and calls the controller once per displayed frame
+        Controller controller(gameModel, view, shell, audio);
         controller.start(gameLevel, levelFile);
-        graphicsManager.run([&]() { return controller.frame(); });
-#else
-        controller.mainLoop(gameLevel, levelFile);
-#endif
+        // Qt owns the event loop, and calls the controller once per displayed frame
+        shell.run([&](QPainter& painter, const QSizeF& canvasSize) {
+            return controller.frame(painter, canvasSize);
+        });
 
         // TODO model.preferencesSave();
 

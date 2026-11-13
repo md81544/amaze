@@ -1,24 +1,15 @@
-#include "qtadapter.h"
-#include "exceptions.h"
-#include "gamepad.h"
-#include "log.h"
-#include "qtgamewidget.h"
-#include "qtmenudialog.h"
+#include "gameshell.h"
+#include "gamewidget.h"
+#include "menudialog.h"
 
 #include <QApplication>
-#include <QFileInfo>
-#include <QFontDatabase>
-#include <QFontMetricsF>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QScreen>
-#include <QSoundEffect>
 #include <QTimer>
 
-#include <algorithm>
 #include <cmath>
 #include <exception>
-#include <format>
 
 #ifdef __APPLE__
 #include <CoreGraphics/CoreGraphics.h>
@@ -29,20 +20,13 @@ namespace amaze {
 
 namespace {
 
-// The virtual canvas always has this area (see qtadapter.h)
+// The virtual canvas always has this area (see gameshell.h)
 constexpr double CANVAS_AREA = 1920.0 * 1200.0;
 
 // Menu navigation with a stick: how far it must be pushed, and auto-repeat timing
 constexpr float MENU_STICK_THRESHOLD = 0.2f;
 constexpr qint64 MENU_STICK_REPEAT_DELAY_MS = 400;
 constexpr qint64 MENU_STICK_REPEAT_INTERVAL_MS = 120;
-
-void checkFileExists(const std::string& filename)
-{
-    if (!QFileInfo::exists(QString::fromStdString(filename))) {
-        THROWUP(AmazeRuntimeException, std::format("File not found ({})", filename));
-    }
-}
 
 // Hides/shows the cursor immediately, wherever it is. Calls must be balanced.
 void setSystemCursorHidden(bool hidden)
@@ -64,7 +48,7 @@ void setSystemCursorHidden(bool hidden)
 
 } // namespace
 
-QtAdapter::QtAdapter(
+GameShell::GameShell(
     unsigned windowWidth,
     unsigned windowHeight,
     bool useFullScreen,
@@ -81,22 +65,6 @@ QtAdapter::QtAdapter(
     }
     m_window->resize(size);
     m_window->setCursor(Qt::BlankCursor);
-
-    int fontId = QFontDatabase::addApplicationFont(
-        QString::fromStdString(dataDir + "/Oxanium-SemiBold.ttf"));
-    if (fontId < 0) {
-        THROWUP(AmazeRuntimeException, "Font file load error");
-    }
-    m_font = QFont(QFontDatabase::applicationFontFamilies(fontId).at(0));
-
-    m_music.setAudioOutput(&m_musicOutput);
-    QObject::connect(
-        &m_music,
-        &QMediaPlayer::errorOccurred,
-        &m_music,
-        [](QMediaPlayer::Error, const QString& message) {
-            mgo::Log::error(std::format("Music playback error: {}", message.toStdString()));
-        });
 
     QObject::connect(m_menu, &QDialog::finished, m_menu, [this](int result) {
         if (result == QDialog::Accepted) {
@@ -118,14 +86,14 @@ QtAdapter::QtAdapter(
         [this](Qt::ApplicationState) { updateCursor(); });
 }
 
-QtAdapter::~QtAdapter()
+GameShell::~GameShell()
 {
     if (m_systemCursorHidden) {
         setSystemCursorHidden(false);
     }
 }
 
-void QtAdapter::run(std::function<bool()> frameFunction)
+void GameShell::run(FrameFunction frameFunction)
 {
     std::exception_ptr error;
     bool finished = false;
@@ -133,10 +101,11 @@ void QtAdapter::run(std::function<bool()> frameFunction)
         if (finished) {
             return;
         }
-        m_painter = &painter;
-        painter.scale(canvasScale(), canvasScale());
+        double scale = canvasScale();
+        painter.scale(scale, scale);
+        QSizeF canvasSize(m_window->width() / scale, m_window->height() / scale);
         try {
-            if (!frameFunction()) {
+            if (!frameFunction(painter, canvasSize)) {
                 finished = true;
                 // Note quit() can't be used: it asks windows to close first, and
                 // GameWidget refuses so that the game can handle closing itself.
@@ -148,7 +117,6 @@ void QtAdapter::run(std::function<bool()> frameFunction)
             finished = true;
             QCoreApplication::exit(1);
         }
-        m_painter = nullptr;
     });
 
     if (m_useFullScreen) {
@@ -165,7 +133,7 @@ void QtAdapter::run(std::function<bool()> frameFunction)
     }
 }
 
-double QtAdapter::canvasScale() const
+double GameShell::canvasScale() const
 {
     double area = static_cast<double>(m_window->width()) * m_window->height();
     if (area <= 0.0) {
@@ -174,81 +142,14 @@ double QtAdapter::canvasScale() const
     return std::sqrt(area / CANVAS_AREA);
 }
 
-void QtAdapter::setVsync(bool)
-{
-    // Nothing to do: Qt's default surface format already syncs to the display,
-    // and frames are paced by GameWidget redrawing after each buffer swap.
-}
-
-void QtAdapter::cls()
-{
-    // Fill slightly beyond the canvas to avoid any rounding gap at the edges
-    m_painter->fillRect(QRectF(0, 0, getWindowWidth() + 1, getWindowHeight() + 1), Qt::black);
-}
-
-void QtAdapter::redraw()
-{
-    // Nothing to do: Qt presents the frame once GameWidget::paintGL() returns
-}
-
-void QtAdapter::drawLine(
-    float xFrom,
-    float yFrom,
-    float xTo,
-    float yTo,
-    float width,
-    int r,
-    int g,
-    int b)
-{
-    m_painter->setPen(QPen(QColor(r, g, b), width, Qt::SolidLine, Qt::RoundCap));
-    m_painter->drawLine(QLineF(xFrom, yFrom, xTo, yTo));
-}
-
-int QtAdapter::getWindowWidth() const
-{
-    return static_cast<int>(std::lround(m_window->width() / canvasScale()));
-}
-
-int QtAdapter::getWindowHeight() const
-{
-    return static_cast<int>(std::lround(m_window->height() / canvasScale()));
-}
-
-int QtAdapter::getTicks() const
+int GameShell::ticks() const
 {
     return static_cast<int>(m_clock.elapsed());
 }
 
-void QtAdapter::drawStatusBar()
+MenuType GameShell::updateMenu(MenuType menuType)
 {
-    m_painter->fillRect(QRectF(0, 0, getWindowWidth() + 1, 75), Qt::black);
-}
-
-void QtAdapter::drawText(const Text& text)
-{
-    QFont font(m_font);
-    font.setPixelSize(static_cast<int>(text.characterSize));
-    QFontMetricsF metrics(font);
-    QString string = QString::fromStdString(text.text);
-
-    // x and y position are optional, with no value signifying centred in that dimension
-    double x = text.positionX.has_value()
-        ? text.positionX.value()
-        : (getWindowWidth() - metrics.horizontalAdvance(string)) / 2.0;
-    double baseline = text.positionY.has_value()
-        ? text.positionY.value() + metrics.ascent()
-        : (getWindowHeight() + metrics.ascent() - metrics.descent()) / 2.0;
-
-    m_painter->setFont(font);
-    m_painter->setPen(QColor(text.r, text.g, text.b));
-    m_painter->drawText(QPointF(x, baseline), string);
-}
-
-MenuType QtAdapter::menuDraw(MenuType menuType)
-{
-    // The menu is a separate dialog window, so there's nothing to draw here;
-    // just open it if necessary and report how it was closed.
+    // Open the menu dialog if necessary and report how it was closed
     if (m_menuState == MenuType::OK || m_menuState == MenuType::Cancel) {
         auto rc = m_menuState;
         m_menuState = MenuType::None;
@@ -271,7 +172,7 @@ MenuType QtAdapter::menuDraw(MenuType menuType)
     return menuType;
 }
 
-void QtAdapter::menuProcessEvents()
+void GameShell::processMenuInput()
 {
     // The dialog handles keyboard and mouse itself; we just translate gamepad
     // input into key presses for it.
@@ -286,18 +187,18 @@ void QtAdapter::menuProcessEvents()
     }
 }
 
-MenuResults QtAdapter::menuGetResults()
+MenuResults GameShell::menuResults() const
 {
     return m_menu->results();
 }
 
-void QtAdapter::setMouseCursorVisible(bool value)
+void GameShell::setMouseCursorVisible(bool value)
 {
     m_cursorVisible = value;
     updateCursor();
 }
 
-void QtAdapter::updateCursor()
+void GameShell::updateCursor()
 {
     auto shape = m_cursorVisible ? Qt::ArrowCursor : Qt::BlankCursor;
     if (m_window->cursor().shape() != shape) {
@@ -311,7 +212,7 @@ void QtAdapter::updateCursor()
     }
 }
 
-void QtAdapter::toggleFullScreen()
+void GameShell::toggleFullScreen()
 {
     // This is called during a frame, i.e. while painting, and changing the
     // window size then would pull the paint surface out from under the
@@ -326,16 +227,13 @@ void QtAdapter::toggleFullScreen()
     });
 }
 
-void QtAdapter::registerControlHandler(
-    KeyControls key,
-    std::function<void(const bool, const float)> controlHandler)
+void GameShell::registerControlHandler(KeyControls key, ControlHandler controlHandler)
 {
     m_controlHandlers[key] = controlHandler;
 }
 
-void QtAdapter::processInput(bool paused)
+void GameShell::processInput(bool paused)
 {
-    // This is called once per frame, unless a menu is active.
     processGamepadForGame();
 
     for (const auto& event : m_window->takeInputEvents()) {
@@ -357,7 +255,7 @@ void QtAdapter::processInput(bool paused)
     }
 }
 
-void QtAdapter::processGameKeyEvent(const GameInputEvent& event, bool paused)
+void GameShell::processGameKeyEvent(const GameInputEvent& event, bool paused)
 {
     // Note Qt reports the shifted character for punctuation keys, so e.g.
     // shift+comma arrives as Key_Less.
@@ -447,7 +345,7 @@ void QtAdapter::processGameKeyEvent(const GameInputEvent& event, bool paused)
     }
 }
 
-void QtAdapter::processGamepadForGame()
+void GameShell::processGamepadForGame()
 {
     for (const auto& evt : m_gamepad.getEvents()) {
         switch (evt.eventType) {
@@ -496,7 +394,7 @@ void QtAdapter::processGamepadForGame()
     }
 }
 
-void QtAdapter::processGamepadForMenu()
+void GameShell::processGamepadForMenu()
 {
     // Either stick, or the D-pad, moves around the dialog (arrow keys);
     // shoulder buttons move between controls (tab); South (A / cross) is
@@ -584,7 +482,7 @@ void QtAdapter::processGamepadForMenu()
     }
 }
 
-void QtAdapter::sendMenuKey(int key, bool pressed)
+void GameShell::sendMenuKey(int key, bool pressed)
 {
     if (!m_menu->isVisible()) {
         return;
@@ -598,79 +496,9 @@ void QtAdapter::sendMenuKey(int key, bool pressed)
         target, new QKeyEvent(pressed ? QEvent::KeyPress : QEvent::KeyRelease, key, modifiers));
 }
 
-QSoundEffect& QtAdapter::sound(const std::string& key)
-{
-    auto it = m_sounds.find(key);
-    if (it == m_sounds.end()) {
-        THROWUP(AmazeRuntimeException, std::format("Sound not loaded ({})", key));
-    }
-    return *it->second;
-}
-
-void QtAdapter::soundLoad(const std::string& key, const std::string& filename)
-{
-    checkFileExists(filename);
-    auto effect = std::make_unique<QSoundEffect>();
-    effect->setSource(QUrl::fromLocalFile(QString::fromStdString(filename)));
-    m_sounds[key] = std::move(effect);
-}
-
-void QtAdapter::soundPlay(const std::string& key)
-{
-    auto& s = sound(key);
-    s.setVolume(1.f);
-    if (!s.isPlaying()) {
-        s.setLoopCount(1);
-        s.play();
-    }
-}
-
-void QtAdapter::soundLoop(const std::string& key, float volume)
-{
-    // volume is a percentage
-    auto& s = sound(key);
-    s.setVolume(std::clamp(volume, 0.f, 100.f) / 100.f);
-    if (!s.isPlaying()) {
-        s.setLoopCount(QSoundEffect::Infinite);
-        s.play();
-    }
-}
-
-void QtAdapter::soundFade(const std::string& key, const int /* msecs */)
-{
-    // Reduce the volume a bit on each call
-    auto& s = sound(key);
-    s.setVolume(std::max(s.volume() - 0.03f, 0.f));
-}
-
-void QtAdapter::musicLoad(const std::string& filename)
-{
-    checkFileExists(filename);
-    m_music.setSource(QUrl::fromLocalFile(QString::fromStdString(filename)));
-}
-
-void QtAdapter::musicPlayLoop()
-{
-    m_music.setLoops(QMediaPlayer::Infinite);
-    m_musicOutput.setVolume(1.f);
-    m_music.play();
-}
-
-void QtAdapter::setMusicVolumePercent(float vol)
-{
-    m_musicOutput.setVolume(std::clamp(vol, 0.f, 100.f) / 100.f);
-}
-
-void QtAdapter::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
+void GameShell::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
 {
     m_gamepad.rumble(lowFreqIntensity, highFreqIntensity, durationMs);
-}
-
-float QtAdapter::getScalingFactor()
-{
-    // The canvas always has the area of a 1920x1200 screen, which the SFML
-    // adapter's scaling (screen height / 1080) puts at:
-    return 1200.f / 1080.f;
 }
 
 } // namespace amaze

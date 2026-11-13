@@ -4,7 +4,6 @@
 #include <vector>
 
 #include "gameshape.h"
-#include "igraphicsadapter.h"
 
 namespace marengo {
 namespace amaze {

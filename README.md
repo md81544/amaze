@@ -2,7 +2,7 @@ This is a game I wrote in 2006, originally for a hand-held ARM-based open source
 
 Note that the code is still only in a half-decent shape - tidying it up is a work in progress.
 
-It originally used a different graphics toolkit, so this is also a port to SFML.
+It originally used a different graphics toolkit; it now uses Qt 6, with SDL3 for gamepad support.
 
 See also the separate repo "level_designer" which enables levels to be designed for the program.
 

@@ -1,4 +1,4 @@
-#include "qtgamewidget.h"
+#include "gamewidget.h"
 
 #include <QApplication>
 #include <QCloseEvent>

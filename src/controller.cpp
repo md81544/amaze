@@ -1,7 +1,7 @@
 #include "controller.h"
+#include "audio.h"
 #include "gamemodel.h"
 #include "gameshape.h"
-#include "igraphicsadapter.h"
 #include "log.h" // IWYU pragma: keep
 #include "utils.h"
 
@@ -30,48 +30,45 @@ constexpr std::chrono::milliseconds STALL_LOG_THRESHOLD { 50 };
 
 } // namespace
 
-Controller::Controller(GameModel& m, View& v, IGraphicsAdapter& g)
+Controller::Controller(GameModel& m, View& v, GameShell& shell, Audio& audio)
     : m_gameModel(m)
     , m_view(v)
-    , m_graphicsAdapter(g)
+    , m_shell(shell)
+    , m_audio(audio)
 {
     registerControlHandlers();
 
     std::filesystem::path dataPath(m_gameModel.getDataPath());
 
     // Load sounds...
-    m_graphicsAdapter.soundLoad("rocket", (dataPath / "rocket.wav").string());
-    m_graphicsAdapter.soundLoad("collision", (dataPath / "collision.wav").string());
-    m_graphicsAdapter.soundLoad("collect", (dataPath / "collect.wav").string());
-    m_graphicsAdapter.soundLoad("success", (dataPath / "success.wav").string());
-    m_graphicsAdapter.soundLoad("breakable", (dataPath / "breakable.wav").string());
-    m_graphicsAdapter.musicLoad((dataPath / "music.ogg").string());
+    m_audio.soundLoad("rocket", (dataPath / "rocket.wav").string());
+    m_audio.soundLoad("collision", (dataPath / "collision.wav").string());
+    m_audio.soundLoad("collect", (dataPath / "collect.wav").string());
+    m_audio.soundLoad("success", (dataPath / "success.wav").string());
+    m_audio.soundLoad("breakable", (dataPath / "breakable.wav").string());
+    m_audio.musicLoad((dataPath / "music.ogg").string());
 }
 
 void Controller::registerControlHandlers()
 {
-    // We register callbacks with the graphics manager to avoid us
-    // having to refer to (for example) SFML-specific keycodes outside of
-    // the graphics manager. Using lambdas here but std::function can
-    // contain functions, lambda expressions, bind expressions, or other
-    // function objects.
+    // We register callbacks with the game shell, which maps keys and gamepad
+    // input to these controls, so key codes etc. don't appear outside it.
 
     // Rotate Left
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::LEFT, [&](const bool isKeyDown, const float value) {
-            if (isKeyDown) {
-                startPlayIfReady();
-                m_gameModel.getShipModel()->setRotationDelta(value);
-            } else {
-                // if we are already rotating in this direction:
-                if (utils::sgn(m_gameModel.getShipModel()->rotationDelta()) == 1) {
-                    m_gameModel.getShipModel()->setRotationDelta(0);
-                }
+    m_shell.registerControlHandler(KeyControls::LEFT, [&](const bool isKeyDown, const float value) {
+        if (isKeyDown) {
+            startPlayIfReady();
+            m_gameModel.getShipModel()->setRotationDelta(value);
+        } else {
+            // if we are already rotating in this direction:
+            if (utils::sgn(m_gameModel.getShipModel()->rotationDelta()) == 1) {
+                m_gameModel.getShipModel()->setRotationDelta(0);
             }
-        });
+        }
+    });
 
     // Rotate with analogue stick
-    m_graphicsAdapter.registerControlHandler(
+    m_shell.registerControlHandler(
         KeyControls::LR_ANALOGUE, [&](const bool /* isKeyDown */, const float value) {
             double rotationDelta = value;
             if (std::abs(rotationDelta) < 0.01) {
@@ -83,7 +80,7 @@ void Controller::registerControlHandlers()
         });
 
     // Rotate Right
-    m_graphicsAdapter.registerControlHandler(
+    m_shell.registerControlHandler(
         KeyControls::RIGHT, [&](const bool isKeyDown, const float value) {
             if (isKeyDown) {
                 startPlayIfReady();
@@ -97,7 +94,7 @@ void Controller::registerControlHandlers()
         });
 
     // Accelerate
-    m_graphicsAdapter.registerControlHandler(
+    m_shell.registerControlHandler(
         KeyControls::ACCELERATE, [&](const bool isKeyDown, const float acceleration) {
             if (isKeyDown) {
                 startPlayIfReady();
@@ -109,52 +106,41 @@ void Controller::registerControlHandlers()
         });
 
     // Pause
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::PAUSE, [&](const bool isKeyDown, const float) {
-            int now = m_graphicsAdapter.getTicks();
-            if (isKeyDown
-                && (m_gameModel.getGameState() == GameState::Running
-                    || m_gameModel.getGameState() == GameState::Paused)
-                && now > m_lastPause + 500) {
-                m_gameModel.togglePause();
-                m_lastPause = m_graphicsAdapter.getTicks();
-            }
-        });
+    m_shell.registerControlHandler(KeyControls::PAUSE, [&](const bool isKeyDown, const float) {
+        int now = m_shell.ticks();
+        if (isKeyDown
+            && (m_gameModel.getGameState() == GameState::Running
+                || m_gameModel.getGameState() == GameState::Paused)
+            && now > m_lastPause + 500) {
+            m_gameModel.togglePause();
+            m_lastPause = m_shell.ticks();
+        }
+    });
 
     // Any other key or button which isn't a control in its own right
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::START, [&](const bool isKeyDown, const float) {
-            if (isKeyDown) {
-                startPlayIfReady();
-            }
-        });
+    m_shell.registerControlHandler(KeyControls::START, [&](const bool isKeyDown, const float) {
+        if (isKeyDown) {
+            startPlayIfReady();
+        }
+    });
 
     // Menu
-    m_graphicsAdapter.registerControlHandler(KeyControls::MENU, [&](const bool, const float) {
+    m_shell.registerControlHandler(KeyControls::MENU, [&](const bool, const float) {
         m_gameModel.setGameState(GameState::Menu);
     });
 
     // Quit
-    m_graphicsAdapter.registerControlHandler(
-        KeyControls::QUIT, [&](const bool isKeyDown, const float) {
-            if (isKeyDown) {
-                m_gameModel.setGameState(GameState::Quit);
-            }
-        });
-}
-
-void Controller::mainLoop(int gameLevel, const std::string& levelFile)
-{
-    // This is the main game control structure, called from main()
-    start(gameLevel, levelFile);
-    while (frame()) { }
+    m_shell.registerControlHandler(KeyControls::QUIT, [&](const bool isKeyDown, const float) {
+        if (isKeyDown) {
+            m_gameModel.setGameState(GameState::Quit);
+        }
+    });
 }
 
 void Controller::start(int gameLevel, const std::string& levelFile)
 {
     // TODO splash screen?
-    m_graphicsAdapter.setVsync(true);
-    m_graphicsAdapter.musicPlayLoop();
+    m_audio.musicPlayLoop();
 
     if (!levelFile.empty()) {
         m_gameModel.levelLoad(levelFile);
@@ -168,7 +154,7 @@ void Controller::start(int gameLevel, const std::string& levelFile)
     m_accumulator = {};
 }
 
-bool Controller::frame()
+bool Controller::frame(QPainter& painter, const QSizeF& canvasSize)
 {
     using namespace std::chrono;
 
@@ -207,7 +193,7 @@ bool Controller::frame()
         return false;
     }
 
-    render();
+    render(painter, canvasSize);
     return true;
 }
 
@@ -218,12 +204,12 @@ void Controller::processInput()
             processMenu();
             break;
         case GameState::Paused:
-            m_graphicsAdapter.processInput(true);
+            m_shell.processInput(true);
             break;
         case GameState::GetReady:
         case GameState::Running:
-            m_graphicsAdapter.setMouseCursorVisible(false);
-            m_graphicsAdapter.processInput(false);
+            m_shell.setMouseCursorVisible(false);
+            m_shell.processInput(false);
             break;
         default:
             break;
@@ -251,20 +237,20 @@ void Controller::startPlayIfReady()
 
 void Controller::processMenu()
 {
-    m_graphicsAdapter.setMouseCursorVisible(true);
+    m_shell.setMouseCursorVisible(true);
     if (m_currentMenu == MenuType::None) {
         m_currentMenu = MenuType::Main;
-        m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
+        m_shell.rumble(0, 0, 0); // turn off any rumbles
         m_gameModel.getShipModel()->setIsAccelerating(false, 0.f);
         m_view.stopSounds();
     }
-    m_graphicsAdapter.menuProcessEvents(); // process SFML events
+    m_shell.processMenuInput();
     // Adjust background music immediately
-    m_graphicsAdapter.setMusicVolumePercent(m_graphicsAdapter.menuGetResults().musicVolumePercent);
+    m_audio.setMusicVolumePercent(m_shell.menuResults().musicVolumePercent);
     if (m_currentMenu == MenuType::OK || m_currentMenu == MenuType::Cancel) {
         // User closed dialog with OK or Cancel
         if (m_currentMenu == MenuType::OK) {
-            MenuResults results = m_graphicsAdapter.menuGetResults();
+            MenuResults results = m_shell.menuResults();
             if (!results.levelFileToLoad.empty()) {
                 m_gameModel.levelLoad(results.levelFileToLoad);
                 m_levelStartPending = true;
@@ -290,12 +276,12 @@ void Controller::tick()
     m_gameModel.savePosition();
     switch (m_gameModel.getGameState()) {
         case GameState::Paused:
-            m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
+            m_shell.rumble(0, 0, 0); // turn off any rumbles
             m_view.stopSounds();
             break;
         case GameState::Dead:
             // We get here when the ship has finished exploding
-            m_graphicsAdapter.rumble(0, 0, 0);
+            m_shell.rumble(0, 0, 0);
             if (m_scheduler.isScheduleItemActive(ScheduleEventName::Respawn)
                 || m_scheduler.isScheduleItemActive(ScheduleEventName::LevelEnded)) {
                 // Already decided what happens next
@@ -319,7 +305,7 @@ void Controller::tick()
             break;
         case GameState::Succeeded:
             m_view.stopSounds();
-            m_graphicsAdapter.rumble(0, 0, 0); // turn off any rumbles
+            m_shell.rumble(0, 0, 0); // turn off any rumbles
             m_gameModel.getShipModel()->shipGameShape()->resize(1.2);
             m_gameModel.getShipModel()->setIsAccelerating(false);
             m_gameModel.getShipModel()->flamesGameShape()->setVisible(false);
@@ -334,7 +320,7 @@ void Controller::tick()
             });
             break;
         case GameState::Exploding:
-            m_graphicsAdapter.rumble(0xFFFF, 0xFFFF, 1000);
+            m_shell.rumble(0xFFFF, 0xFFFF, 1000);
             m_gameModel.process(); // perform all processing required per tick
             break;
         case GameState::Running:
@@ -347,14 +333,12 @@ void Controller::tick()
     m_view.playSounds();
 }
 
-void Controller::render()
+void Controller::render(QPainter& painter, const QSizeF& canvasSize)
 {
-    m_graphicsAdapter.cls();
-    m_view.draw();
+    m_view.draw(painter, canvasSize);
     if (m_gameModel.getGameState() == GameState::Menu) {
-        m_currentMenu = m_graphicsAdapter.menuDraw(m_currentMenu);
+        m_currentMenu = m_shell.updateMenu(m_currentMenu);
     }
-    m_graphicsAdapter.redraw();
 }
 
 void Controller::collisionChecks()
@@ -368,13 +352,13 @@ void Controller::collisionChecks()
         switch (collider->getGameShapeType()) {
             case GameShapeType::EXIT:
                 if (collideeType != GameShapeType::FLAMES) {
-                    m_graphicsAdapter.soundPlay("success");
+                    m_audio.soundPlay("success");
                     m_gameModel.setGameState(GameState::Succeeded);
                 }
                 break;
             case GameShapeType::FUEL:
                 if (collideeType != GameShapeType::FLAMES) {
-                    m_graphicsAdapter.soundPlay("collect");
+                    m_audio.soundPlay("collect");
                     collider->setIsActive(false);
                     m_gameModel.extraLife();
                 }
@@ -393,10 +377,10 @@ void Controller::collisionChecks()
                 break;
             case GameShapeType::BREAKABLE:
                 if (collideeType == GameShapeType::FLAMES) {
-                    m_graphicsAdapter.soundPlay("breakable");
+                    m_audio.soundPlay("breakable");
                     m_gameModel.setBreakableExploding();
                 } else if (m_gameModel.lifeLost() > 0) {
-                    m_graphicsAdapter.soundPlay("breakable");
+                    m_audio.soundPlay("breakable");
                     m_gameModel.setBreakableExploding();
                 } else {
                     m_gameModel.getShipModel()->setIsExploding(true);

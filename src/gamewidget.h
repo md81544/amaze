@@ -1,9 +1,9 @@
 #pragma once
 
-// The main game window when using the Qt adapter. It renders via OpenGL
+// The main game window. It renders via OpenGL
 // (paced by the display's vsync) and calls a callback once per displayed
 // frame with an active QPainter. Input events are queued here and collected
-// by the adapter once per frame, so the game sees them at a predictable point
+// by the GameShell once per frame, so the game sees them at a predictable point
 // in its frame rather than whenever Qt delivers them.
 
 #include <QOpenGLWidget>
