@@ -178,6 +178,10 @@ void GameShell::processMenuInput()
     // input into key presses for it.
     processGamepadForMenu();
 
+    // Keys held when the menu opened will be released in the dialog, so
+    // release them here
+    releaseHeldKeys();
+
     // Discard game window input received while the menu is up (e.g. the
     // focus loss caused by the dialog opening), except a request to quit
     for (const auto& event : m_window->takeInputEvents()) {
@@ -242,6 +246,8 @@ void GameShell::processInput(bool paused)
                 m_controlHandlers[KeyControls::QUIT](true, 0.f);
                 break;
             case GameInputEvent::Type::FocusLost:
+                // Key releases will now go elsewhere
+                releaseHeldKeys();
                 // Pause when window loses focus
                 if (!paused) {
                     m_controlHandlers[KeyControls::PAUSE](true, 0.f);
@@ -274,33 +280,29 @@ void GameShell::processGameKeyEvent(const GameInputEvent& event, bool paused)
                 break;
             case Qt::Key_Up:
             case Qt::Key_Space:
-                if (!paused) {
-                    m_gamepadInUse = false;
-                    m_controlHandlers[KeyControls::ACCELERATE](true, event.shift ? 1.f : 6.f);
-                }
-                break;
             case Qt::Key_Down:
                 if (!paused) {
                     m_gamepadInUse = false;
-                    m_controlHandlers[KeyControls::ACCELERATE](true, event.shift ? 0.4f : 1.f);
+                    m_shiftHeld = event.shift;
+                    m_heldThrust = event.key == Qt::Key_Down ? -1 : 1;
+                    applyHeldThrust();
                 }
                 break;
             case Qt::Key_Left:
             case Qt::Key_A:
             case Qt::Key_Comma:
             case Qt::Key_Less:
-                if (!paused) {
-                    m_gamepadInUse = false;
-                    m_controlHandlers[KeyControls::LEFT](true, event.shift ? 0.1f : 0.75f);
-                }
-                break;
             case Qt::Key_Right:
             case Qt::Key_D:
             case Qt::Key_Period:
             case Qt::Key_Greater:
                 if (!paused) {
                     m_gamepadInUse = false;
-                    m_controlHandlers[KeyControls::RIGHT](true, event.shift ? -0.1f : -0.75f);
+                    m_shiftHeld = event.shift;
+                    bool left = event.key == Qt::Key_Left || event.key == Qt::Key_A
+                        || event.key == Qt::Key_Comma || event.key == Qt::Key_Less;
+                    m_heldRotation = left ? 1 : -1;
+                    applyHeldRotation();
                 }
                 break;
             case Qt::Key_P:
@@ -310,6 +312,13 @@ void GameShell::processGameKeyEvent(const GameInputEvent& event, bool paused)
                 toggleFullScreen();
                 break;
             case Qt::Key_Shift:
+                // Switch any held rotate / thrust keys to fine control
+                m_shiftHeld = true;
+                if (!paused) {
+                    applyHeldRotation();
+                    applyHeldThrust();
+                }
+                break;
             case Qt::Key_Control:
             case Qt::Key_Meta:
             case Qt::Key_Alt:
@@ -323,26 +332,81 @@ void GameShell::processGameKeyEvent(const GameInputEvent& event, bool paused)
     } else {
         switch (event.key) {
             case Qt::Key_Up:
-            case Qt::Key_Down:
             case Qt::Key_Space:
+                if (m_heldThrust == 1) {
+                    m_heldThrust = 0;
+                }
+                m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+                break;
+            case Qt::Key_Down:
+                if (m_heldThrust == -1) {
+                    m_heldThrust = 0;
+                }
                 m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                 break;
             case Qt::Key_Left:
             case Qt::Key_A:
             case Qt::Key_Comma:
             case Qt::Key_Less:
+                if (m_heldRotation == 1) {
+                    m_heldRotation = 0;
+                }
                 m_controlHandlers[KeyControls::LEFT](false, 0.f);
                 break;
             case Qt::Key_Right:
             case Qt::Key_D:
             case Qt::Key_Period:
             case Qt::Key_Greater:
+                if (m_heldRotation == -1) {
+                    m_heldRotation = 0;
+                }
                 m_controlHandlers[KeyControls::RIGHT](false, 0.f);
+                break;
+            case Qt::Key_Shift:
+                // Switch any held rotate / thrust keys back to normal control
+                m_shiftHeld = false;
+                if (!paused) {
+                    applyHeldRotation();
+                    applyHeldThrust();
+                }
                 break;
             default:
                 break;
         }
     }
+}
+
+void GameShell::applyHeldRotation()
+{
+    if (m_heldRotation == 1) {
+        m_controlHandlers[KeyControls::LEFT](true, m_shiftHeld ? 0.1f : 0.75f);
+    } else if (m_heldRotation == -1) {
+        m_controlHandlers[KeyControls::RIGHT](true, m_shiftHeld ? -0.1f : -0.75f);
+    }
+}
+
+void GameShell::applyHeldThrust()
+{
+    if (m_heldThrust == 1) {
+        m_controlHandlers[KeyControls::ACCELERATE](true, m_shiftHeld ? 1.f : 6.f);
+    } else if (m_heldThrust == -1) {
+        m_controlHandlers[KeyControls::ACCELERATE](true, m_shiftHeld ? 0.4f : 1.f);
+    }
+}
+
+void GameShell::releaseHeldKeys()
+{
+    if (m_heldRotation == 1) {
+        m_controlHandlers[KeyControls::LEFT](false, 0.f);
+    } else if (m_heldRotation == -1) {
+        m_controlHandlers[KeyControls::RIGHT](false, 0.f);
+    }
+    if (m_heldThrust != 0) {
+        m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
+    }
+    m_heldRotation = 0;
+    m_heldThrust = 0;
+    m_shiftHeld = false;
 }
 
 void GameShell::processGamepadForGame()

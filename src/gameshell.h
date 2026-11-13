@@ -73,6 +73,13 @@ private:
     // Ratio of window (logical) pixels to virtual canvas pixels
     double canvasScale() const;
     void processGameKeyEvent(const GameInputEvent& event, bool paused);
+    // Calls the rotate / thrust handlers for the keys held, at the strength
+    // for the current shift state
+    void applyHeldRotation();
+    void applyHeldThrust();
+    // Releases any rotate / thrust keys held, e.g. when their releases will go
+    // elsewhere because the window has lost focus
+    void releaseHeldKeys();
     void processGamepadForGame();
     void processGamepadForMenu();
     void sendMenuKey(int key, bool pressed);
@@ -87,6 +94,12 @@ private:
     std::unordered_map<KeyControls, ControlHandler> m_controlHandlers;
     gamepad::Gamepad m_gamepad;
     bool m_gamepadInUse { false };
+    // Keyboard rotate / thrust keys currently held: the most recently pressed
+    // direction (-1, 0 or 1; for rotation, 1 is left; for thrust, 1 is up), and
+    // whether shift (fine control) is held
+    int m_heldRotation { 0 };
+    int m_heldThrust { 0 };
+    bool m_shiftHeld { false };
     bool m_cursorVisible { false };
     // In full screen (while we're the active application) the cursor is also
     // hidden at system level, as that takes effect immediately; Qt cursor
