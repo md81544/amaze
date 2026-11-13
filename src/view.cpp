@@ -16,7 +16,8 @@ View::View(GameModel& model, IGraphicsAdapter& gm)
 
 void View::playSounds()
 {
-    if (m_model.getShipModel()->isAccelerating()) {
+    // (No rocket noise while waiting to start, even if thrust is held)
+    if (m_model.getShipModel()->isAccelerating() && m_model.getGameState() != GameState::GetReady) {
         float vol = m_model.getShipModel()->accelerationAmount() * 2000.f;
         vol = std::clamp(vol, 2.f, 100.f);
 
@@ -64,6 +65,32 @@ void View::draw()
     t.positionY = 20;
     t.text = "Ships remaining: " + std::to_string(m_model.getLivesRemaining());
     m_graphicsAdapter.drawText(t);
+
+    if (m_model.getGameState() == GameState::GetReady) {
+        Text gr;
+        gr.r = 255;
+        gr.g = 255;
+        gr.characterSize = 160;
+        gr.text = "Get Ready";
+        gr.positionY = m_graphicsAdapter.getWindowHeight() * 0.3;
+        m_graphicsAdapter.drawText(gr);
+        if (!m_model.levelDescription().empty()) {
+            Text desc;
+            desc.g = 192;
+            desc.characterSize = 60;
+            desc.text = m_model.levelDescription();
+            desc.positionY = m_graphicsAdapter.getWindowHeight() * 0.3 + 200;
+            m_graphicsAdapter.drawText(desc);
+        }
+        Text prompt;
+        prompt.r = 160;
+        prompt.g = 160;
+        prompt.b = 160;
+        prompt.characterSize = 40;
+        prompt.text = "Press any key to start";
+        prompt.positionY = m_graphicsAdapter.getWindowHeight() * 0.3 + 300;
+        m_graphicsAdapter.drawText(prompt);
+    }
 
     if (m_model.gameIsPaused()) {
         Text pm;

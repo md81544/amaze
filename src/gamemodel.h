@@ -25,6 +25,7 @@ namespace marengo {
 namespace amaze {
 
 enum class GameState {
+    GetReady, // level loaded, about to start
     Running, // normal operation
     Exploding, // ship is exploding
     Dead, // life is lost

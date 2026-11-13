@@ -9,6 +9,7 @@
 #include <QOpenGLWidget>
 
 #include <functional>
+#include <unordered_set>
 #include <vector>
 
 class QPainter;
@@ -41,6 +42,7 @@ protected:
     void keyReleaseEvent(QKeyEvent* event) override;
     void changeEvent(QEvent* event) override;
     void closeEvent(QCloseEvent* event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
     // Stop Tab moving keyboard focus, as we use it to open the menu
     bool focusNextPrevChild(bool) override
     {
@@ -50,6 +52,8 @@ protected:
 private:
     std::function<void(QPainter&)> m_frameCallback;
     std::vector<GameInputEvent> m_inputEvents;
+    std::unordered_set<quint32> m_keysDown; // physical keys currently held
+    bool m_keyPressSeen { false }; // has the application received any key press yet?
 };
 
 } // namespace amaze

@@ -31,6 +31,8 @@ public:
 private:
     void processInput(); // once per displayed frame
     void processMenu();
+    void beginLevel(); // shows "Get Ready" until the player presses something
+    void startPlayIfReady();
     void tick(); // once per simulation tick
     void render(); // once per displayed frame
     void collisionChecks();
@@ -42,6 +44,8 @@ private:
     int m_lastPause { 0 };
     Scheduler m_scheduler;
     MenuType m_currentMenu { MenuType::None };
+    // A level has been loaded but play hasn't started on it yet
+    bool m_levelStartPending { false };
     std::chrono::steady_clock::time_point m_lastFrameTime;
     std::chrono::steady_clock::duration m_accumulator {};
 };

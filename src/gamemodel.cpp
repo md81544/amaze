@@ -21,6 +21,7 @@ void GameModel::initialise(const std::string& levelFileName)
 {
     // Resets the model to a state ready for a new Level
     m_livesRemaining = 1;
+    m_levelDescription.clear();
     m_allDynamicGameShapes.clear();
 
     m_shipModel.reset();

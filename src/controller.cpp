@@ -18,9 +18,12 @@ namespace {
 // tuned for this rate.
 constexpr int TICKS_PER_SECOND = 120;
 constexpr std::chrono::nanoseconds TICK_DURATION { 1'000'000'000 / TICKS_PER_SECOND };
-// If a frame takes longer than this (e.g. window dragged, level loading),
-// don't try to catch up all the lost time.
-constexpr std::chrono::milliseconds MAX_FRAME_TIME { 250 };
+// If a frame takes longer than this (e.g. window being set up, dragged, level
+// loading), don't try to catch up the lost time; the game just pauses briefly.
+// Catching up would make everything jump, and the player would have had no
+// chance to react during the hiccup anyway. This still allows for displays
+// down to 20Hz.
+constexpr std::chrono::milliseconds MAX_FRAME_TIME { 50 };
 constexpr int RESPAWN_DELAY_TICKS = 2 * TICKS_PER_SECOND;
 // Log frames or input processing that take longer than this (diagnostic only)
 constexpr std::chrono::milliseconds STALL_LOG_THRESHOLD { 50 };
@@ -57,6 +60,7 @@ void Controller::registerControlHandlers()
     m_graphicsAdapter.registerControlHandler(
         KeyControls::LEFT, [&](const bool isKeyDown, const float value) {
             if (isKeyDown) {
+                startPlayIfReady();
                 m_gameModel.getShipModel()->setRotationDelta(value);
             } else {
                 // if we are already rotating in this direction:
@@ -72,6 +76,8 @@ void Controller::registerControlHandlers()
             double rotationDelta = value;
             if (std::abs(rotationDelta) < 0.01) {
                 rotationDelta = 0.0;
+            } else {
+                startPlayIfReady();
             }
             m_gameModel.getShipModel()->setRotationDelta(rotationDelta);
         });
@@ -80,6 +86,7 @@ void Controller::registerControlHandlers()
     m_graphicsAdapter.registerControlHandler(
         KeyControls::RIGHT, [&](const bool isKeyDown, const float value) {
             if (isKeyDown) {
+                startPlayIfReady();
                 m_gameModel.getShipModel()->setRotationDelta(value);
             } else {
                 // if we are already rotating in this direction:
@@ -93,6 +100,7 @@ void Controller::registerControlHandlers()
     m_graphicsAdapter.registerControlHandler(
         KeyControls::ACCELERATE, [&](const bool isKeyDown, const float acceleration) {
             if (isKeyDown) {
+                startPlayIfReady();
                 float accln = acceleration / 1000.f;
                 m_gameModel.getShipModel()->setIsAccelerating(true, accln);
             } else {
@@ -110,6 +118,14 @@ void Controller::registerControlHandlers()
                 && now > m_lastPause + 500) {
                 m_gameModel.togglePause();
                 m_lastPause = m_graphicsAdapter.getTicks();
+            }
+        });
+
+    // Any other key or button which isn't a control in its own right
+    m_graphicsAdapter.registerControlHandler(
+        KeyControls::START, [&](const bool isKeyDown, const float) {
+            if (isKeyDown) {
+                startPlayIfReady();
             }
         });
 
@@ -145,7 +161,8 @@ void Controller::start(int gameLevel, const std::string& levelFile)
     } else {
         m_gameModel.levelLoad(gameLevel);
     }
-    m_gameModel.setGameState(GameState::Running);
+    m_levelStartPending = true;
+    beginLevel();
 
     m_lastFrameTime = std::chrono::steady_clock::now();
     m_accumulator = {};
@@ -203,12 +220,32 @@ void Controller::processInput()
         case GameState::Paused:
             m_graphicsAdapter.processInput(true);
             break;
+        case GameState::GetReady:
         case GameState::Running:
             m_graphicsAdapter.setMouseCursorVisible(false);
             m_graphicsAdapter.processInput(false);
             break;
         default:
             break;
+    }
+}
+
+void Controller::beginLevel()
+{
+    // Wait for the player to press something before play starts. Besides
+    // giving them time to look at the level, any one-off delays (window being
+    // set up at startup; on macOS the first key press can stall for 100ms+)
+    // then happen while nothing is moving.
+    m_gameModel.setGameState(GameState::GetReady);
+}
+
+void Controller::startPlayIfReady()
+{
+    // Called from control handlers; the control which starts play also takes
+    // effect, e.g. pressing rotate starts the level already rotating
+    if (m_gameModel.getGameState() == GameState::GetReady) {
+        m_levelStartPending = false;
+        m_gameModel.setGameState(GameState::Running);
     }
 }
 
@@ -230,12 +267,17 @@ void Controller::processMenu()
             MenuResults results = m_graphicsAdapter.menuGetResults();
             if (!results.levelFileToLoad.empty()) {
                 m_gameModel.levelLoad(results.levelFileToLoad);
+                m_levelStartPending = true;
             }
             // TODO: joytick deadzone
         }
         m_currentMenu = MenuType::None;
         m_gameModel.getShipModel()->setVisible(true);
-        m_gameModel.setGameState(GameState::Running);
+        if (m_levelStartPending) {
+            beginLevel();
+        } else {
+            m_gameModel.setGameState(GameState::Running);
+        }
     }
     if (m_currentMenu == MenuType::Exit) {
         m_gameModel.setGameState(GameState::Quit);
@@ -270,6 +312,7 @@ void Controller::tick()
                 // We just reload the level, but display the menu
                 // in case the user wants a different level
                 m_gameModel.levelLoad(m_gameModel.levelFileName());
+                m_levelStartPending = true;
                 m_gameModel.getShipModel()->setVisible(false);
                 m_gameModel.setGameState(GameState::Menu);
             });
@@ -285,6 +328,7 @@ void Controller::tick()
                 // We just reload the level, but display the menu
                 // in case the user wants a different level
                 m_gameModel.levelLoad(m_gameModel.levelFileName());
+                m_levelStartPending = true;
                 m_gameModel.getShipModel()->setVisible(false);
                 m_gameModel.setGameState(GameState::Menu);
             });

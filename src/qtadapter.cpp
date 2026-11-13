@@ -411,7 +411,15 @@ void QtAdapter::processGameKeyEvent(const GameInputEvent& event, bool paused)
             case Qt::Key_F:
                 toggleFullScreen();
                 break;
+            case Qt::Key_Shift:
+            case Qt::Key_Control:
+            case Qt::Key_Meta:
+            case Qt::Key_Alt:
+                // Modifiers on their own do nothing (e.g. Cmd+Tab to switch
+                // apps shouldn't start the game)
+                break;
             default:
+                m_controlHandlers[KeyControls::START](true, 0.f);
                 break;
         }
     } else {
@@ -478,6 +486,8 @@ void QtAdapter::processGamepadForGame()
             case gamepad::EventType::ButtonPressed:
                 if (evt.buttonType == gamepad::ButtonType::Start) {
                     m_controlHandlers[KeyControls::MENU](true, 0.f);
+                } else {
+                    m_controlHandlers[KeyControls::START](true, 0.f);
                 }
                 break;
             default:

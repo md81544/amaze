@@ -25,6 +25,7 @@ enum class KeyControls {
     LR_ANALOGUE, // for game controller
     PAUSE,
     MENU,
+    START, // any other key or button; starts play when waiting to start
 };
 
 enum class MenuType {
