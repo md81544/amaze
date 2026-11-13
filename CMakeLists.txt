@@ -65,14 +65,51 @@ if(APPLE)
         COMMENT "Copying resources into app bundle"
     )
 
-    # macdeployqt copies Qt (including its plugins) and other dylibs into the
-    # bundle. It's slow, so only do it for release builds; debug builds run
-    # against the installed libraries.
+    # macdeployqt copies Qt and other dylibs into the bundle. It's slow, so
+    # only do it for release builds; debug builds run against the installed
+    # libraries.
+    #
+    # By default macdeployqt copies every plugin for the Qt modules used, many
+    # of which we don't need (and some of which it can't deploy cleanly), so
+    # we copy in just the plugins we need, and have macdeployqt deploy their
+    # dependencies too.
+    #
+    # macdeployqt reports 'Cannot resolve rpath "@rpath/libbrotlicommon.1.dylib"'
+    # (used by libbrotlidec, used by FreeType). This is harmless: it only checks
+    # libbrotlidec's own rpaths, whereas at run time the dynamic linker also
+    # uses QtGui's, which point at the bundle's Frameworks directory.
     if(CMAKE_BUILD_TYPE STREQUAL "Release")
         find_program(MACDEPLOYQT macdeployqt REQUIRED
             HINTS "${Qt6_DIR}/../../../bin")
+        # Pairs of plugin type (directory) and plugin target
+        set(BUNDLED_QT_PLUGINS
+            platforms Qt6::QCocoaIntegrationPlugin
+            styles Qt6::QMacStylePlugin
+            multimedia Qt6::QDarwinMediaPlugin
+        )
+        set(PLUGINS_DIR $<TARGET_BUNDLE_CONTENT_DIR:${APP_NAME}>/PlugIns)
+        set(COPY_PLUGINS)
+        set(DEPLOY_PLUGINS)
+        list(LENGTH BUNDLED_QT_PLUGINS count)
+        math(EXPR last "${count} - 1")
+        foreach(i RANGE 0 ${last} 2)
+            math(EXPR j "${i} + 1")
+            list(GET BUNDLED_QT_PLUGINS ${i} type)
+            list(GET BUNDLED_QT_PLUGINS ${j} plugin)
+            list(APPEND COPY_PLUGINS
+                COMMAND ${CMAKE_COMMAND} -E make_directory ${PLUGINS_DIR}/${type}
+                COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${plugin}> ${PLUGINS_DIR}/${type}/
+            )
+            list(APPEND DEPLOY_PLUGINS
+                -executable=${PLUGINS_DIR}/${type}/$<TARGET_FILE_NAME:${plugin}>
+            )
+        endforeach()
         add_custom_command(TARGET ${APP_NAME} POST_BUILD
-            COMMAND ${MACDEPLOYQT} $<TARGET_BUNDLE_DIR:${APP_NAME}>
+            # Start afresh, so nothing is left over from a previous deployment
+            COMMAND ${CMAKE_COMMAND} -E rm -rf
+                ${PLUGINS_DIR} $<TARGET_BUNDLE_CONTENT_DIR:${APP_NAME}>/Frameworks
+            ${COPY_PLUGINS}
+            COMMAND ${MACDEPLOYQT} $<TARGET_BUNDLE_DIR:${APP_NAME}> -no-plugins ${DEPLOY_PLUGINS}
             COMMENT "Bundling app"
         )
     endif()

@@ -1,10 +1,10 @@
-* Save config (e.g. background music volume, stick deadzone, last level, window position/size)
-
 * Log level in cfg file
 
-* Objects which are not obstacles - just decoration
+* Shapes: keep original geometry plus position/angle/scale and apply via QTransform,
+  rather than rewriting the lines every frame (avoids accumulated rounding errors).
+  Could then use QLineF::intersects for collisions. Add collision tests first.
 
-* imgui config for resolution / windowed
+* Objects which are not obstacles - just decoration
 
 * Regenerative power? Power level drops with thrust and refills over time
 
