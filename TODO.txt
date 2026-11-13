@@ -1,7 +1,5 @@
 * Save config (e.g. background music volume, stick deadzone, last level)
 
-* Rename master branch to main
-
 * Log level in cfg file
 
 * Objects which are not obstacles - just decoration
