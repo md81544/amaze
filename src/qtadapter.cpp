@@ -20,6 +20,10 @@
 #include <exception>
 #include <format>
 
+#ifdef __APPLE__
+#include <CoreGraphics/CoreGraphics.h>
+#endif
+
 namespace marengo {
 namespace amaze {
 
@@ -38,6 +42,24 @@ void checkFileExists(const std::string& filename)
     if (!QFileInfo::exists(QString::fromStdString(filename))) {
         THROWUP(AmazeRuntimeException, std::format("File not found ({})", filename));
     }
+}
+
+// Hides/shows the cursor immediately, wherever it is. Calls must be balanced.
+void setSystemCursorHidden(bool hidden)
+{
+#ifdef __APPLE__
+    if (hidden) {
+        CGDisplayHideCursor(kCGDirectMainDisplay);
+    } else {
+        CGDisplayShowCursor(kCGDirectMainDisplay);
+    }
+#else
+    if (hidden) {
+        QGuiApplication::setOverrideCursor(Qt::BlankCursor);
+    } else {
+        QGuiApplication::restoreOverrideCursor();
+    }
+#endif
 }
 
 } // namespace
@@ -87,9 +109,21 @@ QtAdapter::QtAdapter(
         m_window->activateWindow();
         m_window->setFocus();
     });
+
+    // Never leave the cursor hidden while another application is active
+    QObject::connect(
+        qApp,
+        &QGuiApplication::applicationStateChanged,
+        m_window.get(),
+        [this](Qt::ApplicationState) { updateCursor(); });
 }
 
-QtAdapter::~QtAdapter() = default;
+QtAdapter::~QtAdapter()
+{
+    if (m_systemCursorHidden) {
+        setSystemCursorHidden(false);
+    }
+}
 
 void QtAdapter::run(std::function<bool()> frameFunction)
 {
@@ -259,10 +293,37 @@ MenuResults QtAdapter::menuGetResults()
 
 void QtAdapter::setMouseCursorVisible(bool value)
 {
-    auto shape = value ? Qt::ArrowCursor : Qt::BlankCursor;
+    m_cursorVisible = value;
+    updateCursor();
+}
+
+void QtAdapter::updateCursor()
+{
+    auto shape = m_cursorVisible ? Qt::ArrowCursor : Qt::BlankCursor;
     if (m_window->cursor().shape() != shape) {
         m_window->setCursor(shape);
     }
+    bool hideSystemCursor = !m_cursorVisible && m_window->isFullScreen()
+        && QGuiApplication::applicationState() == Qt::ApplicationActive;
+    if (hideSystemCursor != m_systemCursorHidden) {
+        setSystemCursorHidden(hideSystemCursor);
+        m_systemCursorHidden = hideSystemCursor;
+    }
+}
+
+void QtAdapter::toggleFullScreen()
+{
+    // This is called during a frame, i.e. while painting, and changing the
+    // window size then would pull the paint surface out from under the
+    // painter. So do it once the frame is finished.
+    QTimer::singleShot(0, m_window.get(), [this]() {
+        if (m_window->isFullScreen()) {
+            m_window->showNormal();
+        } else {
+            m_window->showFullScreen();
+        }
+        updateCursor();
+    });
 }
 
 void QtAdapter::registerControlHandler(
@@ -346,6 +407,9 @@ void QtAdapter::processGameKeyEvent(const GameInputEvent& event, bool paused)
                 break;
             case Qt::Key_P:
                 m_controlHandlers[KeyControls::PAUSE](true, 0.f);
+                break;
+            case Qt::Key_F:
+                toggleFullScreen();
                 break;
             default:
                 break;

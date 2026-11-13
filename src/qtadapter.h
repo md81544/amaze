@@ -86,6 +86,8 @@ private:
     void processGamepadForGame();
     void processGamepadForMenu();
     void sendMenuKey(int key, bool pressed);
+    void toggleFullScreen();
+    void updateCursor();
     QSoundEffect& sound(const std::string& key);
 
     std::unique_ptr<GameWidget> m_window;
@@ -101,6 +103,11 @@ private:
     QMediaPlayer m_music;
     gamepad::Gamepad m_gamepad;
     bool m_gamepadInUse { false };
+    bool m_cursorVisible { false };
+    // In full screen (while we're the active application) the cursor is also
+    // hidden at system level, as that takes effect immediately; Qt cursor
+    // changes only take effect when the mouse next moves
+    bool m_systemCursorHidden { false };
 
     MenuType m_menuState { MenuType::None };
     bool m_menuOpenPending { false };
