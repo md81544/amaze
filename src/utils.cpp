@@ -1,7 +1,7 @@
 #include "utils.h"
 
-#include "boost/math/constants/constants.hpp"
-
+#include <cmath>
+#include <numbers>
 #include <random>
 #include <string>
 
@@ -39,14 +39,12 @@ void csvSplit(const std::string& s, char c, std::vector<double>& v)
 
 double cosine(double degrees)
 {
-    namespace bmc = boost::math::constants;
-    return std::cos(degrees * (bmc::two_pi<double>() / 360.0));
+    return std::cos(degrees * (std::numbers::pi / 180.0));
 }
 
 double sine(double degrees)
 {
-    namespace bmc = boost::math::constants;
-    return std::sin(degrees * (bmc::two_pi<double>() / 360.0));
+    return std::sin(degrees * (std::numbers::pi / 180.0));
 }
 
 uint8_t rnd(uint8_t max)

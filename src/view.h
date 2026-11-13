@@ -16,10 +16,10 @@ namespace amaze {
 class View {
 public:
     View(GameModel& model, IGraphicsAdapter& gm);
-    void update(); // this is called once per game loop iteration
+    void draw(); // this is called once per displayed frame
     void rotateAndDrawShape(const GameShape& shape) const;
     void drawStaticShape(const GameShape& shape) const;
-    void playSounds();
+    void playSounds(); // this is called once per simulation tick
     void stopSounds();
 
 private:

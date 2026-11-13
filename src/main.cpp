@@ -18,9 +18,8 @@
 // MODEL
 // Any state data should go in a model, obviously.
 // Any logic which supports checking of state, modification of state etc
-// can also go in a model. Note there are multiple models, all of which
-// inherit from IModel. GameModel is the main one which contains the state of
-// the game itself.
+// can also go in a model. Note there are multiple models (e.g. ShipModel);
+// GameModel is the main one which contains the state of the game itself.
 //
 // VIEW
 // Basically just code which interprets what it finds in a model and

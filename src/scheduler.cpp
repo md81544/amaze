@@ -46,14 +46,19 @@ bool Scheduler::isScheduleItemActive(ScheduleEventName name)
 
 void Scheduler::processSchedule()
 {
-    for (auto& si : m_scheduleItems) {
-        --si.numberOfFrames;
-        if (si.numberOfFrames <= 0) {
-            if (si.doAfter) {
-                si.doAfter();
-            }
-        } else if (si.doWhile) {
-            si.doWhile();
+    // Callbacks may add new schedule items, which can reallocate the vector,
+    // so iterate by index over the items present at the start, and copy each
+    // callback before invoking it.
+    const size_t count = m_scheduleItems.size();
+    for (size_t n = 0; n < count; ++n) {
+        std::function<void()> fn;
+        if (--m_scheduleItems[n].numberOfFrames <= 0) {
+            fn = m_scheduleItems[n].doAfter;
+        } else {
+            fn = m_scheduleItems[n].doWhile;
+        }
+        if (fn) {
+            fn();
         }
     }
     // Now remove any ended items:

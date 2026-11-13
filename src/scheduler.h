@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <vector>
 
 namespace marengo {
 namespace amaze {
@@ -10,7 +11,8 @@ namespace amaze {
 enum class ScheduleEventName {
     LevelEnded,
     Exploding,
-    BreakableExploding
+    BreakableExploding,
+    Respawn
 };
 
 struct ScheduleItem {

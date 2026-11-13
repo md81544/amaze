@@ -34,15 +34,15 @@ void View::stopSounds()
     m_graphicsAdapter.soundFade("rocket", 400);
 }
 
-void View::update()
+void View::draw()
 {
     // TODO: this should take a model as its parameter; we shouldn't be bound
     // to one model but should be able to accept any model implementing a
     // specific interface. This would enable us to use models for splash
     // screens / high score screens etc.
 
-    // This is where all state is "realised" e.g. images drawn, sounds played
-    playSounds();
+    // This is where all state is "realised" as images drawn. (Sounds are handled
+    // separately in playSounds(), which is called at the fixed simulation rate.)
 
     // Dynamic shapes (i.e. shapes which rotate around the ship)
     for (const auto& shape : m_model.getAllDynamicObjects()) {
@@ -125,7 +125,7 @@ void View::rotateAndDrawShape(const GameShape& shape) const
         if (shape.getGravity() != 0.f) {
             r = utils::rnd(193);
             g = utils::rnd(193);
-            r = utils::rnd(193);
+            b = utils::rnd(193);
         }
         if (m_model.getGameState() == GameState::Menu
             || m_model.getGameState() == GameState::Paused) {

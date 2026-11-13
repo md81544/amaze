@@ -10,10 +10,9 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(SDL3 REQUIRED)
-find_package(SFML COMPONENTS Graphics Window System Audio REQUIRED)
+find_package(SFML 3.0 COMPONENTS Graphics Window System Audio REQUIRED)
 
 include(FetchContent)
-find_package(SFML 3.0 COMPONENTS System Window Graphics REQUIRED)
 FetchContent_Declare(ImGui
     GIT_REPOSITORY https://github.com/ocornut/imgui
     GIT_TAG v1.91.1

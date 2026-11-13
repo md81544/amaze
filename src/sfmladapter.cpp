@@ -6,7 +6,6 @@
 
 #include <SFML/Window/Keyboard.hpp>
 #include <algorithm>
-#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -15,24 +14,6 @@
 
 namespace marengo {
 namespace amaze {
-
-namespace {
-
-[[maybe_unused]] KeyControls joystickRateLimiter(KeyControls key)
-{
-    static bool firstCall = true;
-    static auto lastGoodCall = std::chrono::system_clock::now();
-    auto now = std::chrono::system_clock::now();
-    KeyControls rc = KeyControls::NONE;
-    if (firstCall || (now - lastGoodCall) > std::chrono::milliseconds(200)) {
-        lastGoodCall = now;
-        rc = key;
-    }
-    firstCall = false;
-    return rc;
-}
-
-} // anonymous namespace
 
 SfmlAdapter::SfmlAdapter(
     unsigned screenWidth,
@@ -61,9 +42,9 @@ SfmlAdapter::SfmlAdapter(
 
 SfmlAdapter::~SfmlAdapter() { }
 
-void SfmlAdapter::setFrameRate(unsigned int fr)
+void SfmlAdapter::setVsync(bool enabled)
 {
-    m_window.setFramerateLimit(fr);
+    m_window.setVerticalSyncEnabled(enabled);
 }
 
 int SfmlAdapter::getWindowHeight() const
@@ -89,17 +70,6 @@ void SfmlAdapter::cls()
 void SfmlAdapter::redraw()
 {
     m_window.display();
-}
-
-int SfmlAdapter::setDrawColour(
-    uint8_t, // r
-    uint8_t, // g
-    uint8_t, // b
-    uint8_t // a
-)
-{
-    // TODO
-    return 0;
 }
 
 void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b)
@@ -132,35 +102,6 @@ void SfmlAdapter::drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, in
     }
 
     m_window.draw(triangleFan);
-}
-
-int SfmlAdapter::getPhysicalScreenWidth()
-{
-    return sf::VideoMode::getDesktopMode().size.x;
-}
-
-int SfmlAdapter::getPhysicalScreenHeight()
-{
-    return sf::VideoMode::getDesktopMode().size.y;
-}
-
-size_t SfmlAdapter::imageLoad(const std::string& /* fileName */)
-{
-    return 0; // TODO DELETE?
-}
-
-void SfmlAdapter::imageDisplay(
-    size_t, // id,
-    int, // x,
-    int // y
-)
-{
-    // TODO - delete?
-}
-
-void SfmlAdapter::imageUnload(size_t /* id */)
-{
-    // TODO - delete?
 }
 
 void SfmlAdapter::drawStatusBar()
@@ -240,26 +181,28 @@ void SfmlAdapter::menuProcessEvents()
                     }
                     // Left stick for value adjustments on sliders
                     float lx = evt.analogue.leftX;
-                    if (lx > 0.01) { // TODO configurable deadzone
-                        io.AddKeyEvent(ImGuiKey_GamepadDpadRight,  true);
-                    }
-                    if (lx < -0.01) { // TODO configurable deadzone
-                        io.AddKeyEvent(ImGuiKey_GamepadDpadLeft,  true);
-                    }
+                    io.AddKeyEvent(
+                        ImGuiKey_GamepadDpadRight, lx > 0.01f); // TODO configurable deadzone
+                    io.AddKeyEvent(
+                        ImGuiKey_GamepadDpadLeft, lx < -0.01f); // TODO configurable deadzone
                     io.AddKeyAnalogEvent(
-                        ImGuiKey_GamepadLStickLeft, lx < 0.01f, lx < 0.01f ? -lx : 0.0f);
+                        ImGuiKey_GamepadLStickLeft, lx < -0.01f, lx < -0.01f ? -lx : 0.0f);
                     io.AddKeyAnalogEvent(
                         ImGuiKey_GamepadLStickRight, lx > 0.01f, lx > 0.01f ? lx : 0.0f);
+                    break;
                 }
             case gamepad::EventType::ButtonPressed:
-                io.AddKeyEvent(ImGuiKey_Space, false);
-                io.AddKeyEvent(ImGuiKey_GamepadFaceRight, false);
-                if (evt.buttonType == gamepad::ButtonType::South) {
-                    io.AddKeyEvent(ImGuiKey_Space, true);
-                } else if (evt.buttonType == gamepad::ButtonType::East) {
-                    io.AddKeyEvent(ImGuiKey_GamepadFaceRight, true);
-                } else if (evt.buttonType == gamepad::ButtonType::DPadLeft) {
-                    io.AddKeyEvent(ImGuiKey_LeftArrow, true);
+            case gamepad::EventType::ButtonReleased:
+                {
+                    const bool down = evt.eventType == gamepad::EventType::ButtonPressed;
+                    if (evt.buttonType == gamepad::ButtonType::South) {
+                        io.AddKeyEvent(ImGuiKey_Space, down);
+                    } else if (evt.buttonType == gamepad::ButtonType::East) {
+                        io.AddKeyEvent(ImGuiKey_GamepadFaceRight, down);
+                    } else if (evt.buttonType == gamepad::ButtonType::DPadLeft) {
+                        io.AddKeyEvent(ImGuiKey_LeftArrow, down);
+                    }
+                    break;
                 }
             default:
                 // do nothing
@@ -278,15 +221,6 @@ MenuResults SfmlAdapter::menuGetResults()
 void SfmlAdapter::setMouseCursorVisible(bool value)
 {
     m_window.setMouseCursorVisible(value);
-}
-
-void SfmlAdapter::imageDisplay(
-    const std::string&, // fileName,
-    int, // x,
-    int // y
-)
-{
-    // TODO - delete?
 }
 
 void SfmlAdapter::registerControlHandler(
@@ -340,6 +274,7 @@ void SfmlAdapter::processInput(bool paused)
                 if (evt.buttonType == gamepad::ButtonType::Start) {
                     m_controlHandlers[KeyControls::MENU](true, 0.f);
                 }
+                break;
             default:
                 // do nothing
                 break;

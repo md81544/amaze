@@ -3,36 +3,12 @@
 #include "log.h"
 
 #include <cassert>
-#include <chrono>
 #include <cmath>
 #include <filesystem>
 #include <fstream>
-#include <thread>
 
 namespace marengo {
 namespace amaze {
-
-namespace {
-
-[[maybe_unused]] std::string getLevelDescription(std::filesystem::path levelFile)
-{
-    std::ifstream in(levelFile.string());
-    if (!in) {
-        THROWUP(AmazeRuntimeException, "Failed to load Level file " + levelFile.string());
-    }
-    std::string currentLine;
-    std::string levelDescription { "Untitled" };
-    getline(in, currentLine);
-    std::vector<std::string> vec;
-    utils::csvSplit(currentLine, '~', vec);
-    if (vec.size() > 6) {
-        levelDescription = vec[6];
-    }
-    in.close();
-    return levelDescription;
-}
-
-} // namespace
 
 GameModel::GameModel(const std::string& dataPath)
     : m_dataPath(dataPath)
@@ -165,10 +141,16 @@ void GameModel::levelLoad(const std::string& filename)
         switch (c) {
             case '!': // timelimit (unused), fuel (unused), ship x, ship y, ship angle,
                       // description (currently unused, but a TODO)
+                if (vec.size() < 6) {
+                    THROWUP(
+                        AmazeRuntimeException, "Malformed header line in Level file " + filename);
+                }
                 m_shipModel->setShipX(stod(vec[3]));
                 m_shipModel->setShipY(stod(vec[4]));
                 m_shipModel->setRotation(stod(vec[5]));
-                m_levelDescription = vec[6];
+                if (vec.size() > 6) {
+                    m_levelDescription = vec[6];
+                }
                 break;
             case 'N': // New object, parameter 1 is type, parameter 2 appears unused
                 addPreviousObject(obj);
@@ -214,7 +196,7 @@ void GameModel::levelLoad(const std::string& filename)
                         static_cast<uint8_t>(stoi(vec[6])), // g
                         static_cast<uint8_t>(stoi(vec[7])), // b
                         255, // alpha
-                        stoi(vec[5]) // thickness
+                        1 // thickness (default if not supplied)
                     };
                     if (vec.size() == 9) {
                         sl1.lineThickness = stoi(vec[8]);
@@ -372,26 +354,23 @@ void GameModel::process() // TODO more descriptive name
     }
 }
 
-std::vector<std::shared_ptr<GameShape>> GameModel::getAllDynamicObjects()
+const std::vector<std::shared_ptr<GameShape>>& GameModel::getAllDynamicObjects() const
 {
     return m_allDynamicGameShapes;
 }
 
-unsigned int GameModel::getRotation() const
-{
-    return 0; // unused overridden function
-}
-
 void GameModel::savePosition()
 {
-    if (m_gameState == GameState::Exploding) {
+    // Don't record the crash site, otherwise a restart would put the ship
+    // straight back where it died
+    if (m_gameState == GameState::Exploding || m_gameState == GameState::Dead) {
         return;
     }
     unsigned x = static_cast<unsigned int>(m_shipModel->x());
     unsigned y = static_cast<unsigned int>(m_shipModel->y());
     double rot = m_shipModel->rotation();
-    // The ring buffer has 200 slots, so at 100 fps the last
-    // item in the buffer will be from about two seconds ago
+    // The ring buffer has 200 slots, so at 120 ticks per second the last
+    // item in the buffer will be from about 1.7 seconds ago
     m_savedPositionsRingBuffer.add({ x, y, rot });
 }
 
@@ -420,8 +399,6 @@ void GameModel::restart()
     m_shipModel->setVisible(true);
     m_gameState = GameState::Running;
     m_shipModel->buildExplosionShape();
-
-    std::this_thread::sleep_for(std::chrono::seconds(2));
 }
 
 GameState GameModel::getGameState()

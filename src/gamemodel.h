@@ -5,7 +5,6 @@
 #include <tuple>
 
 #include "gameshape.h"
-#include "imodel.h"
 #include "scheduler.h"
 #include "shipmodel.h"
 #include "utils.h"
@@ -41,7 +40,7 @@ struct ShipPosition {
     double rotation;
 };
 
-class GameModel final : public IModel {
+class GameModel final {
 public:
     explicit GameModel(const std::string& dataPath);
 
@@ -68,9 +67,8 @@ public:
     std::tuple<GameShapeType, std::shared_ptr<GameShape>> collisionDetect() const;
 
     void process();
-    std::vector<std::shared_ptr<GameShape>> getAllDynamicObjects();
+    const std::vector<std::shared_ptr<GameShape>>& getAllDynamicObjects() const;
 
-    unsigned int getRotation() const override;
     // Save rocket position periodically to facilitate a restart after a life is used
     void savePosition();
     void togglePause();

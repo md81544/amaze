@@ -31,7 +31,7 @@ void Shape::makeFromText(
 
     for (const char& c : s) {
         double characterWidth = 0.0;
-        std::vector<int> vertices = vectorfont::getCharacter(c);
+        const std::vector<int>& vertices = vectorfont::getCharacter(c);
         size_t numVertices = vertices.size() / 2;
         if (numVertices == 0) {
             // Empty cell, presumably a space
@@ -160,10 +160,10 @@ void Shape::clear()
     m_shapeLines.clear();
     m_width = 0;
     m_height = 0;
-    m_minX = 0;
-    m_minY = 0;
-    m_maxX = 0;
-    m_maxY = 0;
+    m_minX = std::numeric_limits<double>::max();
+    m_minY = std::numeric_limits<double>::max();
+    m_maxX = std::numeric_limits<double>::lowest();
+    m_maxY = std::numeric_limits<double>::lowest();
     m_rotation = 0;
 }
 

@@ -6,11 +6,11 @@
 // should be drawn from the previous point.
 //
 // Usage example:
-//    std::vector<int> v = vectorfont::getCharacter('Z');
+//    const std::vector<int>& v = vectorfont::getCharacter('Z');
 
 #include <vector>
 
-namespace {
+namespace marengo::amaze::vectorfont::detail {
 // The following vector describes each printable ASCII character as lines.
 // The characters range from space (32) to tilde (126), that is, 95
 // characters. The numbers are vertex pairs. A vertex of (-1,-1) indicates
@@ -21,7 +21,7 @@ namespace {
 // then inverting the Y values to fit with regular screen coordinates. The
 // minimum vertex (apart from the "pen up") is 0,0 and the max X is 26. Max
 // Y=33.
-std::vector<std::vector<int>>
+inline const std::vector<std::vector<int>>
     characterLines = std::vector<std::vector<int>> {
         {},
         { 5, 5, 5, 19, -1, -1, 5, 24, 4, 25, 5, 26, 6, 25, 5, 24 },
@@ -170,19 +170,19 @@ std::vector<std::vector<int>>
           18, 19, 20, 18, 21, 16, -1, -1, 3,  18, 4,  16, 6,  15, 8,  15,
           10, 16, 14, 19, 16, 20, 18, 20, 20, 19, 21, 16, 21, 14 }
     };
-}
+} // namespace marengo::amaze::vectorfont::detail
 
 namespace marengo {
 namespace amaze {
 namespace vectorfont {
 
-std::vector<int> getCharacter(char c)
+inline const std::vector<int>& getCharacter(char c)
 {
     unsigned int n = static_cast<int>(c) - 32;
-    if (n >= characterLines.size()) {
+    if (n >= detail::characterLines.size()) {
         n = 0;
     }
-    return characterLines[n];
+    return detail::characterLines[n];
 }
 
 } // namespace vectorfont

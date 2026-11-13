@@ -62,8 +62,8 @@ protected:
     bool m_isVisible { true };
     double m_minX { std::numeric_limits<double>::max() };
     double m_minY { std::numeric_limits<double>::max() };
-    double m_maxX { std::numeric_limits<double>::min() };
-    double m_maxY { std::numeric_limits<double>::min() };
+    double m_maxX { std::numeric_limits<double>::lowest() };
+    double m_maxY { std::numeric_limits<double>::lowest() };
     // default colours for addLine:
     uint8_t m_r { 255 };
     uint8_t m_g { 255 };

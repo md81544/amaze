@@ -26,21 +26,14 @@ public:
         bool useFullScreen,
         const std::string& dataDir);
     ~SfmlAdapter();
-    virtual void setFrameRate(unsigned int fr) override;
+    virtual void setVsync(bool enabled) override;
     virtual void cls() override;
     virtual void redraw() override;
-    virtual int setDrawColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) override;
     virtual void
     drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b) override;
-    static int getPhysicalScreenWidth();
-    static int getPhysicalScreenHeight();
     virtual int getWindowWidth() const override;
     virtual int getWindowHeight() const override;
     virtual int getTicks() const override;
-    virtual void imageDisplay(const std::string& fileName, int x, int y) override;
-    virtual size_t imageLoad(const std::string& fileName) override;
-    virtual void imageDisplay(size_t id, int x, int y) override;
-    virtual void imageUnload(size_t id) override;
     virtual void drawStatusBar() override;
     virtual void drawText(const Text& text) override;
     virtual MenuType menuDraw(MenuType menuType) override;

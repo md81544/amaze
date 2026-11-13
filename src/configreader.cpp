@@ -43,7 +43,7 @@ ConfigReader::ConfigReader(const std::string& cfgfile)
         trim(line);
         if (line != "" && line[0] != '#') {
             n = line.find("=");
-            if (n > 0) {
+            if (n != std::string::npos && n > 0) {
                 std::string key = line.substr(0, n);
                 trim(key);
                 std::transform(key.begin(), key.end(), key.begin(), ::toupper);

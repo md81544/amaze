@@ -25,11 +25,6 @@ enum class KeyControls {
     LR_ANALOGUE, // for game controller
     PAUSE,
     MENU,
-    UP, // only used for menus
-    DOWN, // only used for menus
-    ENTER, // only used for menus
-    EXIT, // only used for menus
-    NONE, // only used for menus
 };
 
 enum class MenuType {
@@ -54,10 +49,9 @@ class IGraphicsAdapter {
 public:
     // TODO - make all functions const where possible
     virtual ~IGraphicsAdapter() { }
-    virtual void setFrameRate(unsigned int fr) = 0;
+    virtual void setVsync(bool enabled) = 0;
     virtual void cls() = 0;
     virtual void redraw() = 0;
-    virtual int setDrawColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a) = 0;
     virtual void drawLine(int xFrom, int yFrom, int xTo, int yTo, int width, int r, int g, int b)
         = 0;
     virtual int getWindowWidth() const = 0;
@@ -70,17 +64,6 @@ public:
         = 0;
     virtual void processInput(bool paused) = 0;
 
-    // Images
-    // Load & display an image; any resources should be immediately discarded
-    virtual void imageDisplay(const std::string& fileName, int x, int y) = 0;
-    // load an image, some kind of reference to it and return an arbitrary ID
-    // for it:
-    virtual size_t imageLoad(const std::string& fileName) = 0;
-    // display a loaded image:
-    virtual void imageDisplay(size_t id, int x, int y) = 0;
-    // explicitly unload an image (otherwise it should be done when this object
-    // destructs
-    virtual void imageUnload(size_t id) = 0;
     virtual void drawStatusBar() = 0;
     virtual void drawText(const Text& text) = 0;
     virtual MenuType menuDraw(MenuType menuType) = 0;
