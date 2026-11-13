@@ -1,8 +1,9 @@
 * Log level in cfg file
 
-* Shapes: keep original geometry plus position/angle/scale and apply via QTransform,
-  rather than rewriting the lines every frame (avoids accumulated rounding errors).
-  Could then use QLineF::intersects for collisions. Add collision tests first.
+* (Low priority) Shapes could keep original geometry plus position/angle/scale and
+  apply them via QTransform, rather than rewriting the lines when rotated/resized.
+  Tidier, but measured rounding drift is negligible (~1e-9 units after 10 hours), so
+  there's no visible benefit. Collision and drawing already use QLineF/QTransform.
 
 * Objects which are not obstacles - just decoration
 

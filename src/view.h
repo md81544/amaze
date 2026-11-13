@@ -9,6 +9,7 @@
 
 class QPainter;
 class QSizeF;
+class QTransform;
 
 // This class acts as the MVC "view" component - its function is to
 // update the display according to the state held within the model.
@@ -36,7 +37,7 @@ public:
 
 private:
     void
-    rotateAndDrawShape(QPainter& painter, const QSizeF& canvasSize, const GameShape& shape) const;
+    drawShape(QPainter& painter, const QTransform& arenaTransform, const GameShape& shape) const;
     // x and y are the text's top left; no value means centred in that dimension
     void drawText(
         QPainter& painter,

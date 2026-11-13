@@ -3,13 +3,13 @@
 #include "exceptions.h"
 #include "shape.h"
 #include "utils.h"
+#include "viewtransform.h"
 
 #include <QFontDatabase>
 #include <QFontMetricsF>
 #include <QPainter>
 
 #include <algorithm>
-#include <cmath>
 
 namespace marengo {
 namespace amaze {
@@ -70,10 +70,13 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     // Fill slightly beyond the canvas to avoid any rounding gap at the edges
     painter.fillRect(QRectF(0, 0, canvasSize.width() + 1, canvasSize.height() + 1), Qt::black);
 
-    // Dynamic shapes (i.e. shapes which rotate around the ship)
+    // Dynamic shapes (i.e. shapes which rotate around the ship): the view is
+    // centred on the ship, and the arena rotates around it
+    const auto* ship = m_model.getShipModel();
+    QTransform arenaTransform = arenaToCanvas(ship->x(), ship->y(), ship->rotation(), canvasSize);
     for (const auto& shape : m_model.getAllDynamicObjects()) {
         if (shape->isVisible() && shape->IsActive()) {
-            rotateAndDrawShape(painter, canvasSize, *shape);
+            drawShape(painter, arenaTransform, *shape);
         }
     }
 
@@ -129,33 +132,14 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     }
 }
 
-void View::rotateAndDrawShape(QPainter& painter, const QSizeF& canvasSize, const GameShape& shape)
+void View::drawShape(QPainter& painter, const QTransform& arenaTransform, const GameShape& shape)
     const
 {
-    // The viewport always shows the same area of the arena (480x300 units
-    // worth), regardless of its physical dimensions, so a differently-shaped
-    // window doesn't let the player see more of the maze:
-    double width = canvasSize.width();
-    double height = canvasSize.height();
-    double scale = std::sqrt((width * height) / (480.0 * 300.0));
-    double xOffset = width / 2.0;
-    double yOffset = height / 2.0;
+    // Shape lines are relative to the shape's position in the arena
+    QTransform transform
+        = QTransform::fromTranslate(shape.getPosX(), shape.getPosY()) * arenaTransform;
 
     for (const auto& sl : shape.getVec()) {
-        double x0 = sl.x0 + shape.getPosX() - m_model.getShipModel()->x();
-        double y0 = sl.y0 + shape.getPosY() - m_model.getShipModel()->y();
-        double x1 = sl.x1 + shape.getPosX() - m_model.getShipModel()->x();
-        double y1 = sl.y1 + shape.getPosY() - m_model.getShipModel()->y();
-        // OK, when we get here, we have a line expressed
-        // relative to the origin OF THE SHIP.
-        double dCos = utils::cosine(m_model.getShipModel()->rotation());
-        double dSin = utils::sine(m_model.getShipModel()->rotation());
-        double x0r, y0r, x1r, y1r;
-        x0r = x0 * dCos - y0 * dSin;
-        y0r = x0 * dSin + y0 * dCos;
-        x1r = x1 * dCos - y1 * dSin;
-        y1r = x1 * dSin + y1 * dCos;
-        // now draw adjusted for physical screen coords
         uint8_t r = sl.r;
         uint8_t g = sl.g;
         uint8_t b = sl.b;
@@ -172,13 +156,11 @@ void View::rotateAndDrawShape(QPainter& painter, const QSizeF& canvasSize, const
             g *= 0.4;
             b *= 0.4;
         }
+        // The pen is applied after mapping to the canvas, so line widths
+        // aren't affected by the shape's or view's scaling
         painter.setPen(QPen(
             QColor(r, g, b), sl.lineThickness * LINE_THICKNESS_SCALE, Qt::SolidLine, Qt::RoundCap));
-        painter.drawLine(QLineF(
-            x0r * scale + xOffset,
-            y0r * scale + yOffset,
-            x1r * scale + xOffset,
-            y1r * scale + yOffset));
+        painter.drawLine(transform.map(QLineF(sl.x0, sl.y0, sl.x1, sl.y1)));
     }
 }
 

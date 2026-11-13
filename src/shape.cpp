@@ -3,6 +3,8 @@
 #include "utils.h"
 #include "vectorfont.h"
 
+#include <QLineF>
+
 #include <cmath>
 #include <format>
 #include <sstream>
@@ -182,97 +184,55 @@ void Shape::resize(double scale)
     m_height = static_cast<int>(static_cast<double>(m_height) * m_scale);
 }
 
+namespace {
+
+// Is point p on the line segment? (Exact test: only used for the collinear
+// case, where lines are e.g. both horizontal or vertical.)
+bool pointOnSegment(const QPointF& p, const QLineF& segment)
+{
+    QPointF direction = segment.p2() - segment.p1();
+    QPointF offset = p - segment.p1();
+    if (direction.isNull()) {
+        return offset.isNull(); // zero-length segment, i.e. a point
+    }
+    if (direction.x() * offset.y() - direction.y() * offset.x() != 0.0) {
+        return false; // not on the (infinite) line
+    }
+    double along = QPointF::dotProduct(offset, direction);
+    return along >= 0.0 && along <= QPointF::dotProduct(direction, direction);
+}
+
+bool linesTouch(const QLineF& a, const QLineF& b)
+{
+    if (a.intersects(b) == QLineF::BoundedIntersection) {
+        return true;
+    }
+    // QLineF treats parallel lines (including collinear ones, and zero-length
+    // lines, i.e. points) as never intersecting. But collinear lines which
+    // overlap, or a point on a line, should count as touching. In those cases
+    // at least one end point lies on the other line.
+    return pointOnSegment(a.p1(), b) || pointOnSegment(a.p2(), b) || pointOnSegment(b.p1(), a)
+        || pointOnSegment(b.p2(), a);
+}
+
+} // namespace
+
 bool Shape::intersectCheck(std::shared_ptr<Shape> s) const
 {
     // check for intersect with all of my lines against all of another object's:
-    for (size_t myLine = 0; myLine < m_shapeLines.size(); ++myLine) {
-        double x0 = m_shapeLines[myLine].x0 + m_x;
-        double y0 = m_shapeLines[myLine].y0 + m_y;
-        double x1 = m_shapeLines[myLine].x1 + m_x;
-        double y1 = m_shapeLines[myLine].y1 + m_y;
-        for (unsigned int theirLine = 0; theirLine < s->getVec().size(); ++theirLine) {
-            double x2 = s->getVec()[theirLine].x0 + s->getPosX();
-            double y2 = s->getVec()[theirLine].y0 + s->getPosY();
-            double x3 = s->getVec()[theirLine].x1 + s->getPosX();
-            double y3 = s->getVec()[theirLine].y1 + s->getPosY();
-
-            double ax, bx, cx, ay, by, cy, d, e, f;
-            short x1lo, x1hi, y1lo, y1hi;
-
-            ax = x1 - x0;
-            bx = x2 - x3;
-
-            // X bound box test:
-            if (ax < 0) {
-                x1lo = (short)x1;
-                x1hi = (short)x0;
-            } else {
-                x1hi = (short)x1;
-                x1lo = (short)x0;
+    for (const auto& mine : m_shapeLines) {
+        QLineF myLine(mine.x0 + m_x, mine.y0 + m_y, mine.x1 + m_x, mine.y1 + m_y);
+        for (const auto& theirs : s->getVec()) {
+            QLineF theirLine(
+                theirs.x0 + s->getPosX(),
+                theirs.y0 + s->getPosY(),
+                theirs.x1 + s->getPosX(),
+                theirs.y1 + s->getPosY());
+            if (linesTouch(myLine, theirLine)) {
+                return true;
             }
-            if (bx > 0) {
-                if (x1hi < (short)x3 || (short)x2 < x1lo) {
-                    continue;
-                }
-            } else {
-                if (x1hi < (short)x2 || (short)x3 < x1lo) {
-                    continue;
-                }
-            }
-
-            ay = y1 - y0;
-            by = y2 - y3;
-
-            // Y bound box test
-            if (ay < 0.0) {
-                y1lo = (short)y1;
-                y1hi = (short)y0;
-            } else {
-                y1hi = (short)y1;
-                y1lo = (short)y0;
-            }
-            if (by > 0.0) {
-                if (y1hi < (short)y3 || (short)y2 < y1lo) {
-                    continue;
-                }
-            } else {
-                if (y1hi < (short)y2 || (short)y3 < y1lo) {
-                    continue;
-                }
-            }
-
-            cx = x0 - x2;
-            cy = y0 - y2;
-            d = by * cx - bx * cy; // alpha numerator
-            f = ay * bx - ax * by; // both denominator
-            // alpha tests
-            if (f > 0.0) {
-                if (d < 0.0 || d > f) {
-                    continue;
-                }
-            } else {
-                if (d > 0.0 || d < f) {
-                    continue;
-                }
-            }
-
-            e = ax * cy - ay * cx; // beta numerator
-            // beta tests
-            if (f > 0.0) {
-                if (e < 0.0 || e > f) {
-                    continue;
-                }
-            } else {
-                if (e > 0.0 || e < f) {
-                    continue;
-                }
-            }
-
-            // if we get here, the lines either intersect or are collinear.
-            return true;
         }
     }
-    // if we get here we had no intersects
     return false;
 }
 

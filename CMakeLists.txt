@@ -115,7 +115,7 @@ if(APPLE)
     endif()
 endif()
 
-target_compile_options(${APP_NAME} PRIVATE
+set(AMAZE_COMPILE_OPTIONS
     -Wall
     -Wextra
     -Werror
@@ -124,12 +124,32 @@ target_compile_options(${APP_NAME} PRIVATE
     $<$<CONFIG:Debug>:-g -O0>
     $<$<CONFIG:Release>:-O3>
 )
+target_compile_options(${APP_NAME} PRIVATE ${AMAZE_COMPILE_OPTIONS})
 target_link_libraries(${APP_NAME} PRIVATE
     Qt6::Widgets
     Qt6::OpenGLWidgets
     Qt6::Multimedia
     SDL3::SDL3
 )
+
+# ---------------------------------------------------------------------------
+# Unit tests (built if Catch2 is available; run with "make test")
+# ---------------------------------------------------------------------------
+find_package(Catch2 3 QUIET)
+if(Catch2_FOUND)
+    add_executable(${APP_NAME}_tests
+        tests/shape_tests.cpp
+        tests/viewtransform_tests.cpp
+        src/shape.cpp
+        src/utils.cpp
+    )
+    target_include_directories(${APP_NAME}_tests PRIVATE src)
+    # Same options as the game, so the code under test behaves the same
+    target_compile_options(${APP_NAME}_tests PRIVATE ${AMAZE_COMPILE_OPTIONS})
+    target_link_libraries(${APP_NAME}_tests PRIVATE Catch2::Catch2WithMain Qt6::Gui)
+else()
+    message(STATUS "Catch2 not found: unit tests won't be built")
+endif()
 
 # Symlink to the app bundle (macOS) or binary (other platforms)
 add_custom_command(
