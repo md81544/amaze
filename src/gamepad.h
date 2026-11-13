@@ -49,12 +49,12 @@ enum class EventType {
 };
 
 struct AnalogueStatus {
-    float leftX {0.f};
-    float leftY {0.f};
-    float rightX {0.f};
-    float rightY {0.f};
-    float leftTrigger {0.f};
-    float rightTrigger {0.f};
+    float leftX { 0.f };
+    float leftY { 0.f };
+    float rightX { 0.f };
+    float rightY { 0.f };
+    float leftTrigger { 0.f };
+    float rightTrigger { 0.f };
 };
 
 struct Event {
@@ -74,11 +74,14 @@ public:
     std::vector<Event> getEvents();
     bool isGamePadAttached();
     void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs);
+    // Stick movement within this fraction (0 to 1) of centre is reported as zero
+    void setDeadZone(float fraction);
 
 private:
     std::unordered_map<SDL_JoystickID, SDL_Gamepad*> m_gamepads;
     AnalogueStatus m_analogueStatus;
     AnalogueStatus m_previousAnalogueStatus;
+    float m_deadZone { 0.05f };
 };
 
 } // namespace gamepad

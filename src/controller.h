@@ -15,6 +15,7 @@ namespace marengo {
 namespace amaze {
 
 class Audio;
+class Settings;
 
 // The game simulation runs at a fixed rate, independent of the display's
 // refresh rate. Each displayed frame runs as many simulation ticks as are
@@ -22,7 +23,7 @@ class Audio;
 
 class Controller {
 public:
-    Controller(GameModel& m, View& v, GameShell& shell, Audio& audio);
+    Controller(GameModel& m, View& v, GameShell& shell, Audio& audio, Settings& settings);
     // Loads the initial level; call once before the first frame()
     void start(int gameLevel, const std::string& levelFile);
     // Processes one displayed frame, drawing it with the painter. Returns
@@ -34,6 +35,8 @@ private:
     void processMenu();
     void beginLevel(); // shows "Get Ready" until the player presses something
     void startPlayIfReady();
+    void loadLevel(const std::string& filename); // also remembers it for next time
+    void saveMenuOptions();
     void tick(); // once per simulation tick
     void render(QPainter& painter, const QSizeF& canvasSize); // once per displayed frame
     void collisionChecks();
@@ -43,6 +46,7 @@ private:
     View& m_view;
     GameShell& m_shell;
     Audio& m_audio;
+    Settings& m_settings;
     int m_lastPause { 0 };
     Scheduler m_scheduler;
     MenuType m_currentMenu { MenuType::None };

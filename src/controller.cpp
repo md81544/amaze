@@ -3,6 +3,7 @@
 #include "gamemodel.h"
 #include "gameshape.h"
 #include "log.h" // IWYU pragma: keep
+#include "settings.h"
 #include "utils.h"
 
 #include <algorithm>
@@ -30,11 +31,12 @@ constexpr std::chrono::milliseconds STALL_LOG_THRESHOLD { 50 };
 
 } // namespace
 
-Controller::Controller(GameModel& m, View& v, GameShell& shell, Audio& audio)
+Controller::Controller(GameModel& m, View& v, GameShell& shell, Audio& audio, Settings& settings)
     : m_gameModel(m)
     , m_view(v)
     , m_shell(shell)
     , m_audio(audio)
+    , m_settings(settings)
 {
     registerControlHandlers();
 
@@ -141,11 +143,13 @@ void Controller::start(int gameLevel, const std::string& levelFile)
 {
     // TODO splash screen?
     m_audio.musicPlayLoop();
+    m_audio.setMusicVolumePercent(m_shell.menuResults().musicVolumePercent);
 
     if (!levelFile.empty()) {
-        m_gameModel.levelLoad(levelFile);
+        loadLevel(levelFile);
     } else {
         m_gameModel.levelLoad(gameLevel);
+        m_settings.setLastLevelFile(m_gameModel.levelFileName());
     }
     m_levelStartPending = true;
     beginLevel();
@@ -225,6 +229,19 @@ void Controller::beginLevel()
     m_gameModel.setGameState(GameState::GetReady);
 }
 
+void Controller::loadLevel(const std::string& filename)
+{
+    m_gameModel.levelLoad(filename);
+    m_settings.setLastLevelFile(m_gameModel.levelFileName());
+}
+
+void Controller::saveMenuOptions()
+{
+    MenuResults results = m_shell.menuResults();
+    m_settings.setMusicVolumePercent(results.musicVolumePercent);
+    m_settings.setStickDeadZonePercent(results.stickDeadZonePercent);
+}
+
 void Controller::startPlayIfReady()
 {
     // Called from control handlers; the control which starts play also takes
@@ -248,14 +265,17 @@ void Controller::processMenu()
     // Adjust background music immediately
     m_audio.setMusicVolumePercent(m_shell.menuResults().musicVolumePercent);
     if (m_currentMenu == MenuType::OK || m_currentMenu == MenuType::Cancel) {
-        // User closed dialog with OK or Cancel
+        // User closed dialog with OK or Cancel. (Like the music volume, the
+        // dead zone applies even on Cancel: these options take effect as
+        // they're changed rather than on OK.)
+        MenuResults results = m_shell.menuResults();
+        m_shell.setStickDeadZonePercent(results.stickDeadZonePercent);
+        saveMenuOptions();
         if (m_currentMenu == MenuType::OK) {
-            MenuResults results = m_shell.menuResults();
             if (!results.levelFileToLoad.empty()) {
-                m_gameModel.levelLoad(results.levelFileToLoad);
+                loadLevel(results.levelFileToLoad);
                 m_levelStartPending = true;
             }
-            // TODO: joytick deadzone
         }
         m_currentMenu = MenuType::None;
         m_gameModel.getShipModel()->setVisible(true);
@@ -266,6 +286,7 @@ void Controller::processMenu()
         }
     }
     if (m_currentMenu == MenuType::Exit) {
+        saveMenuOptions();
         m_gameModel.setGameState(GameState::Quit);
     }
 }

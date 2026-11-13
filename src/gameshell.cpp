@@ -51,19 +51,27 @@ void setSystemCursorHidden(bool hidden)
 GameShell::GameShell(
     unsigned windowWidth,
     unsigned windowHeight,
+    std::optional<QRect> windowGeometry,
     bool useFullScreen,
+    const MenuResults& initialMenuValues,
     const std::string& dataDir)
     : m_window(std::make_unique<GameWidget>())
-    , m_menu(new MenuDialog(dataDir, m_window.get()))
+    , m_menu(new MenuDialog(dataDir, initialMenuValues, m_window.get()))
     , m_useFullScreen(useFullScreen)
 {
     m_clock.start();
+    setStickDeadZonePercent(initialMenuValues.stickDeadZonePercent);
 
-    QSize size(windowWidth, windowHeight);
-    if (auto* screen = QGuiApplication::primaryScreen()) {
-        size = size.boundedTo(screen->availableGeometry().size());
+    // Ignore saved geometry for a screen which is no longer there
+    if (windowGeometry.has_value() && QGuiApplication::screenAt(windowGeometry->center())) {
+        m_window->setGeometry(*windowGeometry);
+    } else {
+        QSize size(windowWidth, windowHeight);
+        if (auto* screen = QGuiApplication::primaryScreen()) {
+            size = size.boundedTo(screen->availableGeometry().size());
+        }
+        m_window->resize(size);
     }
-    m_window->resize(size);
     m_window->setCursor(Qt::BlankCursor);
 
     QObject::connect(m_menu, &QDialog::finished, m_menu, [this](int result) {
@@ -200,6 +208,21 @@ void GameShell::setMouseCursorVisible(bool value)
 {
     m_cursorVisible = value;
     updateCursor();
+}
+
+void GameShell::setStickDeadZonePercent(int percent)
+{
+    m_gamepad.setDeadZone(percent / 100.f);
+}
+
+QRect GameShell::windowGeometry() const
+{
+    return m_window->normalGeometry();
+}
+
+bool GameShell::isFullScreen() const
+{
+    return m_window->isFullScreen();
 }
 
 void GameShell::updateCursor()
@@ -417,7 +440,7 @@ void GameShell::processGamepadForGame()
                 {
                     // Left stick for rotation
                     float r = evt.analogue.leftX;
-                    if (std::abs(r) > 0.01f) { // TODO configurable deadzone
+                    if (std::abs(r) > 0.01f) { // (the dead zone is applied by Gamepad)
                         m_gamepadInUse = true;
                         m_controlHandlers[KeyControls::LR_ANALOGUE](true, -r);
                     } else {
@@ -428,7 +451,7 @@ void GameShell::processGamepadForGame()
 
                     // Right stick for acceleration
                     float v = evt.analogue.rightY;
-                    if (v > 0.01f) { // TODO configurable deadzone
+                    if (v > 0.01f) {
                         m_gamepadInUse = true;
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
                         if (v > 0.1f) {

@@ -20,7 +20,7 @@ class MenuDialog final : public QDialog {
 public:
     static constexpr int ExitGame = 2;
 
-    MenuDialog(const std::string& dataDir, QWidget* parent);
+    MenuDialog(const std::string& dataDir, const MenuResults& initialValues, QWidget* parent);
     // Current values; these update immediately as the user changes them
     MenuResults results() const
     {

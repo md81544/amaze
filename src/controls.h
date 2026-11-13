@@ -29,7 +29,7 @@ enum class MenuType {
 
 struct MenuResults {
     int musicVolumePercent { 100 };
-    int stickDeadZonePercent { 10 };
+    int stickDeadZonePercent { 5 };
     std::string levelFileToLoad;
 };
 

@@ -16,9 +16,11 @@
 #include "gamepad.h"
 
 #include <QElapsedTimer>
+#include <QRect>
 
 #include <functional>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 
@@ -37,10 +39,15 @@ public:
     using FrameFunction = std::function<bool(QPainter& painter, const QSizeF& canvasSize)>;
     using ControlHandler = std::function<void(const bool isKeyDown, const float value)>;
 
+    // windowGeometry, if supplied (and on screen), takes precedence over
+    // windowWidth/Height. initialMenuValues are the options the menu starts
+    // with; the stick dead zone is applied immediately.
     GameShell(
         unsigned windowWidth,
         unsigned windowHeight,
+        std::optional<QRect> windowGeometry,
         bool useFullScreen,
+        const MenuResults& initialMenuValues,
         const std::string& dataDir);
     ~GameShell();
 
@@ -67,6 +74,12 @@ public:
     MenuResults menuResults() const;
 
     void setMouseCursorVisible(bool value);
+    void setStickDeadZonePercent(int percent);
+    // The window's normal (i.e. not full screen) geometry, and whether it's
+    // full screen, e.g. for saving between runs. Geometry may be invalid if
+    // the window has only been shown full screen.
+    QRect windowGeometry() const;
+    bool isFullScreen() const;
     void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs);
 
 private:

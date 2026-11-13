@@ -23,8 +23,12 @@ QSlider* makeSlider(int min, int max, int value)
 
 } // namespace
 
-MenuDialog::MenuDialog(const std::string& dataDir, QWidget* parent)
+MenuDialog::MenuDialog(
+    const std::string& dataDir,
+    const MenuResults& initialValues,
+    QWidget* parent)
     : QDialog(parent)
+    , m_results(initialValues)
     , m_levelFileLister(dataDir)
     , m_levelList(new QListWidget)
 {

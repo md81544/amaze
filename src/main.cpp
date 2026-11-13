@@ -5,6 +5,7 @@
 #include "gameshell.h"
 #include "log.h"
 #include "programoptions.h"
+#include "settings.h"
 #include "view.h"
 
 #include <QApplication>
@@ -71,13 +72,6 @@ int main(int argc, char* argv[])
         mgo::Log::init(std::format("{}/amaze.log", logDir));
         mgo::Log::info("Starting amaze");
 
-        // The window's dimensions' proportions should mirror the physical screen's dimensions so
-        // everything is in proportion if we go fullscreen
-        int width = config.readLong("WindowWidth", 800);
-        int height = config.readLong("WindowHeight", 500);
-        bool useFullScreen = config.readBool("FullScreen", false);
-
-        // Command-line options override config file settings:
         ProgramOptions programOptions(argc, argv);
         if (programOptions.cmdOptionExists("-h") || programOptions.cmdOptionExists("--help")) {
             std::cout
@@ -86,6 +80,22 @@ int main(int argc, char* argv[])
                 << std::endl;
             return 0;
         }
+
+        QApplication app(argc, argv);
+        // These determine where settings are saved
+        QCoreApplication::setOrganizationName("marengo");
+        QCoreApplication::setApplicationName("amaze");
+        Settings settings;
+
+        // Precedence for options: command line, then settings saved from the
+        // last run, then amaze.cfg (which therefore only supplies defaults for
+        // the first run).
+
+        // The window's dimensions' proportions should mirror the physical screen's dimensions so
+        // everything is in proportion if we go fullscreen
+        int width = config.readLong("WindowWidth", 800);
+        int height = config.readLong("WindowHeight", 500);
+        bool useFullScreen = settings.fullScreen().value_or(config.readBool("FullScreen", false));
         if (programOptions.cmdOptionExists("-f")
             || programOptions.cmdOptionExists("--fullscreen")) {
             useFullScreen = true;
@@ -93,36 +103,52 @@ int main(int argc, char* argv[])
         if (programOptions.cmdOptionExists("-w") || programOptions.cmdOptionExists("--windowed")) {
             useFullScreen = false;
         }
+
+        // Level to start with: a level FILE or number from the command line,
+        // otherwise the last level played, otherwise the level number from
+        // amaze.cfg
         int gameLevel = config.readLong("GameLevel", 0);
-        if (programOptions.cmdOptionExists("-l")) {
-            int level;
-            try {
-                level = std::atoi(programOptions.getCmdOption("-l").c_str());
-                gameLevel = level;
-            } catch (...) {
-            }
-        }
-        // Specify a level FILE to load
         std::string levelFile;
         if (programOptions.cmdOptionExists("--file")) {
             levelFile = programOptions.getCmdOption("--file");
+        } else if (programOptions.cmdOptionExists("-l")) {
+            gameLevel = std::atoi(programOptions.getCmdOption("-l").c_str());
+        } else if (auto lastLevel = settings.lastLevelFile()) {
+            std::filesystem::path lastLevelPath(*lastLevel);
+            if (std::filesystem::exists(lastLevelPath)) {
+                levelFile = lastLevelPath.string();
+            } else if (
+                auto moved = std::filesystem::path(dataDir) / lastLevelPath.filename();
+                std::filesystem::exists(moved)) {
+                // e.g. the app has moved since
+                levelFile = moved.string();
+            }
         }
 
-        QApplication app(argc, argv);
+        MenuResults menuValues;
+        menuValues.musicVolumePercent
+            = settings.musicVolumePercent().value_or(menuValues.musicVolumePercent);
+        menuValues.stickDeadZonePercent
+            = settings.stickDeadZonePercent().value_or(menuValues.stickDeadZonePercent);
+
         Audio audio;
-        GameShell shell(width, height, useFullScreen, dataDir);
+        GameShell shell(
+            width, height, settings.windowGeometry(), useFullScreen, menuValues, dataDir);
 
         GameModel gameModel(dataDir);
         View view(gameModel, audio, dataDir);
 
-        Controller controller(gameModel, view, shell, audio);
+        Controller controller(gameModel, view, shell, audio, settings);
         controller.start(gameLevel, levelFile);
         // Qt owns the event loop, and calls the controller once per displayed frame
         shell.run([&](QPainter& painter, const QSizeF& canvasSize) {
             return controller.frame(painter, canvasSize);
         });
 
-        // TODO model.preferencesSave();
+        settings.setFullScreen(shell.isFullScreen());
+        if (shell.windowGeometry().isValid()) {
+            settings.setWindowGeometry(shell.windowGeometry());
+        }
 
         return 0;
     } catch (const marengo::amaze::AmazeBaseException& ex) {

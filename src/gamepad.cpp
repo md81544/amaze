@@ -3,6 +3,7 @@
 #include "log.h"
 #include <SDL3/SDL_gamepad.h>
 #include <SDL3/SDL_joystick.h>
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
@@ -25,13 +26,14 @@ float normaliseAxis(int16_t value)
 
 // Allows for fine control near the middle of the stick's input
 // and much larger input when pushed further
-float joystickCurve(float input, float curve = 6.f, float deadzone = 0.05f)
+float joystickCurve(float input, float deadzone, float curve = 6.f)
 {
     input = std::clamp(input, -1.f, 1.f);
-    float sign  = input < 0.f ? -1.f : 1.f;
+    float sign = input < 0.f ? -1.f : 1.f;
     float abs_x = std::abs(input);
-    if (abs_x < deadzone)
+    if (abs_x < deadzone) {
         return 0.f;
+    }
     float scaled = (abs_x - deadzone) / (1.f - deadzone); // [0, 1]
     float result = (std::exp(curve * scaled) - 1.f) / (std::exp(curve) - 1.f);
     return std::clamp(sign * result, -1.f, 1.f);
@@ -245,7 +247,7 @@ Gamepad::~Gamepad()
                 // TODO we're not caring about gamepad id here, so if multiple gamepads
                 // are attached they will affect the output.
                 {
-                    float value = joystickCurve(normaliseAxis(sdlEvent.gaxis.value));
+                    float value = joystickCurve(normaliseAxis(sdlEvent.gaxis.value), m_deadZone);
                     switch (sdlEvent.gaxis.axis) {
                         case SDL_GAMEPAD_AXIS_LEFTX:
                             m_analogueStatus.leftX = value;
@@ -294,6 +296,11 @@ Gamepad::~Gamepad()
 bool Gamepad::isGamePadAttached()
 {
     return !m_gamepads.empty();
+}
+
+void Gamepad::setDeadZone(float fraction)
+{
+    m_deadZone = std::clamp(fraction, 0.f, 0.95f);
 }
 
 void Gamepad::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)

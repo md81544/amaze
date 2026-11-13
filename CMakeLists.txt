@@ -29,6 +29,7 @@ add_executable(${APP_NAME}
     src/main.cpp
     src/menudialog.cpp
     src/scheduler.cpp
+    src/settings.cpp
     src/shape.cpp
     src/shipmodel.cpp
     src/utils.cpp
