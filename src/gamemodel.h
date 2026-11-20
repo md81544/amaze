@@ -110,9 +110,9 @@ private:
     utils::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
     void rebuildShip();
-    // Combined contact normal for all obstacles the ship is touching (see
-    // Shape::contactNormal())
-    std::optional<QPointF> shipContactNormal() const;
+    // Combined contact with all obstacles the ship is touching (see
+    // Shape::contact())
+    std::optional<Shape::Contact> shipContact() const;
     bool shipTouchesObstacle() const;
     // Moves the ship away from obstacles it's touching, until it's clear or
     // has moved a limited distance. Returns true if it's clear.

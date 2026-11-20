@@ -24,6 +24,11 @@ public:
     double rotationDelta() const;
     void setRotationDelta(double value);
 
+    // Rotation (in the same units as rotationDelta) from hitting things,
+    // which is added to the player's rotation and dies away
+    double spin() const;
+    void setSpin(double value);
+
     double dX() const;
     void setDx(double value);
 
@@ -52,7 +57,7 @@ public:
     void updateShipPosition();
     // How far the ship moved in the last tick()
     QPointF lastMove() const;
-    // Undo the movement or rotation of the last tick()
+    // Undo the movement or rotation (also stopping any spin) of the last tick()
     void revertPosition();
     void revertRotation();
 
@@ -69,6 +74,7 @@ public:
 private:
     double m_rotation { 0.0 };
     double m_rotationDelta { 0.0 };
+    double m_spin { 0.0 };
     double m_shipX { 0.0 };
     double m_shipY { 0.0 };
     // Position and rotation change before the last tick(), for revertLastMove()

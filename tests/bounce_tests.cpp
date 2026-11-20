@@ -3,6 +3,7 @@
 
 #include "gamemodel.h"
 
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include <algorithm>
@@ -208,4 +209,56 @@ TEST_CASE("Ship is never left touching a wall, whatever the player does")
         INFO(std::format("tick {}", n));
         REQUIRE_FALSE(shipTouchesWall(model));
     }
+}
+
+namespace {
+
+struct DropResult {
+    double upwardSpeed; // after bouncing
+    double rotation;
+    bool rightWingRaised; // relative to the left wing
+};
+
+// Drops the upright ship, tail first, at 1 unit per tick from (0, 60) onto
+// the level's obstacles, and lets it bounce
+DropResult dropShip(const std::string& levelContents)
+{
+    TestLevel level(levelContents);
+    GameModel& model = level.model();
+    auto& ship = model.shipModel();
+    ship.setShipY(60.0);
+    ship.setDy(-1.0);
+    for (int n = 0; n < 60; ++n) {
+        tick(model);
+    }
+    // The ends of the wings (see ShipModel's constructor)
+    const auto& lines = ship.shipGameShape()->getVec();
+    double rightWingY = lines[3].y1;
+    double leftWingY = lines[11].y1;
+    return { ship.dY(), ship.rotation(), rightWingY < leftWingY - 0.01 };
+}
+
+} // namespace
+
+TEST_CASE("Ship hitting a wall square on bounces without spinning")
+{
+    auto result = dropShip(WALL_LEVEL);
+    CHECK(result.upwardSpeed > 0.0);
+    CHECK(result.rotation == Catch::Approx(0.0).margin(1e-6));
+}
+
+TEST_CASE("Ship hitting a corner with a wing spins away from it")
+{
+    // An outside corner at (8, 100), under the ship's right wing
+    const std::string cornerUnderWing = "!~0~0~0~0~0~Corner\n"
+                                        "N~OBSTRUCTION~block\n"
+                                        "L~8~100~300~100~255~0~0~2\n"
+                                        "L~8~100~8~300~255~0~0~2\n";
+    auto wingHit = dropShip(cornerUnderWing);
+    auto squareHit = dropShip(WALL_LEVEL);
+    CHECK(wingHit.rightWingRaised);
+    CHECK(std::abs(wingHit.rotation) > 1.0);
+    // Some of the impact went into spinning it rather than bouncing it
+    CHECK(wingHit.upwardSpeed > 0.0);
+    CHECK(wingHit.upwardSpeed < squareHit.upwardSpeed);
 }

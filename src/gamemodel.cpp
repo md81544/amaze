@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <numbers>
 
 namespace marengo {
 namespace amaze {
@@ -13,9 +14,12 @@ namespace {
 
 // Proportion of the ship's speed towards an obstacle which it bounces back with
 constexpr double BOUNCE_RESTITUTION = 0.5;
+// How hard the ship is to spin, relative to its mass. Higher means a hit off
+// centre (e.g. on a wing) spins it less, and deflects it more.
+constexpr double SHIP_MOMENT_OF_INERTIA = 500.0;
 // Friction slowing the ship along an obstacle on impact. The speed lost is
-// this proportion of the change in speed towards the obstacle, so a graze
-// barely slows the ship but a hard hit does.
+// this proportion of the impact's impulse, so a graze barely slows the ship
+// but a hard hit does.
 constexpr double BOUNCE_FRICTION = 0.2;
 // If the ship is still touching an obstacle after a bounce (e.g. it rotated
 // into it, or a moving object moved into it), it's pushed clear in steps of
@@ -189,24 +193,26 @@ std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect
     return { GameShapeType::NEUTRAL, nullptr };
 }
 
-std::optional<QPointF> GameModel::shipContactNormal() const
+std::optional<Shape::Contact> GameModel::shipContact() const
 {
-    QPointF sum;
-    bool touching = false;
+    QPointF pointSum;
+    QPointF normalSum;
+    int touching = 0;
     for (const auto& obj : m_allDynamicGameShapes) {
         if (!obj->IsActive() || !isObstacle(obj->getGameShapeType())) {
             continue;
         }
-        if (auto normal = m_shipModel->shipGameShape()->contactNormal(obj)) {
-            sum += *normal;
-            touching = true;
+        if (auto contact = m_shipModel->shipGameShape()->contact(obj)) {
+            pointSum += contact->point;
+            normalSum += contact->normal;
+            ++touching;
         }
     }
-    double length = std::hypot(sum.x(), sum.y());
-    if (!touching || length < 1e-9) {
+    double length = std::hypot(normalSum.x(), normalSum.y());
+    if (touching == 0 || length < 1e-9) {
         return std::nullopt;
     }
-    return sum / length;
+    return Shape::Contact { pointSum / touching, normalSum / length };
 }
 
 bool GameModel::shipTouchesObstacle() const
@@ -224,12 +230,12 @@ bool GameModel::pushShipClear()
 {
     auto& ship = *m_shipModel;
     for (int n = 0; n < MAX_PUSH_OUT_STEPS; ++n) {
-        auto direction = shipContactNormal();
-        if (!direction) {
+        auto contact = shipContact();
+        if (!contact) {
             break;
         }
-        ship.setShipX(ship.x() + direction->x() * PUSH_OUT_STEP);
-        ship.setShipY(ship.y() + direction->y() * PUSH_OUT_STEP);
+        ship.setShipX(ship.x() + contact->normal.x() * PUSH_OUT_STEP);
+        ship.setShipY(ship.y() + contact->normal.y() * PUSH_OUT_STEP);
     }
     return !shipTouchesObstacle();
 }
@@ -237,33 +243,52 @@ bool GameModel::pushShipClear()
 double GameModel::bounceShip()
 {
     auto& ship = *m_shipModel;
-    auto normal = shipContactNormal();
+    auto contact = shipContact();
     QPointF move = ship.lastMove();
+    std::optional<QPointF> normal;
+    double impactSpeed = 0.0;
+
+    if (contact) {
+        normal = contact->normal;
+        const QPointF& n = contact->normal;
+        // Where the ship was hit, relative to its centre
+        QPointF r = contact->point - QPointF(ship.x(), ship.y());
+        // Spin in radians per tick, in the same sense as Shape::rotate() (the
+        // ship's shape is rotated the opposite way to its rotation)
+        double spin = -ship.spin() * std::numbers::pi / 180.0;
+        // Note the ship moves by -(dX, dY) each tick
+        QPointF motion(-ship.dX(), -ship.dY());
+        // How fast the part of the ship which was hit is moving, including
+        // from spin
+        QPointF pointMotion = motion + QPointF(-r.y(), r.x()) * spin;
+        impactSpeed = -QPointF::dotProduct(pointMotion, n);
+        if (impactSpeed > 0.0) {
+            // The impulse from the obstacle bounces the hit part of the ship
+            // back off it. A hit away from the centre (e.g. on a wing) puts
+            // some of that into spinning the ship, and less into deflecting it.
+            double leverage = r.x() * n.y() - r.y() * n.x();
+            double impulse = (1.0 + BOUNCE_RESTITUTION) * impactSpeed
+                / (1.0 + leverage * leverage / SHIP_MOMENT_OF_INERTIA);
+            motion += n * impulse;
+            spin += leverage * impulse / SHIP_MOMENT_OF_INERTIA;
+
+            // Friction slows the motion along the obstacle
+            QPointF towards = n * QPointF::dotProduct(motion, n);
+            QPointF along = motion - towards;
+            double alongSpeed = std::hypot(along.x(), along.y());
+            if (alongSpeed > 0.0) {
+                along *= std::max(alongSpeed - BOUNCE_FRICTION * impulse, 0.0) / alongSpeed;
+            }
+            motion = along + towards;
+            ship.setDx(-motion.x());
+            ship.setDy(-motion.y());
+            ship.setSpin(-spin * 180.0 / std::numbers::pi);
+        }
+    }
 
     // Go back to where the ship was before this tick's move. Unless it rotated
     // into something (or a moving object moved into it) it's then clear.
     ship.revertPosition();
-
-    double impactSpeed = 0.0;
-    if (normal) {
-        // Note the ship moves by -(dX, dY) each tick
-        QPointF motion(-ship.dX(), -ship.dY());
-        impactSpeed = -QPointF::dotProduct(motion, *normal);
-        if (impactSpeed > 0.0) {
-            // Reverse the part of the motion towards the obstacle, and slow the
-            // part along it by friction
-            QPointF towards = *normal * -impactSpeed;
-            QPointF along = motion - towards;
-            double alongSpeed = std::hypot(along.x(), along.y());
-            if (alongSpeed > 0.0) {
-                double friction = BOUNCE_FRICTION * (1.0 + BOUNCE_RESTITUTION) * impactSpeed;
-                along *= std::max(alongSpeed - friction, 0.0) / alongSpeed;
-            }
-            motion = along - towards * BOUNCE_RESTITUTION;
-            ship.setDx(-motion.x());
-            ship.setDy(-motion.y());
-        }
-    }
 
     // Rotating is never blocked by an obstacle, as that can leave the ship
     // unable to turn away from it; the ship is pushed clear instead. Only if

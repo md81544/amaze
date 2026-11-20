@@ -166,7 +166,7 @@ TEST_CASE("Rotation and resizing combine")
     CHECK(collide(shape, makeShape({ { -1, -30, 1, -30 } }, 100, 200)));
 }
 
-TEST_CASE("Contact normal points away from a touched line towards the shape's centre")
+TEST_CASE("Contact with a line just touching points away from it, towards the shape's centre")
 {
     // A wall along y = 10, from x = -50 to 50
     auto wall = makeShape({ { -50, 10, 50, 10 } });
@@ -174,35 +174,57 @@ TEST_CASE("Contact normal points away from a touched line towards the shape's ce
     // A box centred on (0, 0) whose bottom edge is on the wall
     auto above = makeShape(
         { { -5, -10, 5, -10 }, { 5, -10, 5, 10 }, { 5, 10, -5, 10 }, { -5, 10, -5, -10 } });
-    auto normal = above->contactNormal(wall);
-    REQUIRE(normal.has_value());
-    CHECK(normal->x() == Catch::Approx(0.0).margin(1e-9));
-    CHECK(normal->y() == Catch::Approx(-1.0));
+    auto contact = above->contact(wall);
+    REQUIRE(contact.has_value());
+    CHECK(contact->normal.x() == Catch::Approx(0.0).margin(1e-9));
+    CHECK(contact->normal.y() == Catch::Approx(-1.0));
 
     // The same box on the other side of the wall gets the opposite normal
     auto below = makeShape(
         { { -5, -10, 5, -10 }, { 5, -10, 5, 10 }, { 5, 10, -5, 10 }, { -5, 10, -5, -10 } }, 0, 20);
-    normal = below->contactNormal(wall);
-    REQUIRE(normal.has_value());
-    CHECK(normal->y() == Catch::Approx(1.0));
+    contact = below->contact(wall);
+    REQUIRE(contact.has_value());
+    CHECK(contact->normal.y() == Catch::Approx(1.0));
 }
 
-TEST_CASE("Contact normal from the end of a line points away from that end")
+TEST_CASE("Contact with a line cutting across a corner of a shape is along the line's normal")
 {
-    // The end of a wall at (0, 0) pokes into a box centred on (10, 10)
-    auto wall = makeShape({ { -50, -50, 0, 0 } });
+    // A box centred on (0, 0), and a diagonal wall which cuts across its
+    // bottom right corner, crossing its edges at (8, 10) and (10, 8)
     auto box = makeShape(
-        { { -5, -5, 5, -5 }, { 5, -5, 5, 5 }, { 5, 5, -5, 5 }, { -5, 5, -5, -5 } }, 4, 4);
-    auto normal = box->contactNormal(wall);
-    REQUIRE(normal.has_value());
-    CHECK(normal->x() == Catch::Approx(std::sqrt(0.5)));
-    CHECK(normal->y() == Catch::Approx(std::sqrt(0.5)));
+        { { -10, -10, 10, -10 }, { 10, -10, 10, 10 }, { 10, 10, -10, 10 }, { -10, 10, -10, -10 } });
+    auto wall = makeShape({ { 3, 15, 15, 3 } });
+    auto contact = box->contact(wall);
+    REQUIRE(contact.has_value());
+    // Halfway between where the wall crosses the box
+    CHECK(contact->point.x() == Catch::Approx(9.0));
+    CHECK(contact->point.y() == Catch::Approx(9.0));
+    CHECK(contact->normal.x() == Catch::Approx(-std::sqrt(0.5)));
+    CHECK(contact->normal.y() == Catch::Approx(-std::sqrt(0.5)));
 }
 
-TEST_CASE("No contact normal when not touching")
+TEST_CASE("Contact with the end of a line poking into a shape is along the shape's edge's normal")
+{
+    // A box centred on (0, 0), and a wall coming up from below whose end pokes
+    // into it near its bottom right corner (like a wing hitting a corner)
+    auto box = makeShape(
+        { { -10, -10, 10, -10 }, { 10, -10, 10, 10 }, { 10, 10, -10, 10 }, { -10, 10, -10, -10 } });
+    auto wall = makeShape({ { 8, 50, 8, 9 } });
+    auto contact = box->contact(wall);
+    REQUIRE(contact.has_value());
+    // At the end of the wall
+    CHECK(contact->point.x() == Catch::Approx(8.0));
+    CHECK(contact->point.y() == Catch::Approx(9.0));
+    // Pushed up, away from the wall, along the normal of the box's bottom edge
+    // (rather than towards the box's centre)
+    CHECK(contact->normal.x() == Catch::Approx(0.0).margin(1e-9));
+    CHECK(contact->normal.y() == Catch::Approx(-1.0));
+}
+
+TEST_CASE("No contact when not touching")
 {
     auto wall = makeShape({ { -50, 10, 50, 10 } });
     auto box
         = makeShape({ { -5, -5, 5, -5 }, { 5, -5, 5, 5 }, { 5, 5, -5, 5 }, { -5, 5, -5, -5 } });
-    CHECK_FALSE(box->contactNormal(wall).has_value());
+    CHECK_FALSE(box->contact(wall).has_value());
 }

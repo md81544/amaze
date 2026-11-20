@@ -2,10 +2,21 @@
 #include "log.h" // IWYU pragma: keep
 #include "utils.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace marengo {
 namespace amaze {
+
+namespace {
+
+// Spin from hitting things is limited to this (degrees per tick; for
+// comparison, the player rotates at up to 0.75), and dies away by this factor
+// each tick
+constexpr double MAX_SPIN = 2.0;
+constexpr double SPIN_DAMPING = 0.97;
+
+} // namespace
 
 ShipModel::ShipModel(
     std::shared_ptr<GameShape> ship,
@@ -47,6 +58,7 @@ void ShipModel::initialise()
     // Resets the ship model to a state ready for a new Level
     m_rotation = 0.0;
     m_rotationDelta = 0.0;
+    m_spin = 0.0;
     m_dx = 0.0;
     m_dy = 0.0;
     m_velocity = 0.0;
@@ -98,6 +110,16 @@ double ShipModel::rotationDelta() const
 void ShipModel::setRotationDelta(double value)
 {
     m_rotationDelta = value;
+}
+
+double ShipModel::spin() const
+{
+    return m_spin;
+}
+
+void ShipModel::setSpin(double value)
+{
+    m_spin = std::clamp(value, -MAX_SPIN, MAX_SPIN);
 }
 
 double ShipModel::dX() const
@@ -208,6 +230,7 @@ void ShipModel::revertRotation()
 {
     setRotation(-m_lastRotationDelta);
     m_lastRotationDelta = 0.0; // so calling this twice doesn't rotate back again
+    m_spin = 0.0;
 }
 
 void ShipModel::setVisible(bool value)
@@ -228,8 +251,9 @@ std::shared_ptr<GameShape> ShipModel::flamesGameShape() const
 void ShipModel::tick(bool isExploding)
 {
     // Called once per simulation tick by the GameModel
-    setRotation(m_rotationDelta);
-    m_lastRotationDelta = m_rotationDelta;
+    m_lastRotationDelta = m_rotationDelta + m_spin;
+    setRotation(m_lastRotationDelta);
+    m_spin *= SPIN_DAMPING;
 
     updateShipPosition();
 

@@ -26,6 +26,11 @@ struct ShapeLine {
 
 class Shape {
 public:
+    struct Contact {
+        QPointF point; // where the shapes touch
+        QPointF normal; // unit vector, pointing away from the other shape
+    };
+
     Shape();
     virtual ~Shape();
     void addShapeLine(ShapeLine sl);
@@ -50,11 +55,11 @@ public:
         int lineThickness);
     void clear();
     bool intersectCheck(std::shared_ptr<Shape>) const;
-    // If this shape touches the other one, returns a unit vector pointing
-    // away from the other shape's touched lines, towards this shape's centre
-    // (i.e. the direction to bounce in). Returns nullopt if not touching, or
-    // if the touched lines' directions cancel out.
-    std::optional<QPointF> contactNormal(const std::shared_ptr<Shape>& other) const;
+    // If this shape touches the other one, returns where, and the direction
+    // pushing this shape away from the other one (i.e. to bounce in). Returns
+    // nullopt if not touching, or if the directions of the touched lines
+    // cancel out. Assumes this shape's lines form closed outline(s).
+    std::optional<Contact> contact(const std::shared_ptr<Shape>& other) const;
     const std::vector<ShapeLine>& getVec() const;
     void setPosFromCentre();
 

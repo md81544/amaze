@@ -216,6 +216,28 @@ bool linesTouch(const QLineF& a, const QLineF& b)
         || pointOnSegment(b.p2(), a);
 }
 
+// Is the point inside the closed outline(s) formed by the lines? (Counts how
+// many lines a ray from the point crosses.)
+bool containsPoint(const std::vector<QLineF>& lines, const QPointF& p)
+{
+    bool inside = false;
+    for (const auto& line : lines) {
+        if ((line.y1() > p.y()) != (line.y2() > p.y())) {
+            double crossingX = line.x1()
+                + (p.y() - line.y1()) * (line.x2() - line.x1()) / (line.y2() - line.y1());
+            if (crossingX > p.x()) {
+                inside = !inside;
+            }
+        }
+    }
+    return inside;
+}
+
+QPointF perpendicular(const QLineF& line)
+{
+    return QPointF(line.y1() - line.y2(), line.x2() - line.x1());
+}
+
 } // namespace
 
 bool Shape::intersectCheck(std::shared_ptr<Shape> s) const
@@ -237,50 +259,106 @@ bool Shape::intersectCheck(std::shared_ptr<Shape> s) const
     return false;
 }
 
-std::optional<QPointF> Shape::contactNormal(const std::shared_ptr<Shape>& other) const
+std::optional<Shape::Contact> Shape::contact(const std::shared_ptr<Shape>& other) const
 {
     QPointF centre(m_x, m_y);
-    QPointF sum;
-    bool touching = false;
+    std::vector<QLineF> myLines;
+    myLines.reserve(m_shapeLines.size());
+    for (const auto& mine : m_shapeLines) {
+        myLines.emplace_back(mine.x0 + m_x, mine.y0 + m_y, mine.x1 + m_x, mine.y1 + m_y);
+    }
+
+    QPointF pointSum;
+    QPointF normalSum;
+    int touchingLines = 0;
     for (const auto& theirs : other->getVec()) {
         QLineF theirLine(
             theirs.x0 + other->getPosX(),
             theirs.y0 + other->getPosY(),
             theirs.x1 + other->getPosX(),
             theirs.y1 + other->getPosY());
-        bool touchesThisLine = false;
-        for (const auto& mine : m_shapeLines) {
-            QLineF myLine(mine.x0 + m_x, mine.y0 + m_y, mine.x1 + m_x, mine.y1 + m_y);
-            if (linesTouch(myLine, theirLine)) {
-                touchesThisLine = true;
-                break;
+        bool touches = false;
+        std::vector<QPointF> crossings;
+        const QLineF* crossedLine = nullptr; // the first of mine their line crosses
+        for (const auto& myLine : myLines) {
+            QPointF crossing;
+            if (myLine.intersects(theirLine, &crossing) == QLineF::BoundedIntersection) {
+                touches = true;
+                crossings.push_back(crossing);
+                crossedLine = &myLine;
+            } else if (linesTouch(myLine, theirLine)) {
+                touches = true;
             }
         }
-        if (!touchesThisLine) {
+        if (!touches) {
             continue;
         }
-        touching = true;
-        // Direction from the closest point on their line to our centre. For a
-        // hit along a line this is perpendicular to it; for a hit on the end
-        // of a line (e.g. a corner) it points away from that end.
-        QPointF direction = theirLine.p2() - theirLine.p1();
-        double lengthSquared = QPointF::dotProduct(direction, direction);
-        double along = 0.0;
-        if (lengthSquared > 0.0) {
-            along = std::clamp(
-                QPointF::dotProduct(centre - theirLine.p1(), direction) / lengthSquared, 0.0, 1.0);
+
+        bool p1Inside = containsPoint(myLines, theirLine.p1());
+        bool p2Inside = containsPoint(myLines, theirLine.p2());
+        QPointF point;
+        QPointF normal;
+        if (p1Inside != p2Inside && crossedLine) {
+            // The end of their line (e.g. a corner) pokes into this shape. It
+            // pushes this shape away along the normal of the line of mine it
+            // came in through, i.e. the crossing nearest its other end.
+            QPointF tip = p1Inside ? theirLine.p1() : theirLine.p2();
+            QPointF base = p1Inside ? theirLine.p2() : theirLine.p1();
+            double nearest = std::numeric_limits<double>::max();
+            for (size_t n = 0; n < myLines.size(); ++n) {
+                QPointF crossing;
+                if (myLines[n].intersects(theirLine, &crossing) == QLineF::BoundedIntersection) {
+                    QPointF offset = crossing - base;
+                    double distance = QPointF::dotProduct(offset, offset);
+                    if (distance < nearest) {
+                        nearest = distance;
+                        crossedLine = &myLines[n];
+                    }
+                }
+            }
+            point = tip;
+            normal = perpendicular(*crossedLine);
+            if (QPointF::dotProduct(normal, tip - base) < 0.0) {
+                normal = -normal;
+            }
+        } else if (!p1Inside && !p2Inside && !crossings.empty()) {
+            // Their line cuts across part of this shape (e.g. a wingtip). It
+            // pushes this shape away along its own normal.
+            for (const auto& crossing : crossings) {
+                point += crossing;
+            }
+            point /= static_cast<double>(crossings.size());
+            normal = perpendicular(theirLine);
+            if (QPointF::dotProduct(normal, centre - point) < 0.0) {
+                normal = -normal;
+            }
+        } else {
+            // Only just touching (or their line is inside this shape). Push
+            // away from the closest point on their line to our centre.
+            QPointF direction = theirLine.p2() - theirLine.p1();
+            double lengthSquared = QPointF::dotProduct(direction, direction);
+            double along = 0.0;
+            if (lengthSquared > 0.0) {
+                along = std::clamp(
+                    QPointF::dotProduct(centre - theirLine.p1(), direction) / lengthSquared,
+                    0.0,
+                    1.0);
+            }
+            point = theirLine.p1() + direction * along;
+            normal = centre - point;
         }
-        QPointF away = centre - (theirLine.p1() + direction * along);
-        double distance = std::hypot(away.x(), away.y());
-        if (distance > 0.0) {
-            sum += away / distance;
+        double length = std::hypot(normal.x(), normal.y());
+        if (length > 0.0) {
+            pointSum += point;
+            normalSum += normal / length;
+            ++touchingLines;
         }
     }
-    double length = std::hypot(sum.x(), sum.y());
-    if (!touching || length < 1e-9) {
+    double length = std::hypot(normalSum.x(), normalSum.y());
+    if (touchingLines == 0 || length < 1e-9) {
         return std::nullopt;
     }
-    return sum / length;
+    return Contact { pointSum / touchingLines, normalSum / length };
 }
 
 const std::vector<ShapeLine>& Shape::getVec() const
