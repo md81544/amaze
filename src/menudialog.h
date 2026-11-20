@@ -11,7 +11,7 @@
 
 #include <string>
 
-class QListWidget;
+class QTreeWidget;
 
 namespace marengo {
 namespace amaze {
@@ -30,7 +30,7 @@ public:
 private:
     MenuResults m_results;
     LevelFileLister m_levelFileLister;
-    QListWidget* m_levelList;
+    QTreeWidget* m_levelList;
 };
 
 } // namespace amaze

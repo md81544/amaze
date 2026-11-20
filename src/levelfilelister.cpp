@@ -4,7 +4,6 @@
 
 #include <expected>
 #include <filesystem>
-#include <format>
 #include <fstream>
 #include <map>
 #include <regex>
@@ -54,7 +53,7 @@ LevelFileLister::LevelFileLister(std::string_view dataDir)
     for (const auto& pr : sortedPaths) {
         m_fileDataMap[pr.first]
             = { pr.first,
-                std::format("{} : {}", pr.first, getLevelDescription(pr.second)),
+                getLevelDescription(pr.second),
                 pr.second.string() };
     }
 }
