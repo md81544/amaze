@@ -3,6 +3,7 @@
 
 #include <QColor>
 #include <QFont>
+#include <QRectF>
 
 #include <optional>
 #include <string>
@@ -38,8 +39,9 @@ public:
 private:
     void
     drawShape(QPainter& painter, const QTransform& arenaTransform, const GameShape& shape) const;
-    // x and y are the text's top left; no value means centred in that dimension
-    void drawText(
+    // x and y are the text's top left; no value means centred in that
+    // dimension. Returns the area the text was drawn in.
+    QRectF drawText(
         QPainter& painter,
         const QSizeF& canvasSize,
         const std::string& text,

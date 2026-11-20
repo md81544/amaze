@@ -21,6 +21,12 @@ namespace {
 // the same area as that screen.)
 constexpr double LINE_THICKNESS_SCALE = 1200.0 / 1080.0;
 
+// Status bar text, and the shield bar's outline
+const QColor STATUS_COLOUR(0, 128, 0);
+// The remaining shield, the same as the background grid
+const QColor SHIELD_FILL_COLOUR(0, 32, 0);
+constexpr double SHIELD_BAR_WIDTH = 300.0;
+
 } // namespace
 
 View::View(GameModel& model, Audio& audio, const std::string& dataDir)
@@ -79,15 +85,19 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     // macs in full screen)
     painter.fillRect(QRectF(0, 0, canvasSize.width() + 1, 75), Qt::black);
 
-    // Lives remaining
-    drawText(
-        painter,
-        canvasSize,
-        "Ships remaining: " + std::to_string(m_model.getLivesRemaining()),
-        QColor(0, 128, 0),
-        40,
-        30,
-        20);
+    // Shield, as a bar which empties as the shield weakens
+    QRectF label = drawText(painter, canvasSize, "Shield:", STATUS_COLOUR, 40, 30, 20);
+    QRectF bar(
+        label.right() + 20,
+        label.top() + label.height() * 0.2,
+        SHIELD_BAR_WIDTH,
+        label.height() * 0.6);
+    QRectF remaining(bar);
+    remaining.setWidth(bar.width() * m_model.shield());
+    painter.fillRect(remaining, SHIELD_FILL_COLOUR);
+    painter.setPen(QPen(STATUS_COLOUR, 2));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(bar);
 
     double messageY = canvasSize.height() * 0.3;
 
@@ -121,7 +131,7 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
         drawText(painter, canvasSize, "Success!", QColor(255, 255, 0), 160, {}, messageY);
     }
 
-    if (m_model.getGameState() == GameState::Dead && m_model.getLivesRemaining() == 0) {
+    if (m_model.getGameState() == GameState::Dead) {
         drawText(painter, canvasSize, "Game Over", QColor(255, 0, 0), 160, {}, messageY);
     }
 }
@@ -158,7 +168,7 @@ void View::drawShape(QPainter& painter, const QTransform& arenaTransform, const 
     }
 }
 
-void View::drawText(
+QRectF View::drawText(
     QPainter& painter,
     const QSizeF& canvasSize,
     const std::string& text,
@@ -181,6 +191,11 @@ void View::drawText(
     painter.setFont(font);
     painter.setPen(colour);
     painter.drawText(QPointF(left, baseline), string);
+    return QRectF(
+        left,
+        baseline - metrics.ascent(),
+        metrics.horizontalAdvance(string),
+        metrics.ascent() + metrics.descent());
 }
 
 } // namespace amaze

@@ -25,12 +25,13 @@ constexpr std::chrono::nanoseconds TICK_DURATION { 1'000'000'000 / TICKS_PER_SEC
 // chance to react during the hiccup anyway. This still allows for displays
 // down to 20Hz.
 constexpr std::chrono::milliseconds MAX_FRAME_TIME { 50 };
-constexpr int RESPAWN_DELAY_TICKS = 2 * TICKS_PER_SECOND;
 // Log frames or input processing that take longer than this (diagnostic only)
 constexpr std::chrono::milliseconds STALL_LOG_THRESHOLD { 50 };
 // Bounces slower than this (units per tick) are silent, e.g. the ship being
 // thrust gently against a wall
 constexpr double BOUNCE_SOUND_MIN_SPEED = 0.3;
+// How much of the shield each fuel object restores
+constexpr double FUEL_SHIELD_RECHARGE = 0.1;
 
 } // namespace
 
@@ -302,7 +303,6 @@ void Controller::processMenu()
 void Controller::tick()
 {
     m_scheduler.processSchedule();
-    m_gameModel.savePosition();
     switch (m_gameModel.getGameState()) {
         case GameState::Paused:
             m_shell.rumble(0, 0, 0); // turn off any rumbles
@@ -311,18 +311,6 @@ void Controller::tick()
         case GameState::Dead:
             // We get here when the ship has finished exploding
             m_shell.rumble(0, 0, 0);
-            if (m_scheduler.isScheduleItemActive(ScheduleEventName::Respawn)
-                || m_scheduler.isScheduleItemActive(ScheduleEventName::LevelEnded)) {
-                // Already decided what happens next
-                break;
-            }
-            if (m_gameModel.lifeLost() != 0) {
-                // Leave the explosion on screen briefly before respawning
-                m_scheduler.doAfter(ScheduleEventName::Respawn, RESPAWN_DELAY_TICKS, [&]() {
-                    m_gameModel.restart();
-                });
-                break;
-            }
             m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
                 // We just reload the level, but display the menu
                 // in case the user wants a different level
@@ -389,7 +377,7 @@ void Controller::collisionChecks()
                 if (collideeType != GameShapeType::FLAMES) {
                     m_audio.soundPlay("collect");
                     collider->setIsActive(false);
-                    m_gameModel.extraLife();
+                    m_gameModel.rechargeShield(FUEL_SHIELD_RECHARGE);
                 }
                 break;
             case GameShapeType::KEY:
@@ -427,6 +415,12 @@ void Controller::collisionChecks()
 void Controller::bounceShip()
 {
     double impactSpeed = m_gameModel.bounceShip();
+    m_gameModel.shieldImpact(impactSpeed);
+    if (m_gameModel.shield() <= 0.0) {
+        m_gameModel.shipModel().setIsExploding(true);
+        m_gameModel.setGameState(GameState::Exploding);
+        return;
+    }
     if (impactSpeed >= BOUNCE_SOUND_MIN_SPEED) {
         m_audio.soundPlay("collision");
         auto intensity = static_cast<uint16_t>(std::min(impactSpeed / 3.0, 1.0) * 0xFFFF);

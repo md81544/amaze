@@ -11,8 +11,7 @@ namespace amaze {
 enum class ScheduleEventName {
     LevelEnded,
     Exploding,
-    BreakableExploding,
-    Respawn
+    BreakableExploding
 };
 
 struct ScheduleItem {

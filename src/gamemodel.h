@@ -29,17 +29,11 @@ enum class GameState {
     GetReady, // level loaded, about to start
     Running, // normal operation
     Exploding, // ship is exploding
-    Dead, // life is lost
+    Dead, // ship has been destroyed: game over
     Succeeded, // found the exit
     Paused, // game is paused
     Quit, // user requested to quit
     Menu // Level selection / options etc
-};
-
-struct ShipPosition {
-    unsigned int posX;
-    unsigned int posY;
-    double rotation;
 };
 
 class GameModel final {
@@ -63,8 +57,8 @@ public:
 
     std::shared_ptr<GameShape> newGameShape();
 
-    // The ship is replaced when a level loads or the ship respawns, so don't
-    // keep this reference beyond the current tick
+    // The ship is replaced when a level loads, so don't keep this reference
+    // beyond the current tick
     ShipModel& shipModel();
     const ShipModel& shipModel() const;
 
@@ -77,21 +71,18 @@ public:
     void tick();
     const std::vector<std::shared_ptr<GameShape>>& getAllDynamicObjects() const;
 
-    // Save rocket position periodically to facilitate a restart after a life is used
-    void savePosition();
     void togglePause();
     bool gameIsPaused(); // returns true if paused
-    void restart();
     GameState getGameState();
     void setGameState(GameState state);
-    int lifeLost();
-    void extraLife();
-    void setLives(int lives);
     void setBreakableExploding(bool value = true);
-    int getLivesRemaining()
-    {
-        return m_livesRemaining;
-    };
+
+    // The ship's shield, from 1 (full) down to 0, when the ship is destroyed
+    double shield() const;
+    // Weakens the shield according to the speed of an impact (as returned by
+    // bounceShip())
+    void shieldImpact(double impactSpeed);
+    void rechargeShield(double amount);
 
 private:
     std::string m_dataPath { "" };
@@ -107,9 +98,7 @@ private:
     std::shared_ptr<GameShape> m_breakableExplosionShape;
     bool m_breakableExploding { false };
 
-    utils::RingBuffer<ShipPosition, 200> m_savedPositionsRingBuffer;
     GameState m_gameState { GameState::Running };
-    void rebuildShip();
     // Combined contact with all obstacles the ship is touching (see
     // Shape::contact())
     std::optional<Shape::Contact> shipContact() const;
@@ -117,7 +106,11 @@ private:
     // Moves the ship away from obstacles it's touching, until it's clear or
     // has moved a limited distance. Returns true if it's clear.
     bool pushShipClear();
-    int m_livesRemaining { 1 };
+    double m_shield { 1.0 };
+    // So that an impact (which may include a few smaller bounces) only
+    // weakens the shield once: the largest recent damage, and how long ago
+    double m_recentShieldDamage { 0.0 };
+    int m_ticksSinceShieldDamage { 0 };
     Scheduler m_scheduler;
 };
 

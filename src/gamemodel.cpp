@@ -27,6 +27,18 @@ constexpr double BOUNCE_FRICTION = 0.2;
 constexpr double PUSH_OUT_STEP = 0.25;
 constexpr int MAX_PUSH_OUT_STEPS = 40;
 
+// Impacts (see bounceShip()) slower than this don't weaken the shield, e.g.
+// when the ship is thrust against a wall
+constexpr double SHIELD_DAMAGE_MIN_SPEED = 0.02;
+// The slowest impacts which do weaken the shield take this much off it, up
+// to all of it for impacts at least this fast
+constexpr double SHIELD_DAMAGE_MIN = 0.1;
+constexpr double SHIELD_DAMAGE_MAX_SPEED = 0.3;
+// Impacts within this many ticks of each other count as one, e.g. the ship
+// bouncing a few times as it comes to rest against a wall. Only damage more
+// than the earlier impact's is taken.
+constexpr int SHIELD_IMPACT_TICKS = 60;
+
 bool isObstacle(GameShapeType type)
 {
     return type == GameShapeType::OBSTRUCTION || type == GameShapeType::MOVING
@@ -45,7 +57,8 @@ GameModel::GameModel(const std::string& dataPath)
 void GameModel::initialise(const std::string& levelFileName)
 {
     // Resets the model to a state ready for a new Level
-    m_livesRemaining = 1;
+    m_shield = 1.0;
+    m_recentShieldDamage = 0.0;
     m_levelDescription.clear();
     m_allDynamicGameShapes.clear();
 
@@ -173,8 +186,11 @@ std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect
             // can't collide with itself :)
             continue;
         }
-        if (obj->getGameShapeType() == GameShapeType::NEUTRAL) {
-            // NEUTRAL objects don't cause collisions
+        if (obj->getGameShapeType() == GameShapeType::NEUTRAL
+            || obj->getGameShapeType() == GameShapeType::UNINITIALISED) {
+            // NEUTRAL objects don't cause collisions, nor do the explosions
+            // (which are UNINITIALISED). Explosion shapes stay where they
+            // were last used, even when invisible.
             continue;
         }
         if (obj->IsActive() == false) {
@@ -317,9 +333,40 @@ double GameModel::bounceShip()
     return std::max(impactSpeed, 0.0);
 }
 
+double GameModel::shield() const
+{
+    return m_shield;
+}
+
+void GameModel::shieldImpact(double impactSpeed)
+{
+    if (impactSpeed < SHIELD_DAMAGE_MIN_SPEED) {
+        return;
+    }
+    double severity = std::min(
+        (impactSpeed - SHIELD_DAMAGE_MIN_SPEED)
+            / (SHIELD_DAMAGE_MAX_SPEED - SHIELD_DAMAGE_MIN_SPEED),
+        1.0);
+    double damage = SHIELD_DAMAGE_MIN + (1.0 - SHIELD_DAMAGE_MIN) * severity;
+    if (m_ticksSinceShieldDamage >= SHIELD_IMPACT_TICKS) {
+        m_recentShieldDamage = 0.0;
+    }
+    if (damage > m_recentShieldDamage) {
+        m_shield = std::max(m_shield - (damage - m_recentShieldDamage), 0.0);
+        m_recentShieldDamage = damage;
+    }
+    m_ticksSinceShieldDamage = 0;
+}
+
+void GameModel::rechargeShield(double amount)
+{
+    m_shield = std::min(m_shield + amount, 1.0);
+}
+
 void GameModel::tick()
 {
     m_scheduler.processSchedule();
+    ++m_ticksSinceShieldDamage;
 
     if (m_gameState == GameState::Exploding) {
         m_shipModel->setIsExploding(true);
@@ -377,21 +424,6 @@ const std::vector<std::shared_ptr<GameShape>>& GameModel::getAllDynamicObjects()
     return m_allDynamicGameShapes;
 }
 
-void GameModel::savePosition()
-{
-    // Don't record the crash site, otherwise a restart would put the ship
-    // straight back where it died
-    if (m_gameState == GameState::Exploding || m_gameState == GameState::Dead) {
-        return;
-    }
-    unsigned x = static_cast<unsigned int>(m_shipModel->x());
-    unsigned y = static_cast<unsigned int>(m_shipModel->y());
-    double rot = m_shipModel->rotation();
-    // The ring buffer has 200 slots, so at 120 ticks per second the last
-    // item in the buffer will be from about 1.7 seconds ago
-    m_savedPositionsRingBuffer.add({ x, y, rot });
-}
-
 void GameModel::togglePause()
 {
     if (m_gameState == GameState::Paused) {
@@ -406,19 +438,6 @@ bool GameModel::gameIsPaused()
     return m_gameState == GameState::Paused;
 }
 
-void GameModel::restart()
-{
-    rebuildShip();
-    m_shipModel->initialise();
-    m_shipModel->setIsExploding(false);
-    m_shipModel->setShipX(m_savedPositionsRingBuffer.lastItem().posX);
-    m_shipModel->setShipY(m_savedPositionsRingBuffer.lastItem().posY);
-    m_shipModel->setRotation(m_savedPositionsRingBuffer.lastItem().rotation);
-    m_shipModel->setVisible(true);
-    m_gameState = GameState::Running;
-    m_shipModel->buildExplosionShape();
-}
-
 GameState GameModel::getGameState()
 {
     return m_gameState;
@@ -429,42 +448,10 @@ void GameModel::setGameState(GameState state)
     m_gameState = state;
 }
 
-int GameModel::lifeLost()
-{
-    if (m_livesRemaining > 0) {
-        --m_livesRemaining;
-    }
-    return m_livesRemaining;
-}
-
-void GameModel::extraLife()
-{
-    ++m_livesRemaining;
-}
-
-void GameModel::setLives(int lives)
-{
-    m_livesRemaining = lives;
-}
-
 void GameModel::setBreakableExploding(bool value /* =true */)
 {
     m_breakableExploding = value;
     m_breakableExplosionShape->setVisible(value);
-}
-
-void GameModel::rebuildShip()
-{
-    std::vector<std::shared_ptr<GameShape>> tmp;
-    std::swap(tmp, m_allDynamicGameShapes);
-    for (auto& s : tmp) {
-        if (s->getName() != "Ship" && s->getName() != "Flames" && s->getName() != "Explosion") {
-            m_allDynamicGameShapes.push_back(s);
-        }
-    }
-    m_shipModel.reset();
-    m_shipModel
-        = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
 }
 
 } // namespace amaze
