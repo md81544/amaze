@@ -256,7 +256,7 @@ bool GameModel::pushShipClear()
     return !shipTouchesObstacle();
 }
 
-double GameModel::bounceShip()
+Impact GameModel::bounceShip()
 {
     auto& ship = *m_shipModel;
     auto contact = shipContact();
@@ -305,6 +305,7 @@ double GameModel::bounceShip()
     // Go back to where the ship was before this tick's move. Unless it rotated
     // into something (or a moving object moved into it) it's then clear.
     ship.revertPosition();
+    bool pushed = shipTouchesObstacle();
 
     // Rotating is never blocked by an obstacle, as that can leave the ship
     // unable to turn away from it; the ship is pushed clear instead. Only if
@@ -330,7 +331,7 @@ double GameModel::bounceShip()
         }
     }
 
-    return std::max(impactSpeed, 0.0);
+    return Impact { std::max(impactSpeed, 0.0), pushed };
 }
 
 double GameModel::shield() const
@@ -338,8 +339,12 @@ double GameModel::shield() const
     return m_shield;
 }
 
-void GameModel::shieldImpact(double impactSpeed)
+void GameModel::shieldImpact(const Impact& impact)
 {
+    double impactSpeed = impact.speed;
+    if (impact.pushed) {
+        impactSpeed = std::max(impactSpeed, SHIELD_DAMAGE_MIN_SPEED);
+    }
     if (impactSpeed < SHIELD_DAMAGE_MIN_SPEED) {
         return;
     }

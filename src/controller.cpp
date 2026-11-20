@@ -414,16 +414,16 @@ void Controller::collisionChecks()
 
 void Controller::bounceShip()
 {
-    double impactSpeed = m_gameModel.bounceShip();
-    m_gameModel.shieldImpact(impactSpeed);
+    Impact impact = m_gameModel.bounceShip();
+    m_gameModel.shieldImpact(impact);
     if (m_gameModel.shield() <= 0.0) {
         m_gameModel.shipModel().setIsExploding(true);
         m_gameModel.setGameState(GameState::Exploding);
         return;
     }
-    if (impactSpeed >= BOUNCE_SOUND_MIN_SPEED) {
+    if (impact.speed >= BOUNCE_SOUND_MIN_SPEED) {
         m_audio.soundPlay("collision");
-        auto intensity = static_cast<uint16_t>(std::min(impactSpeed / 3.0, 1.0) * 0xFFFF);
+        auto intensity = static_cast<uint16_t>(std::min(impact.speed / 3.0, 1.0) * 0xFFFF);
         m_shell.rumble(intensity, intensity, 200);
     }
 }

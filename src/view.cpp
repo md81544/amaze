@@ -23,8 +23,9 @@ constexpr double LINE_THICKNESS_SCALE = 1200.0 / 1080.0;
 
 // Status bar text, and the shield bar's outline
 const QColor STATUS_COLOUR(0, 128, 0);
-// The remaining shield, the same as the background grid
-const QColor SHIELD_FILL_COLOUR(0, 32, 0);
+// The remaining shield: darker than the outline, but brighter than the
+// background grid
+const QColor SHIELD_FILL_COLOUR(0, 80, 0);
 constexpr double SHIELD_BAR_WIDTH = 300.0;
 
 } // namespace

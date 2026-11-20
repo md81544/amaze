@@ -74,7 +74,7 @@ void tick(GameModel& model)
     auto [collideeType, collider] = model.collisionDetect();
     if (collider && collideeType == GameShapeType::SHIP
         && collider->getGameShapeType() == GameShapeType::OBSTRUCTION) {
-        model.bounceShip();
+        model.shieldImpact(model.bounceShip());
     }
 }
 
@@ -271,24 +271,24 @@ TEST_CASE("Shield damage depends on the speed of impact")
 
     SECTION("Very slow impacts, e.g. thrusting against a wall, do no damage")
     {
-        model.shieldImpact(0.01);
+        model.shieldImpact({ 0.01 });
         CHECK(model.shield() == 1.0);
     }
     SECTION("A graze takes 10%")
     {
-        model.shieldImpact(0.02);
+        model.shieldImpact({ 0.02 });
         CHECK(model.shield() == Catch::Approx(0.9));
     }
     SECTION("Damage increases with speed")
     {
-        model.shieldImpact(0.16);
+        model.shieldImpact({ 0.16 });
         CHECK(model.shield() == Catch::Approx(0.45));
     }
     SECTION("A major impact takes all of it")
     {
-        model.shieldImpact(0.3);
+        model.shieldImpact({ 0.3 });
         CHECK(model.shield() == 0.0);
-        model.shieldImpact(2.0);
+        model.shieldImpact({ 2.0 });
         CHECK(model.shield() == 0.0);
     }
 }
@@ -298,23 +298,23 @@ TEST_CASE("Impacts in quick succession only weaken the shield once")
     TestLevel level(WALL_LEVEL);
     GameModel& model = level.model();
     // e.g. bouncing a few times as the ship comes to rest
-    model.shieldImpact(0.16);
+    model.shieldImpact({ 0.16 });
     model.tick();
-    model.shieldImpact(0.09);
+    model.shieldImpact({ 0.09 });
     model.tick();
-    model.shieldImpact(0.04);
+    model.shieldImpact({ 0.04 });
     CHECK(model.shield() == Catch::Approx(0.45));
 
     // A harder impact soon after only takes the extra damage
     model.tick();
-    model.shieldImpact(0.23);
+    model.shieldImpact({ 0.23 });
     CHECK(model.shield() == Catch::Approx(0.225));
 
     // Once things have settled, another impact counts in full
     for (int n = 0; n < 60; ++n) {
         model.tick();
     }
-    model.shieldImpact(0.02);
+    model.shieldImpact({ 0.02 });
     CHECK(model.shield() == Catch::Approx(0.125));
 }
 
@@ -322,7 +322,7 @@ TEST_CASE("Shield recharges up to full")
 {
     TestLevel level(WALL_LEVEL);
     GameModel& model = level.model();
-    model.shieldImpact(0.02);
+    model.shieldImpact({ 0.02 });
     model.rechargeShield(0.1);
     CHECK(model.shield() == Catch::Approx(1.0));
     model.rechargeShield(0.1);
@@ -340,11 +340,7 @@ TEST_CASE("Thrusting against a wall doesn't drain the shield")
     ship.setIsAccelerating(true, THRUST);
     auto run = [&](int ticks) {
         for (int n = 0; n < ticks; ++n) {
-            model.tick();
-            auto [collideeType, collider] = model.collisionDetect();
-            if (collider && collideeType == GameShapeType::SHIP) {
-                model.shieldImpact(model.bounceShip());
-            }
+            tick(model);
         }
     };
     // The first impact weakens the shield
@@ -368,4 +364,24 @@ TEST_CASE("Explosions aren't collided with, even where they were last shown")
     }
     auto [collideeType, collider] = model.collisionDetect();
     CHECK(collider == nullptr);
+}
+
+TEST_CASE("Rotating into a wall counts as a graze")
+{
+    TestLevel level(WALL_LEVEL);
+    GameModel& model = level.model();
+    auto& ship = model.shipModel();
+    // Stationary, with the wings just above the wall
+    ship.setShipY(80.5);
+    ship.setRotationDelta(ROTATION_PER_TICK);
+    for (int n = 0; n < 30; ++n) {
+        tick(model);
+    }
+    CHECK(model.shield() == Catch::Approx(0.9));
+
+    // Carrying on rotating against it is the same graze
+    for (int n = 0; n < 600; ++n) {
+        tick(model);
+    }
+    CHECK(model.shield() == Catch::Approx(0.9));
 }

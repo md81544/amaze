@@ -36,6 +36,15 @@ enum class GameState {
     Menu // Level selection / options etc
 };
 
+struct Impact {
+    // How fast the part of the ship which was hit was moving towards the
+    // obstacle
+    double speed { 0.0 };
+    // The ship had to be pushed clear of the obstacle, e.g. after rotating
+    // into it
+    bool pushed { false };
+};
+
 class GameModel final {
 public:
     explicit GameModel(const std::string& dataPath);
@@ -63,9 +72,8 @@ public:
     const ShipModel& shipModel() const;
 
     std::tuple<GameShapeType, std::shared_ptr<GameShape>> collisionDetect() const;
-    // Bounces the ship off the obstacle(s) it's touching. Returns the speed of
-    // impact, i.e. how fast the ship was moving towards the obstacle.
-    double bounceShip();
+    // Bounces the ship off the obstacle(s) it's touching
+    Impact bounceShip();
 
     // Advances moving objects, the ship, explosions etc. by one simulation tick
     void tick();
@@ -79,9 +87,9 @@ public:
 
     // The ship's shield, from 1 (full) down to 0, when the ship is destroyed
     double shield() const;
-    // Weakens the shield according to the speed of an impact (as returned by
-    // bounceShip())
-    void shieldImpact(double impactSpeed);
+    // Weakens the shield according to the speed of an impact. Being pushed
+    // clear of an obstacle counts as at least a graze.
+    void shieldImpact(const Impact& impact);
     void rechargeShield(double amount);
 
 private:
