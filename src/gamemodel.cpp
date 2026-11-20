@@ -13,8 +13,10 @@ namespace {
 
 // Proportion of the ship's speed towards an obstacle which it bounces back with
 constexpr double BOUNCE_RESTITUTION = 0.5;
-// Proportion of the ship's speed along an obstacle which it keeps on impact
-constexpr double BOUNCE_TANGENTIAL_RETAINED = 0.8;
+// Friction slowing the ship along an obstacle on impact. The speed lost is
+// this proportion of the change in speed towards the obstacle, so a graze
+// barely slows the ship but a hard hit does.
+constexpr double BOUNCE_FRICTION = 0.2;
 // If the ship is still touching an obstacle after a bounce (e.g. it rotated
 // into it, or a moving object moved into it), it's pushed clear in steps of
 // this size, up to a limit
@@ -249,25 +251,17 @@ double GameModel::bounceShip()
         impactSpeed = -QPointF::dotProduct(motion, *normal);
         if (impactSpeed > 0.0) {
             // Reverse the part of the motion towards the obstacle, and slow the
-            // part along it a bit
+            // part along it by friction
             QPointF towards = *normal * -impactSpeed;
             QPointF along = motion - towards;
-            motion = along * BOUNCE_TANGENTIAL_RETAINED - towards * BOUNCE_RESTITUTION;
+            double alongSpeed = std::hypot(along.x(), along.y());
+            if (alongSpeed > 0.0) {
+                double friction = BOUNCE_FRICTION * (1.0 + BOUNCE_RESTITUTION) * impactSpeed;
+                along *= std::max(alongSpeed - friction, 0.0) / alongSpeed;
+            }
+            motion = along - towards * BOUNCE_RESTITUTION;
             ship.setDx(-motion.x());
             ship.setDy(-motion.y());
-        }
-
-        // Still make the part of this tick's move which was along the
-        // obstacle, so the ship slides along it rather than sticking to it
-        // when e.g. thrusting against it
-        double into = QPointF::dotProduct(move, *normal);
-        if (into < 0.0) {
-            QPointF slide = move - *normal * into;
-            ship.setShipX(ship.x() + slide.x());
-            ship.setShipY(ship.y() + slide.y());
-            if (shipTouchesObstacle()) {
-                ship.revertPosition();
-            }
         }
     }
 
@@ -279,6 +273,20 @@ double GameModel::bounceShip()
         ship.revertPosition();
         ship.revertRotation();
         pushShipClear();
+    }
+
+    // Still make this tick's move, apart from any part of it into the
+    // obstacle, so the ship keeps going when grazing it rather than pausing
+    if (normal) {
+        QPointF slide = move - *normal * std::min(QPointF::dotProduct(move, *normal), 0.0);
+        double clearX = ship.x();
+        double clearY = ship.y();
+        ship.setShipX(clearX + slide.x());
+        ship.setShipY(clearY + slide.y());
+        if (!pushShipClear()) {
+            ship.setShipX(clearX);
+            ship.setShipY(clearY);
+        }
     }
 
     return std::max(impactSpeed, 0.0);
