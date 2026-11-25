@@ -27,9 +27,12 @@ constexpr std::chrono::nanoseconds TICK_DURATION { 1'000'000'000 / TICKS_PER_SEC
 constexpr std::chrono::milliseconds MAX_FRAME_TIME { 50 };
 // Log frames or input processing that take longer than this (diagnostic only)
 constexpr std::chrono::milliseconds STALL_LOG_THRESHOLD { 50 };
-// Bounces slower than this (units per tick) are silent, e.g. the ship being
-// thrust gently against a wall
-constexpr double BOUNCE_SOUND_MIN_SPEED = 0.3;
+// Gamepad rumble when the ship scrapes an obstacle and survives, from 0 to 1.
+// Harder impacts rumble more, up to full strength for this speed (units per
+// tick) or faster.
+constexpr double SCRAPE_RUMBLE_INTENSITY = 0.5;
+constexpr double SCRAPE_RUMBLE_FULL_SPEED = 3.0;
+constexpr uint32_t SCRAPE_RUMBLE_MS = 200;
 // How much of the shield each fuel object restores
 constexpr double FUEL_SHIELD_RECHARGE = 0.1;
 
@@ -52,6 +55,7 @@ Controller::Controller(GameModel& m, View& v, GameShell& shell, Audio& audio, Se
     m_audio.soundLoad("collect", (dataPath / "collect.wav").string());
     m_audio.soundLoad("success", (dataPath / "success.wav").string());
     m_audio.soundLoad("breakable", (dataPath / "breakable.wav").string());
+    m_audio.soundLoad("scrape", (dataPath / "scrape.wav").string());
     m_audio.musicLoad((dataPath / "music.ogg").string());
 }
 
@@ -421,11 +425,15 @@ void Controller::bounceShip()
         m_gameModel.setGameState(GameState::Exploding);
         return;
     }
-    if (impact.speed >= BOUNCE_SOUND_MIN_SPEED) {
-        m_audio.soundPlay("collision");
-        auto intensity = static_cast<uint16_t>(std::min(impact.speed / 3.0, 1.0) * 0xFFFF);
-        m_shell.rumble(intensity, intensity, 200);
-    }
+    // The ship survived the contact. (soundPlay() doesn't restart the sound
+    // if it's still playing, so sustained contact doesn't stutter. Each rumble
+    // replaces the last, so the rumble lasts as long as the contact, plus
+    // SCRAPE_RUMBLE_MS.)
+    m_audio.soundPlay("scrape");
+    double strength = std::clamp(
+        impact.speed / SCRAPE_RUMBLE_FULL_SPEED, SCRAPE_RUMBLE_INTENSITY, 1.0);
+    auto intensity = static_cast<uint16_t>(strength * 0xFFFF);
+    m_shell.rumble(intensity, intensity, SCRAPE_RUMBLE_MS);
 }
 
 } // namespace amaze

@@ -196,6 +196,12 @@ std::tuple<GameShapeType, std::shared_ptr<GameShape>> GameModel::collisionDetect
         if (obj->IsActive() == false) {
             continue;
         }
+        if (obj->getGameShapeType() == GameShapeType::FUEL && m_shield >= 1.0) {
+            // Fuel is only collected when the shield needs recharging, and
+            // otherwise is passed over (so it doesn't hide anything else the
+            // ship is touching)
+            continue;
+        }
         if (m_shipModel->shipGameShape()->intersectCheck(obj)) {
             return { GameShapeType::SHIP, obj };
         }

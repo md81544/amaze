@@ -385,3 +385,19 @@ TEST_CASE("Rotating into a wall counts as a graze")
     }
     CHECK(model.shield() == Catch::Approx(0.9));
 }
+
+TEST_CASE("Fuel is only collided with when the shield needs recharging")
+{
+    // Fuel across the ship's starting position
+    TestLevel level("!~0~0~0~0~0~Fuel\n"
+                    "N~FUEL~fuel\n"
+                    "L~-20~0~20~0~255~255~0~2\n");
+    GameModel& model = level.model();
+    auto [fullType, fullCollider] = model.collisionDetect();
+    CHECK(fullCollider == nullptr);
+
+    model.shieldImpact({ 0.02 });
+    auto [weakType, weakCollider] = model.collisionDetect();
+    REQUIRE(weakCollider != nullptr);
+    CHECK(weakCollider->getGameShapeType() == GameShapeType::FUEL);
+}
