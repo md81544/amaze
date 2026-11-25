@@ -177,6 +177,26 @@ TEST_CASE("Moving objects get their motion parameters")
     CHECK(mover.getGravity() == 3.f);
 }
 
+TEST_CASE("Moving objects get their paths")
+{
+    TempLevelFile file(R"({
+      "formatVersion": 1,
+      "movingObjects": [
+        { "lines": [ { "points": [[0, 0], [10, 10]] } ],
+          "path": { "offsets": [[100, -50], [0, 200]], "speed": 0.75, "loop": true } },
+        { "lines": [ { "points": [[0, 0], [10, 10]] } ], "speedX": 1, "rangeX": 10 }
+      ]
+    })");
+    auto level = readLevelFile(file.path());
+    REQUIRE(level.shapes.size() == 2);
+    const auto& onPath = *level.shapes[0];
+    CHECK(onPath.hasPath());
+    CHECK(onPath.getPathOffsets() == std::vector<std::pair<double, double>> { { 100, -50 }, { 0, 200 } });
+    CHECK(onPath.getPathSpeed() == 0.75);
+    CHECK(onPath.getPathLoops());
+    CHECK_FALSE(level.shapes[1]->hasPath());
+}
+
 TEST_CASE("Lines before the first object are ignored")
 {
     TempLevelFile file(

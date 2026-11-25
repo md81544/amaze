@@ -3,6 +3,8 @@
 #include "shape.h"
 
 #include <optional>
+#include <utility>
+#include <vector>
 
 // A shape's type affects little beyond what happens when the ship collides
 // with it (Controller::collisionChecks()) and whether it moves, so it's an
@@ -54,6 +56,15 @@ public:
     void setGravity(float value);
     float getPulsateAmount() const;
     void setPulsateAmount(float amount);
+    // Following a path (see LEVEL_FORMAT.md) rather than using the deltas
+    // above: it moves from its starting position through each offset in
+    // turn, then back again, or if loop, straight back to the start and round
+    // again. speed is the distance moved along the path per tick.
+    void setPath(std::vector<std::pair<double, double>> offsets, double speed, bool loop);
+    bool hasPath() const;
+    const std::vector<std::pair<double, double>>& getPathOffsets() const;
+    double getPathSpeed() const;
+    bool getPathLoops() const;
 
 private:
     bool m_isActive { true };
@@ -70,6 +81,21 @@ private:
     float m_yMaxDifference { 0.0f };
     float m_gravity { 0.f };
     float m_pulsateAmount { 0.001f };
+
+    // The path, if any (see setPath())
+    void moveAlongPath();
+    // The offset from the starting position at a distance along the path
+    std::pair<double, double> pathOffsetAt(double distance) const;
+    std::vector<std::pair<double, double>> m_pathOffsets;
+    double m_pathSpeed { 0.0 };
+    bool m_pathLoops { false };
+    // The path's points (starting with the start, (0, 0), and if it loops,
+    // ending with it too), and the distance along the path of each
+    std::vector<std::pair<double, double>> m_pathPoints;
+    std::vector<double> m_pathDistances;
+    // How far along the path it is, and which way it's going
+    double m_pathDistance { 0.0 };
+    bool m_pathForwards { true };
 };
 
 } // namespace amaze

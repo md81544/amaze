@@ -241,6 +241,13 @@ LevelData readJsonLevel(const std::string& contents)
         moving->setYMaxDifference(static_cast<float>(m.rangeY));
         moving->setRotationDelta(static_cast<float>(m.spin));
         moving->setGravity(static_cast<float>(m.gravity));
+        if (m.path.has_value()) {
+            std::vector<std::pair<double, double>> offsets;
+            for (const auto& offset : m.path->offsets) {
+                offsets.emplace_back(offset.x, offset.y);
+            }
+            moving->setPath(std::move(offsets), m.path->speed, m.path->loop);
+        }
         addLines(*moving, m.lines, MOVING);
         addObject(level, moving); // makes its lines relative to its centre
     }

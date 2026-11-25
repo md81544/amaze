@@ -152,6 +152,7 @@ if(Catch2_FOUND)
         tests/levelformat_tests.cpp
         tests/viewtransform_tests.cpp
         tests/bounce_tests.cpp
+        tests/path_tests.cpp
         src/gamemodel.cpp
         src/gameshape.cpp
         src/levelfile.cpp
