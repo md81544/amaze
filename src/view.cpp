@@ -8,6 +8,7 @@
 #include <QFontDatabase>
 #include <QFontMetricsF>
 #include <QPainter>
+#include <QRadialGradient>
 
 #include <algorithm>
 
@@ -27,6 +28,9 @@ const QColor STATUS_COLOUR(0, 128, 0);
 // background grid
 const QColor SHIELD_FILL_COLOUR(0, 80, 0);
 constexpr double SHIELD_BAR_WIDTH = 300.0;
+
+// The outer fraction of the vignette's radius over which the arena fades to black
+constexpr double VIGNETTE_FADE_FRACTION = 0.2;
 
 } // namespace
 
@@ -81,6 +85,17 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
             drawShape(painter, arenaTransform, *shape);
         }
     }
+
+    // Vignette: fade the arena to black around the ship (which is always at the
+    // canvas centre), reaching full black on a circle that just fits the canvas,
+    // so turning the ship doesn't let the player see further along the long axis
+    QPointF centre(canvasSize.width() / 2.0, canvasSize.height() / 2.0);
+    double vignetteRadius = std::min(canvasSize.width(), canvasSize.height()) / 2.0;
+    QRadialGradient vignette(centre, vignetteRadius);
+    vignette.setColorAt(0.0, QColor(0, 0, 0, 0));
+    vignette.setColorAt(1.0 - VIGNETTE_FADE_FRACTION, QColor(0, 0, 0, 0));
+    vignette.setColorAt(1.0, QColor(0, 0, 0, 255)); // and beyond, by the default pad spread
+    painter.fillRect(QRectF(0, 0, canvasSize.width() + 1, canvasSize.height() + 1), vignette);
 
     // Draw black rectangle at top of screen for status bar (and hiding the "notch" on
     // macs in full screen)
