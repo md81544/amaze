@@ -15,20 +15,11 @@
 * Teleport / portals
 * Emergency stop? Uses a life?
 * Splash screen
-* Move level files to JSON (shared with ../level_designer, which must change too).
-  Low/no priority:
-  - Optional fields with defaults (e.g. a rotation for any object, including
-    the exit); named rather than positional fields; no '~' escaping problems
-  - Describe what things are, not how to draw them: the game derives colours,
-    thickness and text (e.g. "EXIT") from the type, optionally overridden
-  - Shapes as polylines (lists of points, "closed" flag) rather than segments
-  - "formatVersion" field; readers ignore unknown fields
-  - Migrate: both programs read both formats (JSON starts with '{', old with
-    '!'), the editor writes JSON, convert amaze/data, then drop the old reader
-  - Write a short format spec first (field names, units, defaults, ints/floats)
-  - NB: amaze and level_designer each have their own JSON reader/writer (no
-    shared code or submodule), so the two MUST be kept in line: change both
-    together, keep the spec up to date, and have round-trip tests on both sides
+* Level files are now JSON (see LEVEL_FORMAT.md), and all levels have been
+  converted. Remaining: remove reading of the old format, when it's no longer
+  wanted: parseOldFormat() in levelformat.cpp (in both repos: the copies must be
+  kept identical), amaze's old reader in levelfile.cpp, and the tests of
+  converting old levels.
 * (Just an idea) a black cut-out circle around the ship so that rotation doesn't affect
   how far you can look?
    - or make the ship point east so most look-ahead is in front?
