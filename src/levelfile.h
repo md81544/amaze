@@ -1,6 +1,8 @@
 #pragma once
 
-// Reads level (.lvl) files. The file format is as follows:
+// Reads level (.lvl) files, in either the JSON format described in
+// LEVEL_FORMAT.md (read by levelformat.cpp), or the old format, which is as
+// follows (and will be removed once all levels have been converted):
 // The first line should be "!~<timelimit>~<fuel>~<x>~<y>~<angle>~<description>"
 // where x, y and angle give the ship's starting position, and timelimit and
 // fuel are unused. The description is optional.

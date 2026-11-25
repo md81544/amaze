@@ -26,6 +26,7 @@ add_executable(${APP_NAME}
     src/gameshell.cpp
     src/gamewidget.cpp
     src/levelfile.cpp
+    src/levelformat.cpp
     src/levelfilelister.cpp
     src/main.cpp
     src/menudialog.cpp
@@ -141,11 +142,13 @@ if(Catch2_FOUND)
     add_executable(${APP_NAME}_tests
         tests/shape_tests.cpp
         tests/levelfile_tests.cpp
+        tests/levelformat_tests.cpp
         tests/viewtransform_tests.cpp
         tests/bounce_tests.cpp
         src/gamemodel.cpp
         src/gameshape.cpp
         src/levelfile.cpp
+        src/levelformat.cpp
         src/scheduler.cpp
         src/shape.cpp
         src/shipmodel.cpp
@@ -155,6 +158,10 @@ if(Catch2_FOUND)
     target_compile_definitions(${APP_NAME}_tests PRIVATE AMAZE_DATA_DIR="${CMAKE_SOURCE_DIR}/data")
     # Same options as the game, so the code under test behaves the same
     target_compile_options(${APP_NAME}_tests PRIVATE ${AMAZE_COMPILE_OPTIONS})
+    # This file (shared with level_designer) uses brief initialisers, relying
+    # on fields' defaults
+    set_source_files_properties(tests/levelformat_tests.cpp PROPERTIES
+        COMPILE_OPTIONS -Wno-missing-field-initializers)
     target_link_libraries(${APP_NAME}_tests PRIVATE Catch2::Catch2WithMain Qt6::Gui)
 else()
     message(STATUS "Catch2 not found: unit tests won't be built")

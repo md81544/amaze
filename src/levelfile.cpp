@@ -1,9 +1,13 @@
 #include "levelfile.h"
 #include "exceptions.h"
+#include "levelformat.h"
 #include "utils.h"
 
+#include <cctype>
+#include <cmath>
 #include <format>
 #include <fstream>
+#include <sstream>
 
 namespace marengo {
 namespace amaze {
@@ -122,15 +126,154 @@ void parseLine(
     }
 }
 
+// ---------------------------------------------------------------------------
+// The JSON format (see LEVEL_FORMAT.md), read by levelformat.cpp. Each item
+// becomes a GameShape, just as the corresponding object in the old format
+// does, with its appearance (colours and default thicknesses) as given in
+// LEVEL_FORMAT.md.
+// ---------------------------------------------------------------------------
+
+struct Appearance {
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    double thickness; // default
+};
+constexpr Appearance WALL { 255, 0, 0, mgo::levelformat::DEFAULT_WALL_THICKNESS };
+constexpr Appearance BREAKABLE { 255, 150, 50, mgo::levelformat::DEFAULT_BREAKABLE_THICKNESS };
+constexpr Appearance MOVING { 255, 172, 163, mgo::levelformat::DEFAULT_MOVING_OBJECT_THICKNESS };
+constexpr Appearance EXIT { 52, 213, 235, mgo::levelformat::DEFAULT_EXIT_THICKNESS };
+constexpr Appearance FUEL { 255, 255, 0, mgo::levelformat::DEFAULT_FUEL_THICKNESS };
+
+std::unique_ptr<GameShape> newShape(GameShapeType type, const std::string& name)
+{
+    auto shape = std::make_unique<GameShape>();
+    shape->setGameShapeType(type);
+    shape->setName(name);
+    return shape;
+}
+
+void addLines(
+    GameShape& shape,
+    const std::vector<mgo::levelformat::Polyline>& polylines,
+    const Appearance& appearance)
+{
+    for (const auto& polyline : polylines) {
+        const int thickness
+            = static_cast<int>(std::lround(polyline.thickness.value_or(appearance.thickness)));
+        for (const auto& s : mgo::levelformat::toSegments(polyline)) {
+            shape.addShapeLine(
+                { s.start.x,
+                  s.start.y,
+                  s.end.x,
+                  s.end.y,
+                  appearance.r,
+                  appearance.g,
+                  appearance.b,
+                  255,
+                  thickness });
+        }
+    }
+}
+
+// Text (the exit or fuel), centred at x, y
+std::unique_ptr<GameShape> newText(
+    GameShapeType type,
+    const std::string& name,
+    const std::string& text,
+    double x,
+    double y,
+    std::optional<double> thickness,
+    const Appearance& appearance)
+{
+    auto shape = newShape(type, name);
+    shape->makeFromText(
+        text,
+        appearance.r,
+        appearance.g,
+        appearance.b,
+        255,
+        static_cast<int>(std::lround(thickness.value_or(appearance.thickness))));
+    shape->setPos(x, y);
+    return shape;
+}
+
+LevelData readJsonLevel(const std::string& contents)
+{
+    const mgo::levelformat::LevelData data = mgo::levelformat::parseJson(contents);
+    LevelData level;
+    level.description = data.title;
+    if (data.ship.has_value()) {
+        level.shipX = data.ship->x;
+        level.shipY = data.ship->y;
+        level.shipRotation = data.ship->rotation;
+    }
+    // In the same order as level_designer wrote the old format
+    if (!data.walls.empty()) {
+        auto walls = newShape(GameShapeType::OBSTRUCTION, "walls");
+        addLines(*walls, data.walls, WALL);
+        level.shapes.push_back(std::move(walls));
+    }
+    for (std::size_t i = 0; i < data.breakables.size(); ++i) {
+        auto breakable = newShape(GameShapeType::BREAKABLE, std::format("breakable_{}", i));
+        addLines(*breakable, data.breakables[i].lines, BREAKABLE);
+        level.shapes.push_back(std::move(breakable));
+    }
+    if (data.exit.has_value()) {
+        const auto& e = *data.exit;
+        auto exit = newText(GameShapeType::EXIT, "exit", "EXIT", e.x, e.y, e.thickness, EXIT);
+        // The format's rotations are anticlockwise; rotate()'s are clockwise
+        exit->rotate(-e.rotation);
+        level.shapes.push_back(std::move(exit));
+    }
+    for (std::size_t i = 0; i < data.fuel.size(); ++i) {
+        const auto& f = data.fuel[i];
+        level.shapes.push_back(newText(
+            GameShapeType::FUEL, std::format("fuel_{}", i), "*", f.x, f.y, f.thickness, FUEL));
+    }
+    for (std::size_t i = 0; i < data.movingObjects.size(); ++i) {
+        const auto& m = data.movingObjects[i];
+        auto moving
+            = newShape(GameShapeType::MOVING, m.name.value_or(std::format("moving_{}", i)));
+        moving->setXDelta(static_cast<float>(m.speedX));
+        moving->setXMaxDifference(static_cast<float>(m.rangeX));
+        moving->setYDelta(static_cast<float>(m.speedY));
+        moving->setYMaxDifference(static_cast<float>(m.rangeY));
+        moving->setRotationDelta(static_cast<float>(m.spin));
+        moving->setGravity(static_cast<float>(m.gravity));
+        addLines(*moving, m.lines, MOVING);
+        addObject(level, moving); // makes its lines relative to its centre
+    }
+    return level;
+}
+
 } // namespace
 
 LevelData readLevelFile(const std::string& filename)
 {
-    std::ifstream in(filename);
-    if (!in) {
+    std::ifstream file(filename, std::ios::binary);
+    if (!file) {
         throw AmazeRuntimeException("Failed to load Level file " + filename);
     }
+    std::ostringstream contents;
+    contents << file.rdbuf();
 
+    // The formats are told apart by their first non-whitespace character:
+    // '{' for JSON, '!' for the old format (see LEVEL_FORMAT.md)
+    const std::string& text = contents.str();
+    const auto first = std::ranges::find_if_not(
+        text, [](char c) { return std::isspace(static_cast<unsigned char>(c)); });
+    if (first != text.end() && *first == '{') {
+        try {
+            return readJsonLevel(text);
+        } catch (const std::exception& e) {
+            throw AmazeRuntimeException(
+                std::format("Error in Level file {}: {}", filename, e.what()));
+        }
+    }
+
+    // The old format
+    std::istringstream in(text);
     LevelData level;
     bool haveHeader = false;
     auto obj = std::make_unique<GameShape>();
