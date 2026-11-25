@@ -2,6 +2,7 @@
 
 #include "exceptions.h"
 #include "levelfile.h"
+#include "levelfilelister.h"
 #include "levelformat.h"
 
 #include <catch2/catch_test_macros.hpp>
@@ -314,4 +315,17 @@ TEST_CASE("Every old format level gives the same shapes when converted to JSON")
     if (count == 0) {
         SKIP("No old format levels left to check, in " << AMAZE_DATA_DIR);
     }
+}
+
+TEST_CASE("The level list shows each level's title")
+{
+    marengo::amaze::LevelFileLister lister(AMAZE_DATA_DIR);
+    const auto files = lister.getFileMap();
+    REQUIRE_FALSE(files.empty());
+    for (const auto& [number, file] : files) {
+        INFO(file.filename);
+        CHECK(file.description == readLevelFile(file.filename).description);
+        CHECK(file.description != "Untitled");
+    }
+    CHECK(files.at(0).description == "Rookie Trainer");
 }

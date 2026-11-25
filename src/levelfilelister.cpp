@@ -1,34 +1,29 @@
 #include "levelfilelister.h"
 #include "exceptions.h"
-#include "utils.h"
+#include "levelfile.h"
+#include "log.h"
 
 #include <expected>
 #include <filesystem>
-#include <fstream>
+#include <format>
 #include <map>
 #include <regex>
-#include <vector>
 
 namespace marengo {
 namespace amaze {
 
 namespace {
-std::string getLevelDescription(std::filesystem::path levelFile)
+std::string getLevelDescription(const std::filesystem::path& levelFile)
 {
-    std::ifstream in(levelFile.string());
-    if (!in) {
-        throw AmazeRuntimeException("Failed to load Level file " + levelFile.string());
+    // Read the whole level, so this works whatever the file's format
+    try {
+        const std::string description = readLevelFile(levelFile.string()).description;
+        return description.empty() ? "Untitled" : description;
+    } catch (const AmazeRuntimeException& e) {
+        mgo::Log::warn(
+            std::format("Can't read the description of {}: {}", levelFile.string(), e.what()));
+        return "Untitled";
     }
-    std::string currentLine;
-    std::string levelDescription { "Untitled" };
-    getline(in, currentLine);
-    std::vector<std::string> vec;
-    utils::csvSplit(currentLine, '~', vec);
-    if (vec.size() > 6) {
-        levelDescription = vec[6];
-    }
-    in.close();
-    return levelDescription;
 }
 } // anonymous
 
