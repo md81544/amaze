@@ -34,7 +34,7 @@ std::string getLevelDescription(std::filesystem::path levelFile)
 
 LevelFileLister::LevelFileLister(std::string_view dataDir)
 {
-    std::regex regexPattern("^level.*cfg$");
+    std::regex regexPattern("^level.*\\.lvl$");
     std::map<int, std::filesystem::path> sortedPaths;
     for (const auto& entry : std::filesystem::directory_iterator(dataDir)) {
         if (entry.is_regular_file()) {

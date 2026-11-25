@@ -1,4 +1,4 @@
-// Tests for reading level (.cfg) files
+// Tests for reading level (.lvl) files
 
 #include "exceptions.h"
 #include "levelfile.h"
@@ -19,7 +19,7 @@ namespace {
 class TempLevelFile {
 public:
     explicit TempLevelFile(const std::string& contents)
-        : m_path(std::filesystem::temp_directory_path() / "amaze_levelfile_test.cfg")
+        : m_path(std::filesystem::temp_directory_path() / "amaze_levelfile_test.lvl")
     {
         std::ofstream(m_path) << contents;
     }
@@ -113,7 +113,7 @@ TEST_CASE("Bad level files throw")
 {
     SECTION("missing file")
     {
-        CHECK_THROWS_AS(readLevelFile("/nonexistent/level.cfg"), AmazeRuntimeException);
+        CHECK_THROWS_AS(readLevelFile("/nonexistent/level.lvl"), AmazeRuntimeException);
     }
     SECTION("missing header")
     {
@@ -135,7 +135,7 @@ TEST_CASE("Bad level files throw")
 TEST_CASE("All shipped levels load")
 {
     for (const auto& entry : std::filesystem::directory_iterator(AMAZE_DATA_DIR)) {
-        if (entry.path().extension() == ".cfg") {
+        if (entry.path().extension() == ".lvl") {
             INFO(entry.path().string());
             auto level = readLevelFile(entry.path().string());
             CHECK_FALSE(level.shapes.empty());

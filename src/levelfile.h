@@ -1,6 +1,6 @@
 #pragma once
 
-// Reads level (.cfg) files. The file format is as follows:
+// Reads level (.lvl) files. The file format is as follows:
 // The first line should be "!~<timelimit>~<fuel>~<x>~<y>~<angle>~<description>"
 // where x, y and angle give the ship's starting position, and timelimit and
 // fuel are unused. The description is optional.

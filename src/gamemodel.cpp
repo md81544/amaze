@@ -127,7 +127,7 @@ void GameModel::setLevelFileName(const std::string& filename)
 
 void GameModel::levelLoad(size_t levelNum)
 {
-    std::string filename = "level" + std::to_string(levelNum) + ".cfg";
+    std::string filename = "level" + std::to_string(levelNum) + ".lvl";
     std::filesystem::path levelFile(getDataPath());
     levelFile.append(filename);
     levelLoad(levelFile.string());

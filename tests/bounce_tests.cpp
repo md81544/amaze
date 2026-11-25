@@ -46,7 +46,7 @@ const std::string NO_WALL_LEVEL = "!~0~0~0~0~0~No wall\n"
 class TestLevel {
 public:
     explicit TestLevel(const std::string& contents)
-        : m_path(std::filesystem::temp_directory_path() / "amaze_bounce_test.cfg")
+        : m_path(std::filesystem::temp_directory_path() / "amaze_bounce_test.lvl")
         , m_model(m_path.parent_path().string())
     {
         std::ofstream(m_path) << contents;
