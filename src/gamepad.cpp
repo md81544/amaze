@@ -24,6 +24,10 @@ float normaliseAxis(int16_t value)
     return value / 32768.0f;
 }
 
+// Input at or beyond this fraction of full travel gives full output, so
+// sticks that don't quite reach their extremes still reach maximum.
+constexpr float OUTER_DEAD_ZONE = 0.9f;
+
 // Allows for fine control near the middle of the stick's input
 // and much larger input when pushed further
 float joystickCurve(float input, float deadzone, float curve = 6.f)
@@ -34,9 +38,28 @@ float joystickCurve(float input, float deadzone, float curve = 6.f)
     if (abs_x < deadzone) {
         return 0.f;
     }
-    float scaled = (abs_x - deadzone) / (1.f - deadzone); // [0, 1]
+    float outer = std::max(OUTER_DEAD_ZONE, deadzone + 0.05f);
+    float scaled = std::min((abs_x - deadzone) / (outer - deadzone), 1.f); // [0, 1]
     float result = (std::exp(curve * scaled) - 1.f) / (std::exp(curve) - 1.f);
     return std::clamp(sign * result, -1.f, 1.f);
+}
+
+// Most sticks move within a circular gate, so pushing fully at an angle
+// gives each axis well under 1 (about 0.71 on the diagonal). Stretch the
+// circle out to a square so a full push in any direction reaches 1 on its
+// major axis, then apply the dead zone and curve to each axis.
+void processStick(float& x, float& y, float deadzone)
+{
+    float magnitude = std::hypot(x, y);
+    if (magnitude < deadzone) {
+        x = 0.f;
+        y = 0.f;
+        return;
+    }
+    float major = std::max(std::abs(x), std::abs(y));
+    float stretch = magnitude / major; // 1 on an axis, up to sqrt(2) on a diagonal
+    x = joystickCurve(x * stretch, deadzone);
+    y = joystickCurve(y * stretch, deadzone);
 }
 
 [[maybe_unused]]
@@ -248,9 +271,11 @@ Gamepad::~Gamepad()
                 // events for each individual axis.
                 {
                     auto id = sdlEvent.gaxis.which;
+                    // Raw values are stored; the dead zone and curve are
+                    // applied below, once both axes of each stick are known.
                     auto& status = m_analogueStatus[id];
-                    float value = joystickCurve(normaliseAxis(sdlEvent.gaxis.value), m_deadZone);
-                    if (value != 0.f) {
+                    float value = normaliseAxis(sdlEvent.gaxis.value);
+                    if (std::abs(value) >= m_deadZone) {
                         m_activeGamepad = id;
                     }
                     switch (sdlEvent.gaxis.axis) {
@@ -287,6 +312,10 @@ Gamepad::~Gamepad()
     AnalogueStatus current;
     if (auto it = m_analogueStatus.find(m_activeGamepad); it != m_analogueStatus.end()) {
         current = it->second;
+        processStick(current.leftX, current.leftY, m_deadZone);
+        processStick(current.rightX, current.rightY, m_deadZone);
+        current.leftTrigger = joystickCurve(current.leftTrigger, m_deadZone);
+        current.rightTrigger = joystickCurve(current.rightTrigger, m_deadZone);
     }
     if (current.leftTrigger != m_previousAnalogueStatus.leftTrigger
         || current.rightTrigger != m_previousAnalogueStatus.rightTrigger
