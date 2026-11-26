@@ -5,9 +5,10 @@
     - Shield
     - Velocity
     - Bearing
+    - Gravitational field
     - Retrothrusters: malfunction
     - Long-range scanner: malfunction
-    - Cannon: malfunction
+    - Weapons: depleted
     - Escape pod: malfunction
 
 * Log level in cfg file
