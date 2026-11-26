@@ -1,16 +1,6 @@
 * Background story as splash screen
     - Ship is damaged, needs manual control to escape the planet
 
-* Display of data down left side stylised to look like control panel
-    - Shield
-    - Velocity
-    - Bearing
-    - Gravitational field
-    - Retrothrusters: malfunction
-    - Long-range scanner: malfunction
-    - Weapons: depleted
-    - Escape pod: malfunction
-
 * Log level in cfg file
 
 * Possible to address anti-aliasing of lines? (Particularly visible on red lines

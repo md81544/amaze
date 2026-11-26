@@ -15,9 +15,6 @@ namespace amaze {
 
 namespace {
 
-// Simulation rate. All per-tick values (physics, schedule durations, etc.) are
-// tuned for this rate.
-constexpr int TICKS_PER_SECOND = 120;
 constexpr std::chrono::nanoseconds TICK_DURATION { 1'000'000'000 / TICKS_PER_SECOND };
 // If a frame takes longer than this (e.g. window being set up, dragged, level
 // loading), don't try to catch up the lost time; the game just pauses briefly.

@@ -11,6 +11,8 @@
 #include <QRadialGradient>
 
 #include <algorithm>
+#include <cmath>
+#include <format>
 
 namespace marengo {
 namespace amaze {
@@ -22,15 +24,69 @@ namespace {
 // the same area as that screen.)
 constexpr double LINE_THICKNESS_SCALE = 1200.0 / 1080.0;
 
-// Status bar text, and the shield bar's outline
+// The outer fraction of the vignette's radius over which the arena fades to black
+constexpr double VIGNETTE_FADE_FRACTION = 0.2;
+
+// Status panel, in the top left corner. Its labels, border and the shield
+// bar's outline are in STATUS_COLOUR.
 const QColor STATUS_COLOUR(0, 128, 0);
 // The remaining shield: darker than the outline, but brighter than the
 // background grid
 const QColor SHIELD_FILL_COLOUR(0, 80, 0);
-constexpr double SHIELD_BAR_WIDTH = 300.0;
+const QColor PANEL_BACKGROUND_COLOUR(0, 14, 0);
+// The inner bezel line and the dividers between sections
+const QColor PANEL_BEZEL_COLOUR(0, 56, 0);
+const QColor PANEL_VALUE_COLOUR(0, 210, 0);
+const QColor PANEL_FAULT_COLOUR(210, 40, 40);
+const QColor PANEL_DEPLETED_COLOUR(220, 150, 0);
+constexpr double PANEL_LEFT = 30.0;
+constexpr double PANEL_TOP = 30.0;
+constexpr int PANEL_FONT_SIZE = 22;
+constexpr int PANEL_TITLE_FONT_SIZE = 16;
+constexpr double PANEL_PADDING = 18.0;
+constexpr double PANEL_COLUMN_GAP = 30.0;
+// Rows are this many times the text's height apart
+constexpr double PANEL_ROW_SPACING = 1.45;
+// Space above and below each divider
+constexpr double PANEL_DIVIDER_SPACE = 8.0;
+constexpr double PANEL_CORNER_RADIUS = 10.0;
+constexpr double PANEL_BEZEL_INSET = 5.0;
+// The view of the arena is moved right (if there's room) so that the
+// vignette, out to where it's mostly dark, keeps this far clear of the panel
+constexpr double PANEL_VIEW_CLEARANCE = 20.0;
 
-// The outer fraction of the vignette's radius over which the arena fades to black
-constexpr double VIGNETTE_FADE_FRACTION = 0.2;
+// For the velocity readout, the ship (39 units from nose to the tips of its
+// fins) is taken to be 10m long
+constexpr double METRES_PER_UNIT = 10.0 / 39.0;
+// The gravitational field is shown as a percentage of this pull (in units per
+// tick per tick): the keyboard's full thrust, so 100% or more means it can't
+// be escaped by thrusting directly away from it (except, perhaps, with a
+// gamepad, whose full thrust is stronger)
+constexpr double FULL_THRUST = 6.0 / 1000.0;
+constexpr double MAX_GRAVITY_PERCENT = 999.0;
+
+// The ship's systems, which are shown but never change
+struct SystemStatus {
+    const char* label;
+    const char* value;
+    const QColor& colour;
+};
+const SystemStatus SYSTEMS[] = {
+    { "Retrothrusters:", "MALFUNCTION", PANEL_FAULT_COLOUR },
+    { "Long-range scanner:", "MALFUNCTION", PANEL_FAULT_COLOUR },
+    { "Weapons:", "DEPLETED", PANEL_DEPLETED_COLOUR },
+    { "Escape pod:", "MALFUNCTION", PANEL_FAULT_COLOUR },
+};
+const char* const READING_LABELS[] = { "Shield:", "Velocity:", "Bearing:", "Gravitational field:" };
+// The widest values each reading is expected to show, so the panel doesn't
+// change size
+const char* const WIDEST_READINGS[] = { "888.8 m/s", "888°", "888%" };
+
+QFont withPixelSize(QFont font, int pixelSize)
+{
+    font.setPixelSize(pixelSize);
+    return font;
+}
 
 } // namespace
 
@@ -44,6 +100,35 @@ View::View(GameModel& model, Audio& audio, const std::string& dataDir)
         throw AmazeRuntimeException("Font file load error");
     }
     m_font = QFont(QFontDatabase::applicationFontFamilies(fontId).at(0));
+
+    // The status panel's layout doesn't depend on the canvas's size, so is
+    // worked out here
+    QFontMetricsF metrics(withPixelSize(m_font, PANEL_FONT_SIZE));
+    QFontMetricsF titleMetrics(withPixelSize(m_font, PANEL_TITLE_FONT_SIZE));
+    double labelWidth = 0.0;
+    double valueWidth = 0.0;
+    for (const char* label : READING_LABELS) {
+        labelWidth = std::max(labelWidth, metrics.horizontalAdvance(QString::fromUtf8(label)));
+    }
+    for (const char* value : WIDEST_READINGS) {
+        valueWidth = std::max(valueWidth, metrics.horizontalAdvance(QString::fromUtf8(value)));
+    }
+    for (const auto& system : SYSTEMS) {
+        labelWidth
+            = std::max(labelWidth, metrics.horizontalAdvance(QString::fromUtf8(system.label)));
+        valueWidth
+            = std::max(valueWidth, metrics.horizontalAdvance(QString::fromUtf8(system.value)));
+    }
+    m_panelRowHeight = metrics.height() * PANEL_ROW_SPACING;
+    m_panelTitleHeight = titleMetrics.height() * PANEL_ROW_SPACING;
+    m_panelValueWidth = valueWidth;
+    double rows = std::size(READING_LABELS) + std::size(SYSTEMS);
+    m_panelRect = QRectF(
+        PANEL_LEFT,
+        PANEL_TOP,
+        PANEL_PADDING * 2 + labelWidth + PANEL_COLUMN_GAP + valueWidth,
+        PANEL_PADDING * 2 + m_panelTitleHeight + rows * m_panelRowHeight
+            + 2 * (2 * PANEL_DIVIDER_SPACE));
 }
 
 void View::playSounds()
@@ -79,17 +164,18 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     // Dynamic shapes (i.e. shapes which rotate around the ship): the view is
     // centred on the ship, and the arena rotates around it
     const auto& ship = m_model.shipModel();
-    QTransform arenaTransform = arenaToCanvas(ship.x(), ship.y(), ship.rotation(), canvasSize);
+    QPointF centre = viewCentre(canvasSize);
+    QTransform arenaTransform
+        = arenaToCanvas(ship.x(), ship.y(), ship.rotation(), canvasSize, centre);
     for (const auto& shape : m_model.getAllDynamicObjects()) {
         if (shape->isVisible() && shape->IsActive()) {
             drawShape(painter, arenaTransform, *shape);
         }
     }
 
-    // Vignette: fade the arena to black around the ship (which is always at the
-    // canvas centre), reaching full black on a circle that just fits the canvas,
-    // so turning the ship doesn't let the player see further along the long axis
-    QPointF centre(canvasSize.width() / 2.0, canvasSize.height() / 2.0);
+    // Vignette: fade the arena to black around the ship, reaching full black on
+    // a circle whose diameter is the canvas's shorter side, so turning the ship
+    // doesn't let the player see further along the long axis
     double vignetteRadius = std::min(canvasSize.width(), canvasSize.height()) / 2.0;
     QRadialGradient vignette(centre, vignetteRadius);
     vignette.setColorAt(0.0, QColor(0, 0, 0, 0));
@@ -97,32 +183,20 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     vignette.setColorAt(1.0, QColor(0, 0, 0, 255)); // and beyond, by the default pad spread
     painter.fillRect(QRectF(0, 0, canvasSize.width() + 1, canvasSize.height() + 1), vignette);
 
-    // Draw black rectangle at top of screen for status bar (and hiding the "notch" on
-    // macs in full screen)
+    // Black band at the top of the screen, hiding the "notch" on macs in full
+    // screen
     painter.fillRect(QRectF(0, 0, canvasSize.width() + 1, 75), Qt::black);
 
-    // Shield, as a bar which empties as the shield weakens
-    QRectF label = drawText(painter, canvasSize, "Shield:", STATUS_COLOUR, 40, 30, 20);
-    QRectF bar(
-        label.right() + 20,
-        label.top() + label.height() * 0.2,
-        SHIELD_BAR_WIDTH,
-        label.height() * 0.6);
-    QRectF remaining(bar);
-    remaining.setWidth(bar.width() * m_model.shield());
-    painter.fillRect(remaining, SHIELD_FILL_COLOUR);
-    painter.setPen(QPen(STATUS_COLOUR, 2));
-    painter.setBrush(Qt::NoBrush);
-    painter.drawRect(bar);
+    drawStatusPanel(painter);
 
     double messageY = canvasSize.height() * 0.3;
 
     if (m_model.getGameState() == GameState::GetReady) {
-        drawText(painter, canvasSize, "Get Ready", QColor(255, 255, 0), 160, {}, messageY);
+        drawText(painter, centre, "Get Ready", QColor(255, 255, 0), 160, {}, messageY);
         if (!m_model.levelDescription().empty()) {
             drawText(
                 painter,
-                canvasSize,
+                centre,
                 m_model.levelDescription(),
                 QColor(0, 192, 0),
                 60,
@@ -131,7 +205,7 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
         }
         drawText(
             painter,
-            canvasSize,
+            centre,
             "Press any key to start",
             QColor(160, 160, 160),
             40,
@@ -140,15 +214,135 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     }
 
     if (m_model.gameIsPaused()) {
-        drawText(painter, canvasSize, "Paused", QColor(255, 255, 0), 160, {}, messageY);
+        drawText(painter, centre, "Paused", QColor(255, 255, 0), 160, {}, messageY);
     }
 
     if (m_model.getGameState() == GameState::Succeeded) {
-        drawText(painter, canvasSize, "Success!", QColor(255, 255, 0), 160, {}, messageY);
+        drawText(painter, centre, "Success!", QColor(255, 255, 0), 160, {}, messageY);
     }
 
     if (m_model.getGameState() == GameState::Dead) {
-        drawText(painter, canvasSize, "Game Over", QColor(255, 0, 0), 160, {}, messageY);
+        drawText(painter, centre, "Game Over", QColor(255, 0, 0), 160, {}, messageY);
+    }
+}
+
+QPointF View::viewCentre(const QSizeF& canvasSize) const
+{
+    // The middle of the canvas, unless the vignette would be too close to the
+    // status panel, when it's moved right to clear it, but not so far that the
+    // vignette goes off the right of the canvas
+    double radius = std::min(canvasSize.width(), canvasSize.height()) / 2.0;
+    QPointF centre(canvasSize.width() / 2.0, canvasSize.height() / 2.0);
+    double clearRadius = radius * (1.0 - VIGNETTE_FADE_FRACTION / 2.0) + PANEL_VIEW_CLEARANCE;
+    // The panel's nearest point to the centre
+    double dy = std::max(0.0, centre.y() - m_panelRect.bottom());
+    if (dy < clearRadius) {
+        double clearX = m_panelRect.right() + std::sqrt(clearRadius * clearRadius - dy * dy);
+        double maxX = canvasSize.width() - radius;
+        centre.setX(std::max(centre.x(), std::min(clearX, maxX)));
+    }
+    return centre;
+}
+
+void View::drawStatusPanel(QPainter& painter) const
+{
+    QFont font = withPixelSize(m_font, PANEL_FONT_SIZE);
+    QFont titleFont = withPixelSize(m_font, PANEL_TITLE_FONT_SIZE);
+    titleFont.setLetterSpacing(QFont::PercentageSpacing, 130);
+    QFontMetricsF metrics(font);
+    QFontMetricsF titleMetrics(titleFont);
+
+    // The box, with a bezel inside its border
+    painter.setPen(QPen(STATUS_COLOUR, 2));
+    painter.setBrush(PANEL_BACKGROUND_COLOUR);
+    painter.drawRoundedRect(m_panelRect, PANEL_CORNER_RADIUS, PANEL_CORNER_RADIUS);
+    painter.setPen(QPen(PANEL_BEZEL_COLOUR, 1));
+    painter.setBrush(Qt::NoBrush);
+    double inset = PANEL_BEZEL_INSET;
+    painter.drawRoundedRect(
+        m_panelRect.adjusted(inset, inset, -inset, -inset),
+        PANEL_CORNER_RADIUS - inset,
+        PANEL_CORNER_RADIUS - inset);
+
+    double left = m_panelRect.left() + PANEL_PADDING;
+    double right = m_panelRect.right() - PANEL_PADDING;
+    double y = m_panelRect.top() + PANEL_PADDING;
+
+    // Each row's text is vertically centred in the row
+    auto baseline = [](double rowTop, double rowHeight, const QFontMetricsF& m) {
+        return rowTop + (rowHeight + m.ascent() - m.descent()) / 2.0;
+    };
+    auto divider = [&]() {
+        y += PANEL_DIVIDER_SPACE;
+        painter.setPen(QPen(PANEL_BEZEL_COLOUR, 1));
+        painter.drawLine(QPointF(left, y), QPointF(right, y));
+        y += PANEL_DIVIDER_SPACE;
+    };
+    // A row with a label on the left and, if given, a value on the right.
+    // Returns the row's area.
+    auto row = [&](const char* label, const QString& value, const QColor& valueColour) {
+        QRectF area(left, y, right - left, m_panelRowHeight);
+        double textY = baseline(y, m_panelRowHeight, metrics);
+        painter.setFont(font);
+        painter.setPen(STATUS_COLOUR);
+        painter.drawText(QPointF(left, textY), QString::fromUtf8(label));
+        if (!value.isEmpty()) {
+            painter.setPen(valueColour);
+            painter.drawText(QPointF(right - metrics.horizontalAdvance(value), textY), value);
+        }
+        y += m_panelRowHeight;
+        return area;
+    };
+
+    QString title = "SHIP STATUS";
+    painter.setFont(titleFont);
+    painter.setPen(STATUS_COLOUR);
+    painter.drawText(
+        QPointF(
+            m_panelRect.center().x() - titleMetrics.horizontalAdvance(title) / 2.0,
+            baseline(y, m_panelTitleHeight, titleMetrics)),
+        title);
+    y += m_panelTitleHeight;
+    divider();
+
+    // Shield, as a bar which empties as the shield weakens
+    QRectF shieldRow = row(READING_LABELS[0], {}, PANEL_VALUE_COLOUR);
+    double barHeight = metrics.height() * 0.6;
+    QRectF bar(
+        right - m_panelValueWidth,
+        shieldRow.center().y() - barHeight / 2.0,
+        m_panelValueWidth,
+        barHeight);
+    QRectF remaining(bar);
+    remaining.setWidth(bar.width() * std::clamp(m_model.shield(), 0.0, 1.0));
+    painter.fillRect(remaining, SHIELD_FILL_COLOUR);
+    painter.setPen(QPen(STATUS_COLOUR, 2));
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(bar);
+
+    const auto& ship = m_model.shipModel();
+    // Units per tick to metres per second
+    double speed = std::hypot(ship.dX(), ship.dY()) * TICKS_PER_SECOND * METRES_PER_UNIT;
+    row(READING_LABELS[1],
+        QString::fromStdString(std::format("{:.1f} m/s", speed)),
+        PANEL_VALUE_COLOUR);
+
+    // Compass bearing of the ship's nose: clockwise from the arena's "up". The
+    // ship's rotation is anticlockwise, and may be negative.
+    int bearing = static_cast<int>(std::lround(std::fmod(360.0 - ship.rotation(), 360.0))) % 360;
+    row(READING_LABELS[2],
+        QString::fromStdString(std::format("{:03d}°", bearing)),
+        PANEL_VALUE_COLOUR);
+
+    double gravityPercent
+        = std::min(m_model.gravitationalPull() / FULL_THRUST * 100.0, MAX_GRAVITY_PERCENT);
+    row(READING_LABELS[3],
+        QString::fromStdString(std::format("{:.0f}%", gravityPercent)),
+        PANEL_VALUE_COLOUR);
+    divider();
+
+    for (const auto& system : SYSTEMS) {
+        row(system.label, QString::fromUtf8(system.value), system.colour);
     }
 }
 
@@ -186,7 +380,7 @@ void View::drawShape(QPainter& painter, const QTransform& arenaTransform, const 
 
 QRectF View::drawText(
     QPainter& painter,
-    const QSizeF& canvasSize,
+    const QPointF& centre,
     const std::string& text,
     const QColor& colour,
     int pixelSize,
@@ -198,11 +392,9 @@ QRectF View::drawText(
     QFontMetricsF metrics(font);
     QString string = QString::fromStdString(text);
 
-    double left = x.has_value() ? x.value()
-                                : (canvasSize.width() - metrics.horizontalAdvance(string)) / 2.0;
-    double baseline = y.has_value()
-        ? y.value() + metrics.ascent()
-        : (canvasSize.height() + metrics.ascent() - metrics.descent()) / 2.0;
+    double left = x.has_value() ? x.value() : centre.x() - metrics.horizontalAdvance(string) / 2.0;
+    double baseline = y.has_value() ? y.value() + metrics.ascent()
+                                    : centre.y() + (metrics.ascent() - metrics.descent()) / 2.0;
 
     painter.setFont(font);
     painter.setPen(colour);

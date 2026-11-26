@@ -34,6 +34,17 @@ TEST_CASE("The centre of the view maps to the centre of the canvas")
     CHECK(p.y() == Catch::Approx(600));
 }
 
+TEST_CASE("The centre of the view can be placed elsewhere on the canvas")
+{
+    auto t = arenaToCanvas(437, 704, 90, QSizeF(1920, 1200), QPointF(1100, 600));
+    QPointF p = t.map(QPointF(437, 704));
+    CHECK(p.x() == Catch::Approx(1100));
+    CHECK(p.y() == Catch::Approx(600));
+    // It's only moved: a point 10 units away is still 40 pixels away
+    QPointF q = t.map(QPointF(447, 704));
+    CHECK(std::hypot(q.x() - p.x(), q.y() - p.y()) == Catch::Approx(40));
+}
+
 TEST_CASE("A 1920x1200 canvas shows 480x300 arena units")
 {
     auto t = arenaToCanvas(0, 0, 0, QSizeF(1920, 1200));

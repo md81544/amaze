@@ -3,6 +3,7 @@
 
 #include <QColor>
 #include <QFont>
+#include <QPointF>
 #include <QRectF>
 
 #include <optional>
@@ -37,13 +38,16 @@ public:
     void stopSounds();
 
 private:
+    // Where on the canvas the ship appears
+    QPointF viewCentre(const QSizeF& canvasSize) const;
+    void drawStatusPanel(QPainter& painter) const;
     void
     drawShape(QPainter& painter, const QTransform& arenaTransform, const GameShape& shape) const;
-    // x and y are the text's top left; no value means centred in that
-    // dimension. Returns the area the text was drawn in.
+    // x and y are the text's top left; no value means centred on `centre` in
+    // that dimension. Returns the area the text was drawn in.
     QRectF drawText(
         QPainter& painter,
-        const QSizeF& canvasSize,
+        const QPointF& centre,
         const std::string& text,
         const QColor& colour,
         int pixelSize,
@@ -53,6 +57,12 @@ private:
     GameModel& m_model;
     Audio& m_audio;
     QFont m_font;
+
+    // Status panel layout, in canvas pixels
+    QRectF m_panelRect;
+    double m_panelRowHeight { 0.0 };
+    double m_panelTitleHeight { 0.0 };
+    double m_panelValueWidth { 0.0 };
 };
 
 } // namespace amaze

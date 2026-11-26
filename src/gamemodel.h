@@ -25,6 +25,10 @@
 namespace marengo {
 namespace amaze {
 
+// Simulation rate. All per-tick values (physics, schedule durations, etc.) are
+// tuned for this rate.
+constexpr int TICKS_PER_SECOND = 120;
+
 enum class GameState {
     GetReady, // level loaded, about to start
     Running, // normal operation
@@ -89,6 +93,10 @@ public:
     // clear of an obstacle counts as at least a graze.
     void shieldImpact(const Impact& impact);
     void rechargeShield(double amount);
+
+    // The pull on the ship (as a change in its velocity per tick) of the
+    // strongest gravity affecting it, or 0 if none is
+    double gravitationalPull() const;
 
 private:
     std::string m_dataPath { "" };

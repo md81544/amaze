@@ -45,12 +45,35 @@ bool isObstacle(GameShapeType type)
         || type == GameShapeType::BREAKABLE;
 }
 
+// The pull (as a change in the ship's velocity per tick) of a shape's gravity
+// on a ship at (shipX, shipY), or zero if the shape has no gravity or the
+// ship is out of its range
+QPointF gravityPull(const GameShape& shape, double shipX, double shipY)
+{
+    if (shape.getGameShapeType() != GameShapeType::MOVING || shape.getGravity() == 0.f) {
+        return {};
+    }
+    double xDiff = shape.getPosX() - shipX;
+    double yDiff = shape.getPosY() - shipY;
+    double distanceSquared = xDiff * xDiff + yDiff * yDiff;
+    if (distanceSquared == 0.0) {
+        distanceSquared = 1.0;
+    }
+    double distance = std::sqrt(distanceSquared);
+    if (distance >= shape.getGravity() * 25) {
+        return {};
+    }
+    double forceMagnitude = shape.getGravity() / distanceSquared;
+    return { (xDiff / distance) * forceMagnitude, (yDiff / distance) * forceMagnitude };
+}
+
 // A new ship, with its own shapes, which the caller adds to the shapes drawn
 std::unique_ptr<ShipModel> newShipModel()
 {
-    return std::make_unique<ShipModel>(std::make_shared<GameShape>(),
-                                       std::make_shared<GameShape>(),
-                                       std::make_shared<GameShape>());
+    return std::make_unique<ShipModel>(
+        std::make_shared<GameShape>(),
+        std::make_shared<GameShape>(),
+        std::make_shared<GameShape>());
 }
 
 } // namespace
@@ -350,6 +373,16 @@ Impact GameModel::bounceShip()
     return Impact { std::max(impactSpeed, 0.0), pushed };
 }
 
+double GameModel::gravitationalPull() const
+{
+    double strongest = 0.0;
+    for (const auto& shape : m_allDynamicGameShapes) {
+        QPointF pull = gravityPull(*shape, m_shipModel->x(), m_shipModel->y());
+        strongest = std::max(strongest, std::hypot(pull.x(), pull.y()));
+    }
+    return strongest;
+}
+
 double GameModel::shield() const
 {
     return m_shield;
@@ -423,21 +456,11 @@ void GameModel::tick()
             }
             shape->resize(shape->getScale() + shape->getPulsateAmount());
 
-            double xDiff = shape->getPosX() - shipModel().x();
-            double yDiff = shape->getPosY() - shipModel().y();
-            double distanceSquared = xDiff * xDiff + yDiff * yDiff;
-            if (distanceSquared == 0.0) {
-                distanceSquared = 1.0;
-            }
-            double distance = std::sqrt(distanceSquared);
-            if (distance < shape->getGravity() * 25) {
-                auto& ship = shipModel();
-                double forceMagnitude = shape->getGravity() / distanceSquared;
-                double fx = (xDiff / distance) * forceMagnitude;
-                double fy = (yDiff / distance) * forceMagnitude;
-                ship.setDx(ship.dX() - fx);
-                ship.setDy(ship.dY() - fy);
-            }
+            // Note the ship moves by -(dX, dY) each tick
+            auto& ship = shipModel();
+            QPointF pull = gravityPull(*shape, ship.x(), ship.y());
+            ship.setDx(ship.dX() - pull.x());
+            ship.setDy(ship.dY() - pull.y());
         }
     }
 }
