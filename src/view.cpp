@@ -24,6 +24,10 @@ namespace {
 // the same area as that screen.)
 constexpr double LINE_THICKNESS_SCALE = 1600.0 / 1080.0;
 
+// How bright fuel is drawn, relative to its normal colour, while the shield is
+// full and so it can't be collected
+constexpr double FUEL_NOT_NEEDED_BRIGHTNESS = 0.2;
+
 // The outer fraction of the vignette's radius over which the arena fades to black
 constexpr double VIGNETTE_FADE_FRACTION = 0.2;
 
@@ -404,6 +408,13 @@ void View::drawShape(QPainter& painter, const QTransform& arenaTransform, const 
             r = utils::rnd(193);
             g = utils::rnd(193);
             b = utils::rnd(193);
+        }
+        // Fuel can't be collected while the shield is full (see
+        // GameModel::collisionDetect()), so it's shown darker until it's needed
+        if (shape.getGameShapeType() == GameShapeType::FUEL && m_model.shield() >= 1.0) {
+            r *= FUEL_NOT_NEEDED_BRIGHTNESS;
+            g *= FUEL_NOT_NEEDED_BRIGHTNESS;
+            b *= FUEL_NOT_NEEDED_BRIGHTNESS;
         }
         if (m_model.getGameState() == GameState::Menu
             || m_model.getGameState() == GameState::Paused) {
