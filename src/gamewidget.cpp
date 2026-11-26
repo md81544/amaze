@@ -4,6 +4,7 @@
 #include <QCloseEvent>
 #include <QKeyEvent>
 #include <QPainter>
+#include <QSurfaceFormat>
 
 namespace marengo {
 namespace amaze {
@@ -27,6 +28,15 @@ quint32 physicalKey(const QKeyEvent* event)
 GameWidget::GameWidget(QWidget* parent)
     : QOpenGLWidget(parent)
 {
+    // QPainter's OpenGL engine only antialiases (via the Antialiasing render
+    // hint) when the surface is multisampled; without this, lines are drawn
+    // aliased and their jagged edges shimmer as the view scrolls and rotates.
+    // Must be set before the widget is first shown. Qt clamps the sample
+    // count to what the GPU supports.
+    QSurfaceFormat surfaceFormat = format();
+    surfaceFormat.setSamples(8);
+    setFormat(surfaceFormat);
+
     setFocusPolicy(Qt::StrongFocus);
     setWindowTitle("Amaze");
     // Continuously redraw: each completed frame schedules the next one. The
