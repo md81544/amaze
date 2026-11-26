@@ -24,6 +24,9 @@ namespace {
 constexpr double CANVAS_AREA = 1920.0 * 1200.0;
 
 // Menu navigation with a stick: how far it must be pushed, and auto-repeat timing
+// Full thrust, from the keyboard or with the right stick fully pushed
+constexpr float FULL_THRUST = 6.f;
+
 constexpr float MENU_STICK_THRESHOLD = 0.2f;
 constexpr qint64 MENU_STICK_REPEAT_DELAY_MS = 400;
 constexpr qint64 MENU_STICK_REPEAT_INTERVAL_MS = 120;
@@ -411,7 +414,7 @@ void GameShell::applyHeldRotation()
 void GameShell::applyHeldThrust()
 {
     if (m_heldThrust == 1) {
-        m_controlHandlers[KeyControls::ACCELERATE](true, m_shiftHeld ? 1.f : 6.f);
+        m_controlHandlers[KeyControls::ACCELERATE](true, m_shiftHeld ? 1.f : FULL_THRUST);
     } else if (m_heldThrust == -1) {
         m_controlHandlers[KeyControls::ACCELERATE](true, m_shiftHeld ? 0.4f : 1.f);
     }
@@ -453,7 +456,7 @@ void GameShell::processGamepadForGame()
                     float v = evt.analogue.rightY;
                     if (v > 0.01f) {
                         m_gamepadInUse = true;
-                        m_controlHandlers[KeyControls::ACCELERATE](true, v * 15.f);
+                        m_controlHandlers[KeyControls::ACCELERATE](true, v * FULL_THRUST);
                         if (v > 0.1f) {
                             m_gamepad.rumble(
                                 static_cast<uint16_t>(static_cast<float>(0x2000) * v),

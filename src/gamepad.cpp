@@ -29,17 +29,37 @@ float normaliseAxis(int16_t value)
 constexpr float OUTER_DEAD_ZONE = 0.9f;
 
 // Output just outside the dead zone. Consumers treat values below 0.01 as
-// "no input", and the exponential below is under 0.01 for the first third of
-// its travel, so without this floor that whole range of the stick does
-// nothing. Starting here makes the full travel usable for fine control.
+// "no input", so without this floor the start of the stick's travel would
+// do nothing. Starting here makes the full travel usable for fine control.
 constexpr float MIN_OUTPUT = 0.02f;
 
-// Steepness of the response: higher gives finer control near the centre and
-// a more abrupt rise towards full deflection.
-constexpr float CURVE = 6.f;
+// The response rises gently and linearly from the dead zone to a "knee",
+// then curves smoothly up to full output at the outer dead zone. Both are
+// measured from the dead zone (0) to the outer dead zone (1):
+// KNEE_INPUT is how far along the stick's travel the knee is, and
+// KNEE_OUTPUT is the output there. Lower KNEE_OUTPUT gives finer control
+// before the knee and a steeper rise after it.
+constexpr float KNEE_INPUT = 0.8f;
+constexpr float KNEE_OUTPUT = 0.35f;
 
-// Allows for fine control near the middle of the stick's input
-// and much larger input when pushed further
+// Maps s in [0, 1] to [0, 1] through the knee (see above).
+float kneeCurve(float s)
+{
+    float slope = KNEE_OUTPUT / KNEE_INPUT;
+    if (s <= KNEE_INPUT) {
+        return slope * s;
+    }
+    // Beyond the knee, a quadratic in t (0 at the knee, 1 at full) that
+    // starts at the linear part's value and slope, so there is no kink,
+    // and ends at 1.
+    float t = (s - KNEE_INPUT) / (1.f - KNEE_INPUT);
+    float b = slope * (1.f - KNEE_INPUT);
+    float c = 1.f - KNEE_OUTPUT - b;
+    return KNEE_OUTPUT + b * t + c * t * t;
+}
+
+// Allows for fine control over most of the stick's travel and much larger
+// input towards full deflection, without an abrupt jump
 float joystickCurve(float input, float deadzone)
 {
     input = std::clamp(input, -1.f, 1.f);
@@ -50,8 +70,7 @@ float joystickCurve(float input, float deadzone)
     }
     float outer = std::max(OUTER_DEAD_ZONE, deadzone + 0.05f);
     float scaled = std::min((abs_x - deadzone) / (outer - deadzone), 1.f); // [0, 1]
-    float expo = (std::exp(CURVE * scaled) - 1.f) / (std::exp(CURVE) - 1.f); // [0, 1]
-    float result = MIN_OUTPUT + (1.f - MIN_OUTPUT) * expo;
+    float result = MIN_OUTPUT + (1.f - MIN_OUTPUT) * kneeCurve(scaled);
     return std::clamp(sign * result, -1.f, 1.f);
 }
 
