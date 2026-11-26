@@ -367,11 +367,13 @@ void GameModel::shieldImpact(const Impact& impact)
         m_recentShieldDamage = damage;
     }
     m_ticksSinceShieldDamage = 0;
+    m_shipModel->setShieldLevel(m_shield);
 }
 
 void GameModel::rechargeShield(double amount)
 {
     m_shield = std::min(m_shield + amount, 1.0);
+    m_shipModel->setShieldLevel(m_shield);
 }
 
 void GameModel::tick()

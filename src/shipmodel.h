@@ -62,6 +62,9 @@ public:
     void revertRotation();
 
     void setVisible(bool value);
+    // Colours the ship from its normal colour at full shield (1) down to a
+    // dull brown as the shield nears 0
+    void setShieldLevel(double shield);
 
     std::shared_ptr<GameShape> shipGameShape() const;
     std::shared_ptr<GameShape> flamesGameShape() const;

@@ -35,6 +35,8 @@ public:
     virtual ~Shape();
     void addShapeLine(ShapeLine sl);
     void setColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+    // Sets the colour of every line already added, as well as later ones
+    void recolour(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
     void addLine(double x0, double y0, double x1, double y1, uint8_t thickness = 1);
     double getWidth() const;
     double getHeight() const;

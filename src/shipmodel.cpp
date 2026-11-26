@@ -16,6 +16,11 @@ namespace {
 constexpr double MAX_SPIN = 2.0;
 constexpr double SPIN_DAMPING = 0.97;
 
+// The ship's colour at full shield, fading towards the empty shield colour
+// as the shield weakens
+constexpr int FULL_SHIELD_COLOUR[] = { 192, 192, 255 };
+constexpr int EMPTY_SHIELD_COLOUR[] = { 100, 70, 40 };
+
 } // namespace
 
 ShipModel::ShipModel(
@@ -26,7 +31,8 @@ ShipModel::ShipModel(
     , m_flamesGameShape(flames)
     , m_explosionGameShape(explosion)
 {
-    m_shipGameShape->setColour(192, 192, 255, 255);
+    m_shipGameShape->setColour(
+        FULL_SHIELD_COLOUR[0], FULL_SHIELD_COLOUR[1], FULL_SHIELD_COLOUR[2], 255);
     m_shipGameShape->addLine(0, -20, 6, -11, 3);
     m_shipGameShape->addLine(6, -11, 6, 1, 3);
     m_shipGameShape->addLine(6, 1, 12, 7, 3);
@@ -64,6 +70,16 @@ void ShipModel::initialise()
     m_velocity = 0.0;
     m_maxVelocity = 0.0;
     m_isAccelerating = false;
+}
+
+void ShipModel::setShieldLevel(double shield)
+{
+    shield = std::clamp(shield, 0.0, 1.0);
+    auto mix = [shield](int i) {
+        return static_cast<uint8_t>(std::lround(
+            EMPTY_SHIELD_COLOUR[i] + (FULL_SHIELD_COLOUR[i] - EMPTY_SHIELD_COLOUR[i]) * shield));
+    };
+    m_shipGameShape->recolour(mix(0), mix(1), mix(2), 255);
 }
 
 double ShipModel::x() const

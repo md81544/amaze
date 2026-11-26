@@ -1,5 +1,3 @@
-* Ship's colour reflects shielf value (white = 100%, brown = low%)
-
 * Background story as splash screen
     - Ship is damaged, needs manual control to escape the planet
 
@@ -11,11 +9,6 @@
     - Long-range scanner: malfunction
     - Cannon: malfunction
     - Escape pod: malfunction
-
-* Joystick fast rotation sometimes fails if not 100% (i.e. there's some Y component)
-    - maybe fastest rotation is at a lower value
-
-* Main menu - need a way to reach sliders and buttons using a gamepad (left/right?)
 
 * Log level in cfg file
 

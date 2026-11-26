@@ -83,6 +83,17 @@ void Shape::setColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
     m_a = a;
 }
 
+void Shape::recolour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+{
+    setColour(r, g, b, a);
+    for (ShapeLine& sl : m_shapeLines) {
+        sl.r = r;
+        sl.g = g;
+        sl.b = b;
+        sl.a = a;
+    }
+}
+
 void Shape::addLine(double x0, double y0, double x1, double y1, uint8_t thickness)
 {
     addShapeLine(ShapeLine { x0, y0, x1, y1, m_r, m_g, m_b, m_a, thickness });
