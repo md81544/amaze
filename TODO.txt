@@ -1,3 +1,22 @@
+* Ship's colour reflects shielf value (white = 100%, brown = low%)
+
+* Background story as splash screen
+    - Ship is damaged, needs manual control to escape the planet
+
+* Display of data down left side stylised to look like control panel
+    - Shield
+    - Velocity
+    - Bearing
+    - Retrothrusters: malfunction
+    - Long-range scanner: malfunction
+    - Cannon: malfunction
+    - Escape pod: malfunction
+
+* Joystick fast rotation sometimes fails if not 100% (i.e. there's some Y component)
+    - maybe fastest rotation is at a lower value
+
+* Main menu - need a way to reach sliders and buttons using a gamepad (left/right?)
+
 * Log level in cfg file
 
 * Possible to address anti-aliasing of lines? (Particularly visible on red lines
@@ -9,22 +28,18 @@
   there's no visible benefit. Collision and drawing already use QLineF/QTransform.
 
 * Objects which are not obstacles - just decoration
+    - Use a slightly brighter green than the grid
 
-* Regenerative power? Power level drops with thrust and refills over time
+* Replace "EXIT" with some form of symbol
 
 * Teleport / portals
-* Emergency stop? Uses a life?
-* Splash screen
+
+* Standardise fuel items
+
+* Fuel items should dim when ship is over them if shields are 100%
+
 * Level files are now JSON (see LEVEL_FORMAT.md), and all levels have been
   converted. Remaining: remove reading of the old format, when it's no longer
   wanted: parseOldFormat() in levelformat.cpp (in both repos: the copies must be
   kept identical), amaze's old reader in levelfile.cpp, and the tests of
   converting old levels.
-* (Just an idea) a black cut-out circle around the ship so that rotation doesn't affect
-  how far you can look?
-   - or make the ship point east so most look-ahead is in front?
-* Sometimes when you respawn it is difficult to determine which way you were going:
-    * A compass?
-    * Maybe a breadcrumb trail?
-    * Or a replay of the last few saved positions?
-    * Or just leave it as is
