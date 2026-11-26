@@ -43,6 +43,8 @@ private:
     void drawStatusPanel(QPainter& painter) const;
     void
     drawShape(QPainter& painter, const QTransform& arenaTransform, const GameShape& shape) const;
+    // Debris falling into objects with gravity
+    void drawGravityFields(QPainter& painter, const QTransform& arenaTransform) const;
     // x and y are the text's top left; no value means centred on `centre` in
     // that dimension. Returns the area the text was drawn in.
     QRectF drawText(

@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <tuple>
+#include <vector>
 
 #include "gameshape.h"
 #include "scheduler.h"
@@ -47,6 +48,18 @@ struct Impact {
     // The ship had to be pushed clear of the obstacle, e.g. after rotating
     // into it
     bool pushed { false };
+};
+
+// A piece of debris falling into a gravity object, to show its field
+struct GravityDebris {
+    QPointF pos; // relative to the object's centre
+    QPointF velocity; // units per tick
+    int age { 0 }; // ticks since it appeared
+};
+
+struct GravityField {
+    std::shared_ptr<GameShape> shape;
+    std::vector<GravityDebris> debris;
 };
 
 class GameModel final {
@@ -98,6 +111,9 @@ public:
     // strongest gravity affecting it, or 0 if none is
     double gravitationalPull() const;
 
+    // Debris falling into each object with gravity
+    const std::vector<GravityField>& gravityFields() const;
+
 private:
     std::string m_dataPath { "" };
 
@@ -108,6 +124,10 @@ private:
     std::vector<std::shared_ptr<GameShape>> m_allDynamicGameShapes;
 
     std::unique_ptr<ShipModel> m_shipModel;
+
+    std::vector<GravityField> m_gravityFields;
+    // Sets up the debris for the level's objects with gravity
+    void createGravityFields();
 
     std::shared_ptr<GameShape> m_breakableExplosionShape;
     bool m_breakableExploding { false };

@@ -65,6 +65,12 @@ constexpr double METRES_PER_UNIT = 10.0 / 39.0;
 constexpr double FULL_THRUST = 6.0 / 1000.0;
 constexpr double MAX_GRAVITY_PERCENT = 999.0;
 
+// Debris falling into gravity objects: a little brighter than the background
+// grid (see GameModel::initialise()), fading in as it appears
+const QColor GRAVITY_DEBRIS_COLOUR(0, 72, 0);
+constexpr double GRAVITY_DEBRIS_SIZE = 5.0;
+constexpr int GRAVITY_DEBRIS_FADE_IN_TICKS = 60;
+
 // The ship's systems, which are shown but never change
 struct SystemStatus {
     const char* label;
@@ -170,6 +176,11 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     for (const auto& shape : m_model.getAllDynamicObjects()) {
         if (shape->isVisible() && shape->IsActive()) {
             drawShape(painter, arenaTransform, *shape);
+        }
+        // Gravity fields go just above the background grid, so under
+        // decorations and the ship
+        if (shape->getName() == "Background") {
+            drawGravityFields(painter, arenaTransform);
         }
     }
 
@@ -375,6 +386,31 @@ void View::drawShape(QPainter& painter, const QTransform& arenaTransform, const 
         painter.setPen(QPen(
             QColor(r, g, b), sl.lineThickness * LINE_THICKNESS_SCALE, Qt::SolidLine, Qt::RoundCap));
         painter.drawLine(transform.map(QLineF(sl.x0, sl.y0, sl.x1, sl.y1)));
+    }
+}
+
+void View::drawGravityFields(QPainter& painter, const QTransform& arenaTransform) const
+{
+    bool dimmed = m_model.getGameState() == GameState::Menu
+        || m_model.getGameState() == GameState::Paused;
+    for (const auto& field : m_model.gravityFields()) {
+        const auto& shape = *field.shape;
+        if (!shape.isVisible() || !shape.IsActive()) {
+            continue;
+        }
+        QTransform transform
+            = QTransform::fromTranslate(shape.getPosX(), shape.getPosY()) * arenaTransform;
+        for (const auto& debris : field.debris) {
+            QColor colour = GRAVITY_DEBRIS_COLOUR;
+            if (dimmed) {
+                colour = QColor(colour.red() * 0.4, colour.green() * 0.4, colour.blue() * 0.4);
+            }
+            colour.setAlphaF(std::min(
+                static_cast<float>(debris.age) / GRAVITY_DEBRIS_FADE_IN_TICKS, 1.f));
+            painter.setPen(QPen(
+                colour, GRAVITY_DEBRIS_SIZE * LINE_THICKNESS_SCALE, Qt::SolidLine, Qt::RoundCap));
+            painter.drawPoint(transform.map(debris.pos));
+        }
     }
 }
 

@@ -2,9 +2,12 @@
 #include "levelfile.h"
 #include "log.h"
 
+#include <QLineF>
+
 #include <algorithm>
 #include <cmath>
 #include <filesystem>
+#include <limits>
 #include <numbers>
 
 namespace marengo {
@@ -39,6 +42,21 @@ constexpr double SHIELD_DAMAGE_MAX_SPEED = 0.3;
 // than the earlier impact's is taken.
 constexpr int SHIELD_IMPACT_TICKS = 60;
 
+// Gravity pulls within this many times its value of an object's centre
+constexpr double GRAVITY_RANGE = 25.0;
+
+// Debris showing gravitational fields (see tickGravityField()) appears where
+// the pull is at least this (in units per tick per tick: a tenth of the
+// keyboard's full thrust), and within the gravity's range
+constexpr double DEBRIS_MIN_PULL = 1.0 / 10000.0;
+// There's one piece of debris for this much of the field's area (in square
+// units), up to a limit
+constexpr double DEBRIS_AREA_EACH = 2500.0;
+constexpr std::size_t DEBRIS_MAX = 1600;
+// When a level loads, its fields are run for this many ticks, so the debris
+// is already falling
+constexpr int DEBRIS_PREWARM_TICKS = 1200;
+
 bool isObstacle(GameShapeType type)
 {
     return type == GameShapeType::OBSTRUCTION || type == GameShapeType::MOVING
@@ -60,11 +78,73 @@ QPointF gravityPull(const GameShape& shape, double shipX, double shipY)
         distanceSquared = 1.0;
     }
     double distance = std::sqrt(distanceSquared);
-    if (distance >= shape.getGravity() * 25) {
+    if (distance >= shape.getGravity() * GRAVITY_RANGE) {
         return {};
     }
     double forceMagnitude = shape.getGravity() / distanceSquared;
     return { (xDiff / distance) * forceMagnitude, (yDiff / distance) * forceMagnitude };
+}
+
+// Moves a field's debris one tick further in, under the same pull as the
+// ship, replacing any which reach the object's outline with new debris at
+// random places in the field
+void tickGravityField(GravityField& field)
+{
+    const GameShape& shape = *field.shape;
+    double gravity = shape.getGravity();
+    const auto& lines = shape.getVec();
+
+    // The field is the ring between the object's outline (taken as a circle
+    // through its farthest point) and where its pull becomes negligible
+    double inner = 0.0;
+    double innermost = std::numeric_limits<double>::max(); // nearest point of the outline
+    for (const auto& sl : lines) {
+        for (double d : { std::hypot(sl.x0, sl.y0), std::hypot(sl.x1, sl.y1) }) {
+            inner = std::max(inner, d);
+            innermost = std::min(innermost, d);
+        }
+    }
+    double outer = std::min(std::sqrt(gravity / DEBRIS_MIN_PULL), gravity * GRAVITY_RANGE);
+    std::size_t count = 0;
+    if (outer > inner) {
+        double area = std::numbers::pi * (outer * outer - inner * inner);
+        count = std::min(static_cast<std::size_t>(area / DEBRIS_AREA_EACH), DEBRIS_MAX);
+    }
+
+    auto& debris = field.debris;
+    for (std::size_t i = 0; i < debris.size();) {
+        auto& d = debris[i];
+        double distanceSquared = QPointF::dotProduct(d.pos, d.pos);
+        double distance = std::sqrt(distanceSquared);
+        bool reached = distance <= innermost;
+        if (!reached) {
+            d.velocity -= d.pos / distance * (gravity / distanceSquared);
+            QLineF path(d.pos, d.pos + d.velocity);
+            for (const auto& sl : lines) {
+                if (path.intersects(QLineF(sl.x0, sl.y0, sl.x1, sl.y1), nullptr)
+                    == QLineF::BoundedIntersection) {
+                    reached = true;
+                    break;
+                }
+            }
+            d.pos += d.velocity;
+            ++d.age;
+        }
+        if (reached || i >= count) {
+            // (Order doesn't matter)
+            d = debris.back();
+            debris.pop_back();
+        } else {
+            ++i;
+        }
+    }
+
+    // New debris is spread evenly over the field's area, starting at rest
+    while (debris.size() < count) {
+        double distance = std::sqrt(inner * inner + utils::rnd(outer * outer - inner * inner));
+        double angle = utils::rnd(2.0 * std::numbers::pi);
+        debris.push_back({ QPointF(distance * std::cos(angle), distance * std::sin(angle)), {}, 0 });
+    }
 }
 
 // A new ship, with its own shapes, which the caller adds to the shapes drawn
@@ -91,6 +171,7 @@ void GameModel::initialise(const std::string& levelFileName)
     m_recentShieldDamage = 0.0;
     m_levelDescription.clear();
     m_allDynamicGameShapes.clear();
+    m_gravityFields.clear();
 
     m_shipModel = newShipModel();
 
@@ -185,6 +266,25 @@ void GameModel::levelLoad(const std::string& filename)
             m_allDynamicGameShapes.push_back(std::move(shape));
         }
     }
+    createGravityFields();
+}
+
+void GameModel::createGravityFields()
+{
+    for (const auto& shape : m_allDynamicGameShapes) {
+        if (shape->getGameShapeType() == GameShapeType::MOVING && shape->getGravity() > 0.f) {
+            GravityField field { shape, {} };
+            for (int i = 0; i < DEBRIS_PREWARM_TICKS; ++i) {
+                tickGravityField(field);
+            }
+            m_gravityFields.push_back(std::move(field));
+        }
+    }
+}
+
+const std::vector<GravityField>& GameModel::gravityFields() const
+{
+    return m_gravityFields;
 }
 
 const std::string GameModel::getDataPath()
@@ -462,6 +562,9 @@ void GameModel::tick()
             ship.setDx(ship.dX() - pull.x());
             ship.setDy(ship.dY() - pull.y());
         }
+    }
+    for (auto& field : m_gravityFields) {
+        tickGravityField(field);
     }
 }
 
