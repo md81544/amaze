@@ -141,6 +141,8 @@ struct Appearance {
 };
 constexpr Appearance WALL { 255, 0, 0, mgo::levelformat::DEFAULT_WALL_THICKNESS };
 constexpr Appearance BREAKABLE { 255, 150, 50, mgo::levelformat::DEFAULT_BREAKABLE_THICKNESS };
+// Slightly lighter than the background grid (see GameModel::initialise())
+constexpr Appearance DECORATION { 0, 90, 0, mgo::levelformat::DEFAULT_DECORATION_THICKNESS };
 constexpr Appearance MOVING { 255, 172, 163, mgo::levelformat::DEFAULT_MOVING_OBJECT_THICKNESS };
 constexpr Appearance EXIT { 52, 213, 235, mgo::levelformat::DEFAULT_EXIT_THICKNESS };
 constexpr Appearance FUEL { 255, 255, 0, mgo::levelformat::DEFAULT_FUEL_THICKNESS };
@@ -207,6 +209,13 @@ LevelData readJsonLevel(const std::string& contents)
         level.shipX = data.ship->x;
         level.shipY = data.ship->y;
         level.shipRotation = data.ship->rotation;
+    }
+    // Decorations first, so everything else is drawn over them. They're
+    // NEUTRAL, like the background, so the ship passes over them.
+    if (!data.decorations.empty()) {
+        auto decorations = newShape(GameShapeType::NEUTRAL, "decorations");
+        addLines(*decorations, data.decorations, DECORATION);
+        level.shapes.push_back(std::move(decorations));
     }
     // In the same order as level_designer wrote the old format
     if (!data.walls.empty()) {

@@ -288,6 +288,23 @@ TEST_CASE("JSON levels give the same shapes as old format levels")
     CHECK(mover.getPosY() == 5);
 }
 
+TEST_CASE("Decorations are drawn, but aren't obstacles")
+{
+    TempLevelFile file(R"({
+      "formatVersion": 1,
+      "decorations": [ { "points": [[100, 100], [200, 100], [200, 200]] }, { "points": [[0, 0], [5, 5]], "thickness": 4 } ]
+    })");
+    const LevelData level = readLevelFile(file.path());
+    REQUIRE(level.shapes.size() == 1);
+    const auto& decorations = *level.shapes[0];
+    CHECK(decorations.getGameShapeType() == GameShapeType::NEUTRAL);
+    CHECK(decorations.getName() == "decorations");
+    CHECK(lineKeys(decorations)
+          == std::vector<LineKey> { { 0, 0, 5, 5, 0, 90, 0, 255, 4 },
+                                    { 100, 100, 200, 100, 0, 90, 0, 255, 2 },
+                                    { 200, 100, 200, 200, 0, 90, 0, 255, 2 } });
+}
+
 TEST_CASE("The exit's rotation is applied anticlockwise, as level_designer shows it")
 {
     TempLevelFile file(R"({ "formatVersion": 1, "exit": { "x": 100, "y": 200, "rotation": 90 } })");
