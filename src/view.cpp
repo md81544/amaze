@@ -27,12 +27,12 @@ constexpr double LINE_THICKNESS_SCALE = 1200.0 / 1080.0;
 // The outer fraction of the vignette's radius over which the arena fades to black
 constexpr double VIGNETTE_FADE_FRACTION = 0.2;
 
-// Status panel, in the top left corner. Its labels, border and the shield
-// bar's outline are in STATUS_COLOUR.
+// Status panel, in the top left corner. Its labels, border and the
+// bars' outlines are in STATUS_COLOUR.
 const QColor STATUS_COLOUR(0, 128, 0);
-// The remaining shield: darker than the outline, but brighter than the
-// background grid
-const QColor SHIELD_FILL_COLOUR(0, 80, 0);
+// The filled part of the shield and thrust bars: darker than the outline, but
+// brighter than the background grid
+const QColor BAR_FILL_COLOUR(0, 80, 0);
 const QColor PANEL_BACKGROUND_COLOUR(0, 14, 0);
 // The inner bezel line and the dividers between sections
 const QColor PANEL_BEZEL_COLOUR(0, 56, 0);
@@ -62,7 +62,18 @@ constexpr double METRES_PER_UNIT = 10.0 / 39.0;
 // tick per tick): the keyboard's full thrust, so 100% or more means it can't
 // be escaped by thrusting directly away from it (except, perhaps, with a
 // gamepad, whose full thrust is stronger)
-constexpr double FULL_THRUST = 6.0 / 1000.0;
+constexpr double KEYBOARD_THRUST = 6.0 / 1000.0;
+// The thrust bar is full at the strongest thrust: the gamepad's stick pushed
+// all the way (see GameShell and Controller)
+constexpr double GAMEPAD_FULL_THRUST = 15.0 / 1000.0;
+// The thrust bar shows the thrust (as a fraction of the full thrust) raised to
+// this power, so the low thrust used most of the time takes up more of the
+// bar. Lower emphasises low thrust more; 1 would be linear.
+constexpr double THRUST_BAR_EXPONENT = 0.5;
+// The thrust bar moves towards the current thrust with this time constant
+// (seconds): it covers about 63% of the gap in this time. Higher is smoother
+// but slower to respond.
+constexpr double THRUST_BAR_SMOOTHING_SECONDS = 0.1;
 constexpr double MAX_GRAVITY_PERCENT = 999.0;
 
 // Debris falling into gravity objects: a little brighter than the background
@@ -83,7 +94,8 @@ const SystemStatus SYSTEMS[] = {
     { "Weapons:", "DEPLETED", PANEL_DEPLETED_COLOUR },
     { "Escape pod:", "MALFUNCTION", PANEL_FAULT_COLOUR },
 };
-const char* const READING_LABELS[] = { "Shield:", "Velocity:", "Bearing:", "Gravitational field:" };
+const char* const READING_LABELS[]
+    = { "Shield:", "Thrust:", "Velocity:", "Bearing:", "Gravitational field:" };
 // The widest values each reading is expected to show, so the panel doesn't
 // change size
 const char* const WIDEST_READINGS[] = { "888.8 m/s", "888°", "888%" };
@@ -316,38 +328,57 @@ void View::drawStatusPanel(QPainter& painter) const
     y += m_panelTitleHeight;
     divider();
 
-    // Shield, as a bar which empties as the shield weakens
-    QRectF shieldRow = row(READING_LABELS[0], {}, PANEL_VALUE_COLOUR);
-    double barHeight = metrics.height() * 0.6;
-    QRectF bar(
-        right - m_panelValueWidth,
-        shieldRow.center().y() - barHeight / 2.0,
-        m_panelValueWidth,
-        barHeight);
-    QRectF remaining(bar);
-    remaining.setWidth(bar.width() * std::clamp(m_model.shield(), 0.0, 1.0));
-    painter.fillRect(remaining, SHIELD_FILL_COLOUR);
-    painter.setPen(QPen(STATUS_COLOUR, 2));
-    painter.setBrush(Qt::NoBrush);
-    painter.drawRect(bar);
+    // A row with a bar, filled to `fraction` (0 to 1) of its width
+    auto barRow = [&](const char* label, double fraction) {
+        QRectF area = row(label, {}, PANEL_VALUE_COLOUR);
+        double barHeight = metrics.height() * 0.6;
+        QRectF bar(
+            right - m_panelValueWidth,
+            area.center().y() - barHeight / 2.0,
+            m_panelValueWidth,
+            barHeight);
+        QRectF filled(bar);
+        filled.setWidth(bar.width() * std::clamp(fraction, 0.0, 1.0));
+        painter.fillRect(filled, BAR_FILL_COLOUR);
+        painter.setPen(QPen(STATUS_COLOUR, 2));
+        painter.setBrush(Qt::NoBrush);
+        painter.drawRect(bar);
+    };
 
     const auto& ship = m_model.shipModel();
+    // Shield, which empties as the shield weakens
+    barRow(READING_LABELS[0], m_model.shield());
+    double thrust = ship.isAccelerating() ? ship.accelerationAmount() / GAMEPAD_FULL_THRUST : 0.0;
+    double target = std::pow(std::clamp(thrust, 0.0, 1.0), THRUST_BAR_EXPONENT);
+    auto now = std::chrono::steady_clock::now();
+    if (m_lastPanelDrawTime.has_value()) {
+        double elapsed = std::chrono::duration<double>(now - *m_lastPanelDrawTime).count();
+        // (Frame-rate independent: a long gap between frames moves the bar
+        // most of the way at once)
+        double step = 1.0 - std::exp(-elapsed / THRUST_BAR_SMOOTHING_SECONDS);
+        m_thrustBarFill += (target - m_thrustBarFill) * step;
+    } else {
+        m_thrustBarFill = target;
+    }
+    m_lastPanelDrawTime = now;
+    barRow(READING_LABELS[1], m_thrustBarFill);
+
     // Units per tick to metres per second
     double speed = std::hypot(ship.dX(), ship.dY()) * TICKS_PER_SECOND * METRES_PER_UNIT;
-    row(READING_LABELS[1],
+    row(READING_LABELS[2],
         QString::fromStdString(std::format("{:.1f} m/s", speed)),
         PANEL_VALUE_COLOUR);
 
     // Compass bearing of the ship's nose: clockwise from the arena's "up". The
     // ship's rotation is anticlockwise, and may be negative.
     int bearing = static_cast<int>(std::lround(std::fmod(360.0 - ship.rotation(), 360.0))) % 360;
-    row(READING_LABELS[2],
+    row(READING_LABELS[3],
         QString::fromStdString(std::format("{:03d}°", bearing)),
         PANEL_VALUE_COLOUR);
 
     double gravityPercent
-        = std::min(m_model.gravitationalPull() / FULL_THRUST * 100.0, MAX_GRAVITY_PERCENT);
-    row(READING_LABELS[3],
+        = std::min(m_model.gravitationalPull() / KEYBOARD_THRUST * 100.0, MAX_GRAVITY_PERCENT);
+    row(READING_LABELS[4],
         QString::fromStdString(std::format("{:.0f}%", gravityPercent)),
         PANEL_VALUE_COLOUR);
     divider();
@@ -391,8 +422,8 @@ void View::drawShape(QPainter& painter, const QTransform& arenaTransform, const 
 
 void View::drawGravityFields(QPainter& painter, const QTransform& arenaTransform) const
 {
-    bool dimmed = m_model.getGameState() == GameState::Menu
-        || m_model.getGameState() == GameState::Paused;
+    bool dimmed
+        = m_model.getGameState() == GameState::Menu || m_model.getGameState() == GameState::Paused;
     for (const auto& field : m_model.gravityFields()) {
         const auto& shape = *field.shape;
         if (!shape.isVisible() || !shape.IsActive()) {
@@ -405,8 +436,8 @@ void View::drawGravityFields(QPainter& painter, const QTransform& arenaTransform
             if (dimmed) {
                 colour = QColor(colour.red() * 0.4, colour.green() * 0.4, colour.blue() * 0.4);
             }
-            colour.setAlphaF(std::min(
-                static_cast<float>(debris.age) / GRAVITY_DEBRIS_FADE_IN_TICKS, 1.f));
+            colour.setAlphaF(
+                std::min(static_cast<float>(debris.age) / GRAVITY_DEBRIS_FADE_IN_TICKS, 1.f));
             painter.setPen(QPen(
                 colour, GRAVITY_DEBRIS_SIZE * LINE_THICKNESS_SCALE, Qt::SolidLine, Qt::RoundCap));
             painter.drawPoint(transform.map(debris.pos));

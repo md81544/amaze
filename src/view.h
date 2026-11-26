@@ -6,6 +6,7 @@
 #include <QPointF>
 #include <QRectF>
 
+#include <chrono>
 #include <optional>
 #include <string>
 
@@ -65,6 +66,11 @@ private:
     double m_panelRowHeight { 0.0 };
     double m_panelTitleHeight { 0.0 };
     double m_panelValueWidth { 0.0 };
+
+    // The thrust bar's fill, which follows the thrust smoothly so that small,
+    // rapid changes (e.g. from a gamepad stick) don't make it jitter
+    mutable double m_thrustBarFill { 0.0 };
+    mutable std::optional<std::chrono::steady_clock::time_point> m_lastPanelDrawTime;
 };
 
 } // namespace amaze
