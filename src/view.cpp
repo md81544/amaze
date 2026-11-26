@@ -37,6 +37,21 @@ const QColor STATUS_COLOUR(0, 128, 0);
 // The filled part of the shield and thrust bars: darker than the outline, but
 // brighter than the background grid
 const QColor BAR_FILL_COLOUR(0, 80, 0);
+// The shield bar's fill fades from BAR_FILL_COLOUR at full shield through
+// yellow and orange to red at SHIELD_BAR_COLOUR_STOPS' lowest level and below,
+// blending between neighbouring stops. The stops are about as dim as
+// BAR_FILL_COLOUR, so the bar doesn't overpower the panel's text.
+struct ShieldBarColourStop
+{
+    double level;
+    QColor colour;
+};
+const ShieldBarColourStop SHIELD_BAR_COLOUR_STOPS[] = {
+    { 0.2, QColor(110, 0, 0) },
+    { 0.45, QColor(100, 50, 0) },
+    { 0.7, QColor(85, 85, 0) },
+    { 1.0, BAR_FILL_COLOUR },
+};
 const QColor PANEL_BACKGROUND_COLOUR(0, 14, 0);
 // The inner bezel line and the dividers between sections
 const QColor PANEL_BEZEL_COLOUR(0, 56, 0);
@@ -108,6 +123,28 @@ QFont withPixelSize(QFont font, int pixelSize)
 {
     font.setPixelSize(pixelSize);
     return font;
+}
+
+// The shield bar's fill colour for a shield level from 0 to 1
+QColor shieldBarColour(double shield)
+{
+    const auto& stops = SHIELD_BAR_COLOUR_STOPS;
+    if (shield <= stops[0].level) {
+        return stops[0].colour;
+    }
+    for (size_t i = 1; i < std::size(stops); ++i) {
+        const auto& lower = stops[i - 1];
+        const auto& upper = stops[i];
+        if (shield <= upper.level) {
+            double t = (shield - lower.level) / (upper.level - lower.level);
+            auto mix = [t](int a, int b) { return static_cast<int>(std::lround(a + (b - a) * t)); };
+            return QColor(
+                mix(lower.colour.red(), upper.colour.red()),
+                mix(lower.colour.green(), upper.colour.green()),
+                mix(lower.colour.blue(), upper.colour.blue()));
+        }
+    }
+    return std::end(stops)[-1].colour;
 }
 
 } // namespace
@@ -333,7 +370,7 @@ void View::drawStatusPanel(QPainter& painter) const
     divider();
 
     // A row with a bar, filled to `fraction` (0 to 1) of its width
-    auto barRow = [&](const char* label, double fraction) {
+    auto barRow = [&](const char* label, double fraction, const QColor& fillColour) {
         QRectF area = row(label, {}, PANEL_VALUE_COLOUR);
         double barHeight = metrics.height() * 0.6;
         QRectF bar(
@@ -343,7 +380,7 @@ void View::drawStatusPanel(QPainter& painter) const
             barHeight);
         QRectF filled(bar);
         filled.setWidth(bar.width() * std::clamp(fraction, 0.0, 1.0));
-        painter.fillRect(filled, BAR_FILL_COLOUR);
+        painter.fillRect(filled, fillColour);
         painter.setPen(QPen(STATUS_COLOUR, 2));
         painter.setBrush(Qt::NoBrush);
         painter.drawRect(bar);
@@ -351,7 +388,7 @@ void View::drawStatusPanel(QPainter& painter) const
 
     const auto& ship = m_model.shipModel();
     // Shield, which empties as the shield weakens
-    barRow(READING_LABELS[0], m_model.shield());
+    barRow(READING_LABELS[0], m_model.shield(), shieldBarColour(m_model.shield()));
     double thrust = ship.isAccelerating() ? ship.accelerationAmount() / GAMEPAD_FULL_THRUST : 0.0;
     double target = std::pow(std::clamp(thrust, 0.0, 1.0), THRUST_BAR_EXPONENT);
     auto now = std::chrono::steady_clock::now();
@@ -365,7 +402,7 @@ void View::drawStatusPanel(QPainter& painter) const
         m_thrustBarFill = target;
     }
     m_lastPanelDrawTime = now;
-    barRow(READING_LABELS[1], m_thrustBarFill);
+    barRow(READING_LABELS[1], m_thrustBarFill, BAR_FILL_COLOUR);
 
     // Units per tick to metres per second
     double speed = std::hypot(ship.dX(), ship.dY()) * TICKS_PER_SECOND * METRES_PER_UNIT;
