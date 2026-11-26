@@ -20,8 +20,6 @@
   Tidier, but measured rounding drift is negligible (~1e-9 units after 10 hours), so
   there's no visible benefit. Collision and drawing already use QLineF/QTransform.
 
-    - Use a slightly brighter green than the grid
-
 * Replace "EXIT" with some form of symbol
 
 * Teleport / portals
