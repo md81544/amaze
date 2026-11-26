@@ -6,11 +6,18 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
 #include <QSlider>
+#include <QStyle>
 #include <QTreeWidget>
 #include <QVBoxLayout>
+
+#include <algorithm>
+#include <array>
+#include <initializer_list>
+#include <iterator>
 
 namespace marengo {
 namespace amaze {
@@ -34,11 +41,22 @@ QFrame#border {
 QLabel {
     color: rgb(0, 224, 0);
 }
+QLabel#optionLabel {
+    padding: 2px 6px;
+    border-radius: 3px;
+}
+QLabel#optionLabel[focused="true"] {
+    background-color: rgb(0, 60, 0);
+    color: rgb(0, 255, 0);
+}
 QTreeWidget {
     background-color: black;
     color: rgb(0, 224, 0);
-    border: 1px solid rgb(0, 128, 0);
+    border: 2px solid rgb(0, 80, 0);
     outline: none;
+}
+QTreeWidget:focus {
+    border-color: rgb(0, 255, 0);
 }
 QTreeWidget::item:hover {
     background-color: rgb(0, 40, 0);
@@ -60,7 +78,12 @@ QPushButton:hover {
 QPushButton:pressed {
     background-color: rgb(0, 80, 0);
 }
-QPushButton:default, QPushButton:focus {
+QPushButton:default {
+    border-color: rgb(0, 192, 0);
+}
+QPushButton:focus {
+    background-color: rgb(0, 60, 0);
+    color: rgb(0, 255, 0);
     border-color: rgb(0, 255, 0);
 }
 QSlider::groove:horizontal {
@@ -98,12 +121,31 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
 }
 )";
 
-QSlider* makeSlider(int min, int max, int value)
+QSlider* makeSlider(int min, int max, int step, int value)
 {
     auto* slider = new QSlider(Qt::Horizontal);
     slider->setRange(min, max);
+    slider->setSingleStep(step);
     slider->setValue(value);
+    slider->setFocusPolicy(Qt::StrongFocus);
     return slider;
+}
+
+QLabel* makeOptionLabel(const char* text)
+{
+    auto* label = new QLabel(text);
+    label->setObjectName("optionLabel");
+    return label;
+}
+
+bool isKey(const QKeyEvent* event, std::initializer_list<int> keys)
+{
+    for (int key : keys) {
+        if (event->key() == key) {
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace
@@ -116,6 +158,13 @@ MenuDialog::MenuDialog(
     , m_results(initialValues)
     , m_levelFileLister(dataDir)
     , m_levelList(new QTreeWidget)
+    , m_musicVolume(makeSlider(0, 100, 5, initialValues.musicVolumePercent))
+    , m_deadZone(makeSlider(0, 25, 1, initialValues.stickDeadZonePercent))
+    , m_musicVolumeLabel(makeOptionLabel("Background music volume"))
+    , m_deadZoneLabel(makeOptionLabel("Stick dead zone"))
+    , m_ok(new QPushButton("OK"))
+    , m_cancel(new QPushButton("Cancel"))
+    , m_exitGame(new QPushButton("Exit Game"))
 {
     setWindowTitle("Amaze");
     setModal(true);
@@ -134,17 +183,15 @@ MenuDialog::MenuDialog(
     setStyleSheet(QString(STYLE_SHEET).arg(fontSize).arg(fontFamily));
 
     // Options
-    auto* musicVolume = makeSlider(0, 100, m_results.musicVolumePercent);
-    connect(musicVolume, &QSlider::valueChanged, this, [this](int value) {
+    connect(m_musicVolume, &QSlider::valueChanged, this, [this](int value) {
         m_results.musicVolumePercent = value;
     });
-    auto* deadZone = makeSlider(0, 25, m_results.stickDeadZonePercent);
-    connect(deadZone, &QSlider::valueChanged, this, [this](int value) {
+    connect(m_deadZone, &QSlider::valueChanged, this, [this](int value) {
         m_results.stickDeadZonePercent = value;
     });
     auto* options = new QFormLayout;
-    options->addRow("Background music volume", musicVolume);
-    options->addRow("Stick dead zone", deadZone);
+    options->addRow(m_musicVolumeLabel, m_musicVolume);
+    options->addRow(m_deadZoneLabel, m_deadZone);
 
     // Level selection
     // Number and name are separate columns, with the numbers right-aligned,
@@ -171,18 +218,21 @@ MenuDialog::MenuDialog(
     connect(m_levelList, &QTreeWidget::itemActivated, this, &QDialog::accept);
 
     // Buttons
-    auto* ok = new QPushButton("OK");
-    ok->setDefault(true);
-    connect(ok, &QPushButton::clicked, this, &QDialog::accept);
-    auto* cancel = new QPushButton("Cancel");
-    connect(cancel, &QPushButton::clicked, this, &QDialog::reject);
-    auto* exitGame = new QPushButton("Exit Game");
-    connect(exitGame, &QPushButton::clicked, this, [this]() { done(ExitGame); });
+    m_ok->setDefault(true);
+    connect(m_ok, &QPushButton::clicked, this, &QDialog::accept);
+    connect(m_cancel, &QPushButton::clicked, this, &QDialog::reject);
+    connect(m_exitGame, &QPushButton::clicked, this, [this]() { done(ExitGame); });
     auto* buttons = new QHBoxLayout;
-    buttons->addWidget(ok);
-    buttons->addWidget(cancel);
+    buttons->addWidget(m_ok);
+    buttons->addWidget(m_cancel);
     buttons->addStretch();
-    buttons->addWidget(exitGame);
+    buttons->addWidget(m_exitGame);
+    for (QWidget* widget : std::initializer_list<QWidget*> {
+             m_musicVolume, m_deadZone, m_levelList, m_ok, m_cancel, m_exitGame }) {
+        widget->setFocusPolicy(Qt::StrongFocus);
+        widget->installEventFilter(this);
+    }
+    connect(qApp, &QApplication::focusChanged, this, [this]() { updateFocusHighlight(); });
 
     auto* border = new QFrame;
     border->setObjectName("border");
@@ -200,6 +250,112 @@ MenuDialog::MenuDialog(
 
     resize(840, 690);
     m_levelList->setFocus();
+}
+
+bool MenuDialog::eventFilter(QObject* watched, QEvent* event)
+{
+    if (event->type() != QEvent::KeyPress) {
+        return QDialog::eventFilter(watched, event);
+    }
+    auto* keyEvent = static_cast<QKeyEvent*>(event);
+    if (keyEvent->modifiers() & ~Qt::KeypadModifier) {
+        return QDialog::eventFilter(watched, event);
+    }
+    const bool up = keyEvent->key() == Qt::Key_Up;
+    const bool down = keyEvent->key() == Qt::Key_Down;
+    const bool leftRight = isKey(keyEvent, { Qt::Key_Left, Qt::Key_Right });
+    const bool enter = isKey(keyEvent, { Qt::Key_Return, Qt::Key_Enter });
+
+    // Page Up/Down (the gamepad's shoulder buttons) always scroll the level list
+    if (watched != m_levelList && isKey(keyEvent, { Qt::Key_PageUp, Qt::Key_PageDown })) {
+        m_levelList->setFocus();
+        QCoreApplication::sendEvent(m_levelList, event);
+        return true;
+    }
+
+    if (watched == m_musicVolume || watched == m_deadZone) {
+        // Up/Down would otherwise change the value; Left/Right still do
+        if (up && watched == m_deadZone) {
+            m_musicVolume->setFocus();
+        } else if (down) {
+            (watched == m_musicVolume ? static_cast<QWidget*>(m_deadZone) : m_levelList)
+                ->setFocus();
+        } else if (enter) {
+            accept();
+        } else {
+            return QDialog::eventFilter(watched, event);
+        }
+        return true;
+    }
+
+    if (watched == m_levelList) {
+        int row = m_levelList->currentIndex().row();
+        int lastRow = m_levelList->topLevelItemCount() - 1;
+        if (up && row <= 0) {
+            m_deadZone->setFocus();
+        } else if (down && row >= lastRow) {
+            m_ok->setFocus();
+        } else if (keyEvent->key() == Qt::Key_Left) {
+            // Shortcuts out of the list without scrolling to either end
+            m_deadZone->setFocus();
+        } else if (keyEvent->key() == Qt::Key_Right) {
+            m_ok->setFocus();
+        } else {
+            return QDialog::eventFilter(watched, event);
+        }
+        return true;
+    }
+
+    const std::array<QPushButton*, 3> buttons { m_ok, m_cancel, m_exitGame };
+    auto it = std::find(buttons.begin(), buttons.end(), watched);
+    if (it != buttons.end()) {
+        if (up) {
+            m_levelList->setFocus();
+        } else if (keyEvent->key() == Qt::Key_Left && it != buttons.begin()) {
+            (*std::prev(it))->setFocus();
+        } else if (keyEvent->key() == Qt::Key_Right && std::next(it) != buttons.end()) {
+            (*std::next(it))->setFocus();
+        } else if (enter) {
+            // Don't rely on the platform pressing the focused button on Enter
+            (*it)->click();
+        } else if (down || leftRight) {
+            // Nothing below or beyond the ends; no wrap-around, so it's hard
+            // to overshoot onto Exit Game
+        } else {
+            return QDialog::eventFilter(watched, event);
+        }
+        return true;
+    }
+
+    return QDialog::eventFilter(watched, event);
+}
+
+bool MenuDialog::focusNextPrevChild(bool next)
+{
+    const std::array<QWidget*, 6> order {
+        m_musicVolume, m_deadZone, m_levelList, m_ok, m_cancel, m_exitGame
+    };
+    auto it = std::find(order.begin(), order.end(), focusWidget());
+    int index = it == order.end() ? 0 : static_cast<int>(it - order.begin());
+    int count = static_cast<int>(order.size());
+    index = (index + (next ? 1 : count - 1)) % count;
+    order[index]->setFocus(next ? Qt::TabFocusReason : Qt::BacktabFocusReason);
+    return true;
+}
+
+void MenuDialog::updateFocusHighlight()
+{
+    // Light up the label of the slider that has focus, so it's clear which
+    // row the arrow keys / gamepad are on
+    for (auto [label, slider] : { std::pair { m_musicVolumeLabel, m_musicVolume },
+                                  std::pair { m_deadZoneLabel, m_deadZone } }) {
+        bool focused = slider->hasFocus();
+        if (label->property("focused").toBool() != focused) {
+            label->setProperty("focused", focused);
+            label->style()->unpolish(label);
+            label->style()->polish(label);
+        }
+    }
 }
 
 } // namespace amaze

@@ -483,9 +483,9 @@ void GameShell::processGamepadForGame()
 
 void GameShell::processGamepadForMenu()
 {
-    // Either stick, or the D-pad, moves around the dialog (arrow keys);
-    // shoulder buttons move between controls (tab); South (A / cross) is
-    // Enter; East (B / circle) or Start is Escape.
+    // Either stick, or the D-pad, moves around the dialog (arrow keys; see
+    // MenuDialog::eventFilter); shoulder buttons page through the level list;
+    // South (A / cross) is Enter; East (B / circle) or Start is Escape.
     qint64 now = m_clock.elapsed();
     for (const auto& evt : m_gamepad.getEvents()) {
         switch (evt.eventType) {
@@ -545,10 +545,10 @@ void GameShell::processGamepadForMenu()
                             key = Qt::Key_Right;
                             break;
                         case gamepad::ButtonType::LeftShoulder:
-                            key = Qt::Key_Backtab;
+                            key = Qt::Key_PageUp;
                             break;
                         case gamepad::ButtonType::RightShoulder:
-                            key = Qt::Key_Tab;
+                            key = Qt::Key_PageDown;
                             break;
                         default:
                             break;
@@ -578,9 +578,8 @@ void GameShell::sendMenuKey(int key, bool pressed)
     if (target == nullptr || (target != m_menu && !m_menu->isAncestorOf(target))) {
         target = m_menu;
     }
-    auto modifiers = key == Qt::Key_Backtab ? Qt::ShiftModifier : Qt::NoModifier;
     QCoreApplication::postEvent(
-        target, new QKeyEvent(pressed ? QEvent::KeyPress : QEvent::KeyRelease, key, modifiers));
+        target, new QKeyEvent(pressed ? QEvent::KeyPress : QEvent::KeyRelease, key, Qt::NoModifier));
 }
 
 void GameShell::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
