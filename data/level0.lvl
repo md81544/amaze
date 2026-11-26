@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Rookie Trainer",
   "ship": { "x": 706, "y": 904 },
   "exit": { "x": 1201, "y": 1076 },

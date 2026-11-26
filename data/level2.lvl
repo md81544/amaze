@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Fast and Furious",
   "ship": { "x": 201, "y": 1900 },
   "exit": { "x": 1800, "y": 1900 },

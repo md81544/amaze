@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Break the Walls",
   "ship": { "x": 602, "y": 812 },
   "exit": { "x": 598, "y": 552 },

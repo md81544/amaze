@@ -49,7 +49,7 @@ using LineKey = std::tuple<double, double, double, double, int, int, int, int, i
 
 std::vector<LineKey> lineKeys(const GameShape& shape)
 {
-    // Rounded, as moving objects' lines are made relative to their centres
+    // Rounded, as special objects' lines are made relative to their centres
     auto round = [](double v) { return std::round(v * 1e6) / 1e6; };
     std::vector<LineKey> keys;
     for (const auto& l : shape.getVec()) {
@@ -71,7 +71,7 @@ std::vector<LineKey> lineKeys(const GameShape& shape)
 
 TEST_CASE("The ship's position and the title are read")
 {
-    TempLevelFile file(R"({ "formatVersion": 1, "title": "Take it Slow",
+    TempLevelFile file(R"({ "formatVersion": 2, "title": "Take it Slow",
                             "ship": { "x": 437, "y": 704, "rotation": 270 } })");
     auto level = readLevelFile(file.path());
     CHECK(level.shipX == 437);
@@ -83,19 +83,19 @@ TEST_CASE("The ship's position and the title are read")
 
 TEST_CASE("The title is optional")
 {
-    TempLevelFile file(R"({ "formatVersion": 1, "ship": { "x": 1, "y": 2 } })");
+    TempLevelFile file(R"({ "formatVersion": 2, "ship": { "x": 1, "y": 2 } })");
     CHECK(readLevelFile(file.path()).description.empty());
 }
 
 TEST_CASE("Each item becomes a shape, with the standard appearance")
 {
     TempLevelFile file(R"({
-      "formatVersion": 1,
+      "formatVersion": 2,
       "exit": { "x": 1200, "y": 300 },
       "fuel": [ { "x": 100, "y": 200 }, { "x": 300, "y": 400, "thickness": 4 } ],
       "walls": [ { "points": [[400, 650], [450, 650], [450, 700]] }, { "points": [[0, 0], [5, 5]], "thickness": 1 } ],
       "breakables": [ { "lines": [ { "points": [[700, 550], [700, 650]] }, { "points": [[900, 550], [900, 650]] } ] } ],
-      "movingObjects": [
+      "specialObjects": [
         { "lines": [ { "points": [[0, 0], [10, 10]] } ], "name": "mover" }
       ]
     })");
@@ -140,20 +140,20 @@ TEST_CASE("Each item becomes a shape, with the standard appearance")
     REQUIRE_FALSE(fuel[1]->getVec().empty());
     CHECK(fuel[1]->getVec()[0].lineThickness == 4);
 
-    const auto moving = shapesOf(GameShapeType::MOVING);
-    REQUIRE(moving.size() == 1);
-    CHECK(moving[0]->getName() == "mover");
-    CHECK(moving[0]->getPosX() == 5); // its lines are relative to its centre
-    CHECK(moving[0]->getPosY() == 5);
-    CHECK(lineKeys(*moving[0])
+    const auto special = shapesOf(GameShapeType::SPECIAL);
+    REQUIRE(special.size() == 1);
+    CHECK(special[0]->getName() == "mover");
+    CHECK(special[0]->getPosX() == 5); // its lines are relative to its centre
+    CHECK(special[0]->getPosY() == 5);
+    CHECK(lineKeys(*special[0])
           == std::vector<LineKey> { { 0, 0, 10, 10, 255, 172, 163, 255, 6 } });
 }
 
-TEST_CASE("Moving objects get their motion parameters")
+TEST_CASE("Special objects get their motion parameters")
 {
     TempLevelFile file(R"({
-      "formatVersion": 1,
-      "movingObjects": [
+      "formatVersion": 2,
+      "specialObjects": [
         { "lines": [ { "points": [[0, 0], [10, 10]] } ], "speedX": 1.5, "rangeX": 100, "speedY": -2,
           "rangeY": 50, "spin": 0.5, "gravity": 3, "name": "mover" }
       ]
@@ -161,7 +161,7 @@ TEST_CASE("Moving objects get their motion parameters")
     auto level = readLevelFile(file.path());
     REQUIRE(level.shapes.size() == 1);
     const auto& mover = *level.shapes[0];
-    CHECK(mover.getGameShapeType() == GameShapeType::MOVING);
+    CHECK(mover.getGameShapeType() == GameShapeType::SPECIAL);
     CHECK(mover.getName() == "mover");
     CHECK(mover.getXDelta() == 1.5f);
     CHECK(mover.getXMaxDifference() == 100.f);
@@ -171,11 +171,11 @@ TEST_CASE("Moving objects get their motion parameters")
     CHECK(mover.getGravity() == 3.f);
 }
 
-TEST_CASE("Moving objects get their paths")
+TEST_CASE("Special objects get their paths")
 {
     TempLevelFile file(R"({
-      "formatVersion": 1,
-      "movingObjects": [
+      "formatVersion": 2,
+      "specialObjects": [
         { "lines": [ { "points": [[0, 0], [10, 10]] } ],
           "path": { "offsets": [[100, -50], [0, 200]], "speed": 0.75, "loop": true } },
         { "lines": [ { "points": [[0, 0], [10, 10]] } ], "speedX": 1, "rangeX": 10 }
@@ -203,7 +203,7 @@ TEST_CASE("Bad level files throw, saying what's wrong")
     };
     CHECK(error("/nonexistent/level.lvl") == "Failed to load Level file /nonexistent/level.lvl");
     {
-        TempLevelFile file(R"({ "formatVersion": 1, "ship": { "x": 1 } })");
+        TempLevelFile file(R"({ "formatVersion": 2, "ship": { "x": 1 } })");
         CHECK(error(file.path()).ends_with("ship: missing \"y\""));
     }
     {
@@ -230,7 +230,7 @@ TEST_CASE("All shipped levels load")
 TEST_CASE("Decorations are drawn, but aren't obstacles")
 {
     TempLevelFile file(R"({
-      "formatVersion": 1,
+      "formatVersion": 2,
       "decorations": [ { "points": [[100, 100], [200, 100], [200, 200]] }, { "points": [[0, 0], [5, 5]], "thickness": 4 } ]
     })");
     const LevelData level = readLevelFile(file.path());
@@ -246,7 +246,7 @@ TEST_CASE("Decorations are drawn, but aren't obstacles")
 
 TEST_CASE("The exit's rotation is applied anticlockwise, as level_designer shows it")
 {
-    TempLevelFile file(R"({ "formatVersion": 1, "exit": { "x": 100, "y": 200, "rotation": 90 } })");
+    TempLevelFile file(R"({ "formatVersion": 2, "exit": { "x": 100, "y": 200, "rotation": 90 } })");
     const LevelData level = readLevelFile(file.path());
     REQUIRE(level.shapes.size() == 1);
     const auto& exit = *level.shapes[0];

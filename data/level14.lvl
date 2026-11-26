@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Tortuous",
   "ship": { "x": 95, "y": 100, "rotation": 225 },
   "exit": { "x": 832, "y": 523 },

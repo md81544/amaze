@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "The Eye of the Needle",
   "ship": { "x": 144, "y": 312 },
   "exit": { "x": 186, "y": 440 },

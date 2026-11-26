@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Mind the Rocks",
   "ship": { "x": 422, "y": 111, "rotation": 180 },
   "exit": { "x": 1869, "y": 1830 },

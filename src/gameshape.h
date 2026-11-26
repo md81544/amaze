@@ -24,7 +24,7 @@ enum class GameShapeType {
     KEY,
     EXIT,
     BREAKABLE, // acts like OBSTRUCTION, but is destroyed once hit
-    MOVING
+    SPECIAL // can move, spin and/or pull the ship with gravity
 };
 
 class GameShape final : public Shape {
@@ -40,7 +40,7 @@ public:
     std::string getName() const;
     void setName(const std::string& name);
 
-    // The following are only used for moving objects
+    // The following are only used for special objects
     void move();
     float getRotationDelta() const;
     void setRotationDelta(float value);
@@ -71,7 +71,7 @@ private:
     std::string m_name; // for debugging only
     GameShapeType m_gameShapeType { GameShapeType::UNINITIALISED };
 
-    // The following are only used for moving objects
+    // The following are only used for special objects
     std::optional<double> m_originalX { std::nullopt };
     std::optional<double> m_originalY { std::nullopt };
     float m_rotationDelta { 0.0f };

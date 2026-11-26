@@ -1,12 +1,12 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "[Test 1]",
   "ship": { "x": 552, "y": 305, "rotation": 75 },
   "exit": { "x": 532, "y": 150 },
   "walls": [
     { "points": [[100, 100], [100, 350], [600, 350], [600, 100]], "closed": true }
   ],
-  "movingObjects": [
+  "specialObjects": [
     {
       "lines": [
         { "points": [[150, 150], [200, 150], [200, 300], [150, 300]], "closed": true }

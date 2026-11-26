@@ -12,11 +12,11 @@ namespace amaze {
 
 namespace {
 
-// Adds the object to the level. A moving object's lines are made relative to
+// Adds the object to the level. A special object's lines are made relative to
 // its centre.
 void addObject(LevelData& level, std::unique_ptr<GameShape>& obj)
 {
-    if (obj->getGameShapeType() == GameShapeType::MOVING) {
+    if (obj->getGameShapeType() == GameShapeType::SPECIAL) {
         obj->setPosFromCentre();
     }
     level.shapes.push_back(std::move(obj));
@@ -38,7 +38,7 @@ constexpr Appearance WALL { 255, 0, 0, mgo::levelformat::DEFAULT_WALL_THICKNESS 
 constexpr Appearance BREAKABLE { 255, 150, 50, mgo::levelformat::DEFAULT_BREAKABLE_THICKNESS };
 // Slightly lighter than the background grid (see GameModel::initialise())
 constexpr Appearance DECORATION { 0, 90, 0, mgo::levelformat::DEFAULT_DECORATION_THICKNESS };
-constexpr Appearance MOVING { 255, 172, 163, mgo::levelformat::DEFAULT_MOVING_OBJECT_THICKNESS };
+constexpr Appearance SPECIAL { 255, 172, 163, mgo::levelformat::DEFAULT_SPECIAL_OBJECT_THICKNESS };
 constexpr Appearance EXIT { 52, 213, 235, mgo::levelformat::DEFAULT_EXIT_THICKNESS };
 constexpr Appearance FUEL { 255, 255, 0, mgo::levelformat::DEFAULT_FUEL_THICKNESS };
 
@@ -112,7 +112,7 @@ LevelData readJsonLevel(const std::string& contents)
         addLines(*decorations, data.decorations, DECORATION);
         level.shapes.push_back(std::move(decorations));
     }
-    // Then the obstacles, exit and fuel, and lastly the moving objects
+    // Then the obstacles, exit and fuel, and lastly the special objects
     if (!data.walls.empty()) {
         auto walls = newShape(GameShapeType::OBSTRUCTION, "walls");
         addLines(*walls, data.walls, WALL);
@@ -135,25 +135,25 @@ LevelData readJsonLevel(const std::string& contents)
         level.shapes.push_back(newText(
             GameShapeType::FUEL, std::format("fuel_{}", i), "*", f.x, f.y, f.thickness, FUEL));
     }
-    for (std::size_t i = 0; i < data.movingObjects.size(); ++i) {
-        const auto& m = data.movingObjects[i];
-        auto moving
-            = newShape(GameShapeType::MOVING, m.name.value_or(std::format("moving_{}", i)));
-        moving->setXDelta(static_cast<float>(m.speedX));
-        moving->setXMaxDifference(static_cast<float>(m.rangeX));
-        moving->setYDelta(static_cast<float>(m.speedY));
-        moving->setYMaxDifference(static_cast<float>(m.rangeY));
-        moving->setRotationDelta(static_cast<float>(m.spin));
-        moving->setGravity(static_cast<float>(m.gravity));
+    for (std::size_t i = 0; i < data.specialObjects.size(); ++i) {
+        const auto& m = data.specialObjects[i];
+        auto special
+            = newShape(GameShapeType::SPECIAL, m.name.value_or(std::format("special_{}", i)));
+        special->setXDelta(static_cast<float>(m.speedX));
+        special->setXMaxDifference(static_cast<float>(m.rangeX));
+        special->setYDelta(static_cast<float>(m.speedY));
+        special->setYMaxDifference(static_cast<float>(m.rangeY));
+        special->setRotationDelta(static_cast<float>(m.spin));
+        special->setGravity(static_cast<float>(m.gravity));
         if (m.path.has_value()) {
             std::vector<std::pair<double, double>> offsets;
             for (const auto& offset : m.path->offsets) {
                 offsets.emplace_back(offset.x, offset.y);
             }
-            moving->setPath(std::move(offsets), m.path->speed, m.path->loop);
+            special->setPath(std::move(offsets), m.path->speed, m.path->loop);
         }
-        addLines(*moving, m.lines, MOVING);
-        addObject(level, moving); // makes its lines relative to its centre
+        addLines(*special, m.lines, SPECIAL);
+        addObject(level, special); // makes its lines relative to its centre
     }
     return level;
 }

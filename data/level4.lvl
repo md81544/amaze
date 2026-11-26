@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "The Ruined Spaceport",
   "ship": { "x": 125, "y": 1902 },
   "exit": { "x": 1803, "y": 1848 },

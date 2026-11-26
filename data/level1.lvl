@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Take it Slow",
   "ship": { "x": 437, "y": 704, "rotation": 270 },
   "exit": { "x": 428, "y": 850 },

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Tight Ship",
   "ship": { "x": 94, "y": 130, "rotation": 225 },
   "exit": { "x": 542, "y": 606 },

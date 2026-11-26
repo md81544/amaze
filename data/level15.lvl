@@ -1,12 +1,12 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "The Machine Room",
   "ship": { "x": 699, "y": 504, "rotation": 195 },
   "exit": { "x": 1193, "y": 750 },
   "walls": [
     { "points": [[650, 450], [1250, 450], [1250, 800], [650, 800]], "closed": true }
   ],
-  "movingObjects": [
+  "specialObjects": [
     {
       "lines": [
         { "points": [[750, 350], [800, 350], [800, 600], [750, 600]], "closed": true }

@@ -90,7 +90,7 @@ public:
     // Bounces the ship off the obstacle(s) it's touching
     Impact bounceShip();
 
-    // Advances moving objects, the ship, explosions etc. by one simulation tick
+    // Advances special objects, the ship, explosions etc. by one simulation tick
     void tick();
     const std::vector<std::shared_ptr<GameShape>>& getAllDynamicObjects() const;
 

@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Respect",
   "ship": { "x": 702, "y": 1208 },
   "exit": { "x": 1204, "y": 604 },

@@ -25,7 +25,7 @@ constexpr double SHIP_MOMENT_OF_INERTIA = 500.0;
 // but a hard hit does.
 constexpr double BOUNCE_FRICTION = 0.2;
 // If the ship is still touching an obstacle after a bounce (e.g. it rotated
-// into it, or a moving object moved into it), it's pushed clear in steps of
+// into it, or a special object moved into it), it's pushed clear in steps of
 // this size, up to a limit
 constexpr double PUSH_OUT_STEP = 0.25;
 constexpr int MAX_PUSH_OUT_STEPS = 40;
@@ -59,7 +59,7 @@ constexpr int DEBRIS_PREWARM_TICKS = 1200;
 
 bool isObstacle(GameShapeType type)
 {
-    return type == GameShapeType::OBSTRUCTION || type == GameShapeType::MOVING
+    return type == GameShapeType::OBSTRUCTION || type == GameShapeType::SPECIAL
         || type == GameShapeType::BREAKABLE;
 }
 
@@ -68,7 +68,7 @@ bool isObstacle(GameShapeType type)
 // ship is out of its range
 QPointF gravityPull(const GameShape& shape, double shipX, double shipY)
 {
-    if (shape.getGameShapeType() != GameShapeType::MOVING || shape.getGravity() == 0.f) {
+    if (shape.getGameShapeType() != GameShapeType::SPECIAL || shape.getGravity() == 0.f) {
         return {};
     }
     double xDiff = shape.getPosX() - shipX;
@@ -195,7 +195,7 @@ void GameModel::initialise(const std::string& levelFileName)
     m_allDynamicGameShapes.push_back(m_shipModel->flamesGameShape());
     m_allDynamicGameShapes.push_back(m_shipModel->explosionGameShape());
 
-    // Add all moving objects
+    // Add all special objects
 
     m_levelFileName = levelFileName;
 
@@ -272,7 +272,7 @@ void GameModel::levelLoad(const std::string& filename)
 void GameModel::createGravityFields()
 {
     for (const auto& shape : m_allDynamicGameShapes) {
-        if (shape->getGameShapeType() == GameShapeType::MOVING && shape->getGravity() > 0.f) {
+        if (shape->getGameShapeType() == GameShapeType::SPECIAL && shape->getGravity() > 0.f) {
             GravityField field { shape, {} };
             for (int i = 0; i < DEBRIS_PREWARM_TICKS; ++i) {
                 tickGravityField(field);
@@ -442,7 +442,7 @@ Impact GameModel::bounceShip()
     }
 
     // Go back to where the ship was before this tick's move. Unless it rotated
-    // into something (or a moving object moved into it) it's then clear.
+    // into something (or a special object moved into it) it's then clear.
     ship.revertPosition();
     bool pushed = shipTouchesObstacle();
 
@@ -542,11 +542,11 @@ void GameModel::tick()
     m_shipModel->tick(m_gameState == GameState::Exploding);
 
     for (const auto& shape : m_allDynamicGameShapes) {
-        if (shape->getGameShapeType() == GameShapeType::MOVING
+        if (shape->getGameShapeType() == GameShapeType::SPECIAL
             && m_gameState == GameState::Running) {
             shape->move();
         }
-        if (shape->getGameShapeType() == GameShapeType::MOVING && shape->getGravity() != 0.f) {
+        if (shape->getGameShapeType() == GameShapeType::SPECIAL && shape->getGravity() != 0.f) {
 
             if (shape->getScale() >= 1.01f) {
                 shape->setPulsateAmount(-0.001f);

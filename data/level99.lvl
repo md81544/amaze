@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Title",
   "ship": { "x": 933, "y": 840, "rotation": 270 },
   "exit": { "x": 586, "y": 1390 },

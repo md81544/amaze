@@ -1,4 +1,4 @@
-// Tests for moving objects following paths (see LEVEL_FORMAT.md)
+// Tests for special objects following paths (see LEVEL_FORMAT.md)
 
 #include "gameshape.h"
 

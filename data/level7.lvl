@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "The Old Mine",
   "ship": { "x": 85, "y": 1927, "rotation": 270 },
   "exit": { "x": 941, "y": 210, "rotation": 316 },

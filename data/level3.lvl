@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Long Way Round",
   "ship": { "x": 153, "y": 1901, "rotation": 120 },
   "exit": { "x": 357, "y": 1854 },

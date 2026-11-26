@@ -387,7 +387,7 @@ void Controller::collisionChecks()
             case GameShapeType::NEUTRAL:
                 break;
             case GameShapeType::OBSTRUCTION:
-            case GameShapeType::MOVING:
+            case GameShapeType::SPECIAL:
                 if (collideeType != GameShapeType::FLAMES) {
                     bounceShip();
                 }

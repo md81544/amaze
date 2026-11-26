@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Figure It Out",
   "ship": { "x": 498, "y": 354, "rotation": 180 },
   "exit": { "x": 497, "y": 587 },

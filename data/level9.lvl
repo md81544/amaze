@@ -1,5 +1,5 @@
 {
-  "formatVersion": 1,
+  "formatVersion": 2,
   "title": "Order is Important",
   "ship": { "x": 502, "y": 632 },
   "exit": { "x": 896, "y": 526 },
