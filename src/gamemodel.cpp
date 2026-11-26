@@ -252,18 +252,23 @@ void GameModel::levelLoad(const std::string& filename)
     m_shipModel->setRotation(level.shipRotation);
     m_levelDescription = level.description;
     // Shapes are drawn in order. Neutral ones (decorations) go just above the
-    // background, so under the ship; the rest go on top.
+    // background; the rest go above those. The ship, its flames and its
+    // explosion stay top-most.
     const auto background = std::ranges::find_if(
         m_allDynamicGameShapes, [](const auto& s) { return s->getName() == "Background"; });
-    auto underShip = background == m_allDynamicGameShapes.end()
+    auto aboveBackground = background == m_allDynamicGameShapes.end()
         ? 0
         : background - m_allDynamicGameShapes.begin() + 1;
+    auto belowShip = std::ranges::find(m_allDynamicGameShapes, m_shipModel->shipGameShape())
+        - m_allDynamicGameShapes.begin();
     for (auto& shape : level.shapes) {
         if (shape->getGameShapeType() == GameShapeType::NEUTRAL) {
             m_allDynamicGameShapes.insert(
-                m_allDynamicGameShapes.begin() + underShip++, std::move(shape));
+                m_allDynamicGameShapes.begin() + aboveBackground++, std::move(shape));
+            ++belowShip;
         } else {
-            m_allDynamicGameShapes.push_back(std::move(shape));
+            m_allDynamicGameShapes.insert(
+                m_allDynamicGameShapes.begin() + belowShip++, std::move(shape));
         }
     }
     createGravityFields();
