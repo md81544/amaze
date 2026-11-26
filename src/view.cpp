@@ -22,7 +22,7 @@ namespace {
 // Line thicknesses in shapes are multiplied by this. (Their values were tuned
 // on a 1920x1200 screen, whose height/1080 this is; the canvas always has
 // the same area as that screen.)
-constexpr double LINE_THICKNESS_SCALE = 1200.0 / 1080.0;
+constexpr double LINE_THICKNESS_SCALE = 1600.0 / 1080.0;
 
 // The outer fraction of the vignette's radius over which the arena fades to black
 constexpr double VIGNETTE_FADE_FRACTION = 0.2;
