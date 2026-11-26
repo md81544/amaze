@@ -20,7 +20,6 @@
   Tidier, but measured rounding drift is negligible (~1e-9 units after 10 hours), so
   there's no visible benefit. Collision and drawing already use QLineF/QTransform.
 
-* Objects which are not obstacles - just decoration
     - Use a slightly brighter green than the grid
 
 * Replace "EXIT" with some form of symbol
@@ -31,8 +30,3 @@
 
 * Fuel items should dim when ship is over them if shields are 100%
 
-* Level files are now JSON (see LEVEL_FORMAT.md), and all levels have been
-  converted. Remaining: remove reading of the old format, when it's no longer
-  wanted: parseOldFormat() in levelformat.cpp (in both repos: the copies must be
-  kept identical), amaze's old reader in levelfile.cpp, and the tests of
-  converting old levels.

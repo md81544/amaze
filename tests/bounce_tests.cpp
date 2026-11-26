@@ -25,10 +25,8 @@ namespace {
 // wall going right from it. The ship starts in the space between them.
 constexpr double CORNER_X = 100.0;
 constexpr double CORNER_Y = 100.0;
-const std::string CORNER_LEVEL = "!~0~0~200~0~0~Corner\n"
-                                 "N~OBSTRUCTION~walls\n"
-                                 "L~100~-300~100~100~255~0~0~2\n"
-                                 "L~100~100~500~100~255~0~0~2\n";
+const std::string CORNER_LEVEL = R"({ "formatVersion": 1, "ship": { "x": 200, "y": 0 },
+  "walls": [ { "points": [[100, -300], [100, 100], [500, 100]] } ] })";
 
 // Control values as sent by the keyboard handlers in GameShell
 constexpr double ROTATION_PER_TICK = 0.75;
@@ -36,12 +34,10 @@ constexpr float THRUST = 6.f / 1000.f;
 
 // A long horizontal wall along y = 100, and the same wall too far away to be
 // reached, for comparison
-const std::string WALL_LEVEL = "!~0~0~0~0~0~Wall\n"
-                               "N~OBSTRUCTION~wall\n"
-                               "L~-5000~100~5000~100~255~0~0~2\n";
-const std::string NO_WALL_LEVEL = "!~0~0~0~0~0~No wall\n"
-                                  "N~OBSTRUCTION~wall\n"
-                                  "L~-5000~10000~5000~10000~255~0~0~2\n";
+const std::string WALL_LEVEL = R"({ "formatVersion": 1, "ship": { "x": 0, "y": 0 },
+  "walls": [ { "points": [[-5000, 100], [5000, 100]] } ] })";
+const std::string NO_WALL_LEVEL = R"({ "formatVersion": 1, "ship": { "x": 0, "y": 0 },
+  "walls": [ { "points": [[-5000, 10000], [5000, 10000]] } ] })";
 
 class TestLevel {
 public:
@@ -250,10 +246,8 @@ TEST_CASE("Ship hitting a wall square on bounces without spinning")
 TEST_CASE("Ship hitting a corner with a wing spins away from it")
 {
     // An outside corner at (8, 100), under the ship's right wing
-    const std::string cornerUnderWing = "!~0~0~0~0~0~Corner\n"
-                                        "N~OBSTRUCTION~block\n"
-                                        "L~8~100~300~100~255~0~0~2\n"
-                                        "L~8~100~8~300~255~0~0~2\n";
+    const std::string cornerUnderWing = R"({ "formatVersion": 1, "ship": { "x": 0, "y": 0 },
+      "walls": [ { "points": [[300, 100], [8, 100], [8, 300]] } ] })";
     auto wingHit = dropShip(cornerUnderWing);
     auto squareHit = dropShip(WALL_LEVEL);
     CHECK(wingHit.rightWingRaised);
@@ -389,9 +383,8 @@ TEST_CASE("Rotating into a wall counts as a graze")
 TEST_CASE("Fuel is only collided with when the shield needs recharging")
 {
     // Fuel across the ship's starting position
-    TestLevel level("!~0~0~0~0~0~Fuel\n"
-                    "N~FUEL~fuel\n"
-                    "L~-20~0~20~0~255~255~0~2\n");
+    TestLevel level(R"({ "formatVersion": 1, "ship": { "x": 0, "y": 0 },
+                         "fuel": [ { "x": 0, "y": 0 } ] })");
     GameModel& model = level.model();
     auto [fullType, fullCollider] = model.collisionDetect();
     CHECK(fullCollider == nullptr);

@@ -3,7 +3,6 @@
 #include "exceptions.h"
 #include "levelfile.h"
 #include "levelfilelister.h"
-#include "levelformat.h"
 
 #include <catch2/catch_test_macros.hpp>
 
@@ -11,7 +10,6 @@
 #include <cmath>
 #include <filesystem>
 #include <fstream>
-#include <sstream>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -69,54 +67,12 @@ std::vector<LineKey> lineKeys(const GameShape& shape)
     return keys;
 }
 
-// What matters about a level to the game, regardless of the order of its
-// shapes and lines, and of how walls are split into obstruction shapes
-struct Comparable {
-    double shipX;
-    double shipY;
-    double shipRotation;
-    std::string description;
-    std::vector<LineKey> walls;
-    // For other shapes: their type, motion (for moving objects) and lines
-    std::vector<std::tuple<GameShapeType, std::vector<float>, std::vector<LineKey>>> others;
-    bool operator==(const Comparable&) const = default;
-};
-
-Comparable comparable(const LevelData& level)
-{
-    Comparable c { level.shipX, level.shipY, level.shipRotation, level.description, {}, {} };
-    for (const auto& shape : level.shapes) {
-        const auto keys = lineKeys(*shape);
-        if (shape->getGameShapeType() == GameShapeType::OBSTRUCTION) {
-            c.walls.insert(c.walls.end(), keys.begin(), keys.end());
-            continue;
-        }
-        std::vector<float> motion;
-        if (shape->getGameShapeType() == GameShapeType::MOVING) {
-            motion = { shape->getXDelta(),          shape->getXMaxDifference(),
-                       shape->getYDelta(),          shape->getYMaxDifference(),
-                       shape->getRotationDelta(), shape->getGravity() };
-        }
-        c.others.emplace_back(shape->getGameShapeType(), motion, keys);
-    }
-    std::ranges::sort(c.walls);
-    std::ranges::sort(c.others);
-    return c;
-}
-
-std::string readFile(const std::filesystem::path& path)
-{
-    std::ifstream in(path, std::ios::binary);
-    std::ostringstream contents;
-    contents << in.rdbuf();
-    return contents.str();
-}
-
 } // namespace
 
-TEST_CASE("Header sets ship position and description")
+TEST_CASE("The ship's position and the title are read")
 {
-    TempLevelFile file("!~0~0~437~704~270~Take it Slow\n");
+    TempLevelFile file(R"({ "formatVersion": 1, "title": "Take it Slow",
+                            "ship": { "x": 437, "y": 704, "rotation": 270 } })");
     auto level = readLevelFile(file.path());
     CHECK(level.shipX == 437);
     CHECK(level.shipY == 704);
@@ -125,45 +81,83 @@ TEST_CASE("Header sets ship position and description")
     CHECK(level.shapes.empty());
 }
 
-TEST_CASE("Description is optional")
+TEST_CASE("The title is optional")
 {
-    TempLevelFile file("!~0~0~1~2~3\n");
+    TempLevelFile file(R"({ "formatVersion": 1, "ship": { "x": 1, "y": 2 } })");
     CHECK(readLevelFile(file.path()).description.empty());
 }
 
-TEST_CASE("Objects get their type, lines and position")
+TEST_CASE("Each item becomes a shape, with the standard appearance")
 {
-    TempLevelFile file(
-        "!~0~0~1~2~3~Test\n"
-        "N~OBSTRUCTION~wall\n"
-        "L~400~650~450~650~255~0~0~2\n"
-        "L~450~650~450~700~255~0~0\n"
-        "N~FUEL~fuel\n"
-        "P~100~200\n"
-        "N~SOMETHINGELSE\n");
-    auto level = readLevelFile(file.path());
-    REQUIRE(level.shapes.size() == 3);
+    TempLevelFile file(R"({
+      "formatVersion": 1,
+      "exit": { "x": 1200, "y": 300 },
+      "fuel": [ { "x": 100, "y": 200 }, { "x": 300, "y": 400, "thickness": 4 } ],
+      "walls": [ { "points": [[400, 650], [450, 650], [450, 700]] }, { "points": [[0, 0], [5, 5]], "thickness": 1 } ],
+      "breakables": [ { "lines": [ { "points": [[700, 550], [700, 650]] }, { "points": [[900, 550], [900, 650]] } ] } ],
+      "movingObjects": [
+        { "lines": [ { "points": [[0, 0], [10, 10]] } ], "name": "mover" }
+      ]
+    })");
+    const LevelData level = readLevelFile(file.path());
+    auto shapesOf = [&](GameShapeType type) {
+        std::vector<const GameShape*> shapes;
+        for (const auto& shape : level.shapes) {
+            if (shape->getGameShapeType() == type) {
+                shapes.push_back(shape.get());
+            }
+        }
+        return shapes;
+    };
 
-    const auto& wall = *level.shapes[0];
-    CHECK(wall.getGameShapeType() == GameShapeType::OBSTRUCTION);
-    REQUIRE(wall.getVec().size() == 2);
-    CHECK(wall.getVec()[0].lineThickness == 2);
-    CHECK(wall.getVec()[1].lineThickness == 1); // default
+    const auto walls = shapesOf(GameShapeType::OBSTRUCTION);
+    REQUIRE(walls.size() == 1);
+    CHECK(lineKeys(*walls[0])
+          == std::vector<LineKey> { { 0, 0, 5, 5, 255, 0, 0, 255, 1 },
+                                    { 400, 650, 450, 650, 255, 0, 0, 255, 2 },
+                                    { 450, 650, 450, 700, 255, 0, 0, 255, 2 } });
 
-    const auto& fuel = *level.shapes[1];
-    CHECK(fuel.getGameShapeType() == GameShapeType::FUEL);
-    CHECK(fuel.getPosX() == 100);
-    CHECK(fuel.getPosY() == 200);
+    const auto breakables = shapesOf(GameShapeType::BREAKABLE);
+    REQUIRE(breakables.size() == 1); // breaks as a whole
+    CHECK(lineKeys(*breakables[0])
+          == std::vector<LineKey> { { 700, 550, 700, 650, 255, 150, 50, 255, 6 },
+                                    { 900, 550, 900, 650, 255, 150, 50, 255, 6 } });
 
-    CHECK(level.shapes[2]->getGameShapeType() == GameShapeType::NEUTRAL);
+    const auto exits = shapesOf(GameShapeType::EXIT);
+    REQUIRE(exits.size() == 1);
+    CHECK(exits[0]->getPosX() == 1200);
+    CHECK(exits[0]->getPosY() == 300);
+    REQUIRE_FALSE(exits[0]->getVec().empty());
+    CHECK(exits[0]->getVec()[0].lineThickness == 6);
+    CHECK(exits[0]->getVec()[0].r == 52);
+
+    const auto fuel = shapesOf(GameShapeType::FUEL);
+    REQUIRE(fuel.size() == 2);
+    CHECK(fuel[0]->getPosX() == 100);
+    CHECK(fuel[0]->getPosY() == 200);
+    REQUIRE_FALSE(fuel[0]->getVec().empty());
+    CHECK(fuel[0]->getVec()[0].lineThickness == 12);
+    REQUIRE_FALSE(fuel[1]->getVec().empty());
+    CHECK(fuel[1]->getVec()[0].lineThickness == 4);
+
+    const auto moving = shapesOf(GameShapeType::MOVING);
+    REQUIRE(moving.size() == 1);
+    CHECK(moving[0]->getName() == "mover");
+    CHECK(moving[0]->getPosX() == 5); // its lines are relative to its centre
+    CHECK(moving[0]->getPosY() == 5);
+    CHECK(lineKeys(*moving[0])
+          == std::vector<LineKey> { { 0, 0, 10, 10, 255, 172, 163, 255, 6 } });
 }
 
 TEST_CASE("Moving objects get their motion parameters")
 {
-    TempLevelFile file(
-        "!~0~0~1~2~3\n"
-        "N~MOVING~mover~1.5~100~-2~50~0.5~3\n"
-        "L~0~0~10~10~255~255~255\n");
+    TempLevelFile file(R"({
+      "formatVersion": 1,
+      "movingObjects": [
+        { "lines": [ { "points": [[0, 0], [10, 10]] } ], "speedX": 1.5, "rangeX": 100, "speedY": -2,
+          "rangeY": 50, "spin": 0.5, "gravity": 3, "name": "mover" }
+      ]
+    })");
     auto level = readLevelFile(file.path());
     REQUIRE(level.shapes.size() == 1);
     const auto& mover = *level.shapes[0];
@@ -197,34 +191,28 @@ TEST_CASE("Moving objects get their paths")
     CHECK_FALSE(level.shapes[1]->hasPath());
 }
 
-TEST_CASE("Lines before the first object are ignored")
+TEST_CASE("Bad level files throw, saying what's wrong")
 {
-    TempLevelFile file(
-        "!~0~0~1~2~3\n"
-        "L~0~0~10~10~255~255~255\n");
-    CHECK(readLevelFile(file.path()).shapes.empty());
-}
-
-TEST_CASE("Bad level files throw")
-{
-    SECTION("missing file")
+    auto error = [](const std::string& filename) {
+        try {
+            readLevelFile(filename);
+        } catch (const AmazeRuntimeException& e) {
+            return std::string(e.what());
+        }
+        return std::string("(no error)");
+    };
+    CHECK(error("/nonexistent/level.lvl") == "Failed to load Level file /nonexistent/level.lvl");
     {
-        CHECK_THROWS_AS(readLevelFile("/nonexistent/level.lvl"), AmazeRuntimeException);
+        TempLevelFile file(R"({ "formatVersion": 1, "ship": { "x": 1 } })");
+        CHECK(error(file.path()).ends_with("ship: missing \"y\""));
     }
-    SECTION("missing header")
     {
-        TempLevelFile file("N~OBSTRUCTION~wall\n");
-        CHECK_THROWS_AS(readLevelFile(file.path()), AmazeRuntimeException);
+        TempLevelFile file("!~0~0~1~2~3~Title\nN~OBSTRUCTION~wall\n");
+        CHECK(error(file.path()).ends_with("the old format, which is no longer supported"));
     }
-    SECTION("short header")
     {
-        TempLevelFile file("!~0~0~1\n");
-        CHECK_THROWS_AS(readLevelFile(file.path()), AmazeRuntimeException);
-    }
-    SECTION("non-numeric value")
-    {
-        TempLevelFile file("!~0~0~1~2~3\nN~OBSTRUCTION~wall\nP~abc~200\n");
-        CHECK_THROWS_AS(readLevelFile(file.path()), AmazeRuntimeException);
+        TempLevelFile file("");
+        CHECK(error(file.path()).ends_with("This isn't a level file (or it's empty)"));
     }
 }
 
@@ -237,55 +225,6 @@ TEST_CASE("All shipped levels load")
             CHECK_FALSE(level.shapes.empty());
         }
     }
-}
-
-TEST_CASE("JSON levels give the same shapes as old format levels")
-{
-    TempLevelFile file(R"({
-      "formatVersion": 1,
-      "title": "Test",
-      "ship": { "x": 1, "y": 2, "rotation": 3 },
-      "exit": { "x": 1200, "y": 300 },
-      "fuel": [ { "x": 100, "y": 200 }, { "x": 300, "y": 400, "thickness": 4 } ],
-      "walls": [ { "points": [[400, 650], [450, 650], [450, 700]] }, { "points": [[0, 0], [5, 5]], "thickness": 1 } ],
-      "breakables": [ { "lines": [ { "points": [[700, 550], [700, 650]] }, { "points": [[900, 550], [900, 650]] } ] } ],
-      "movingObjects": [
-        { "lines": [ { "points": [[0, 0], [10, 10]] } ], "speedX": 1.5, "rangeX": 100, "speedY": -2,
-          "rangeY": 50, "spin": 0.5, "gravity": 3, "name": "mover" }
-      ]
-    })");
-    TempLevelFile old("!~0~0~1~2~3~Test\n"
-                      "N~OBSTRUCTION~obstruction\n"
-                      "L~400~650~450~650~255~0~0~2\n"
-                      "L~450~650~450~700~255~0~0~2\n"
-                      "L~0~0~5~5~255~0~0\n" // thickness 1 when not given
-                      "N~BREAKABLE~breakable\n"
-                      "L~700~550~700~650~255~150~50~6\n"
-                      "L~900~550~900~650~255~150~50~6\n"
-                      "N~EXIT~exit\n"
-                      "T~EXIT~52~213~235~6\n"
-                      "P~1200~300\n"
-                      "N~FUEL~fuel\n"
-                      "T~*~255~255~0~12\n"
-                      "P~100~200\n"
-                      "N~FUEL~fuel\n"
-                      "T~*~255~255~0~4\n"
-                      "P~300~400\n"
-                      "N~MOVING~mover~1.5~100~-2~50~0.5~3\n"
-                      "L~0~0~10~10~255~172~163~6\n");
-    // The temporary files share a name, so read each before writing the next
-    const LevelData fromJson = readLevelFile(file.path());
-    const LevelData fromOld = [&] {
-        TempLevelFile oldFile(readFile(old.path()));
-        return readLevelFile(oldFile.path());
-    }();
-    CHECK(comparable(fromJson) == comparable(fromOld));
-
-    const auto& mover = *fromJson.shapes.back();
-    REQUIRE(mover.getGameShapeType() == GameShapeType::MOVING);
-    CHECK(mover.getName() == "mover");
-    CHECK(mover.getPosX() == 5); // its lines are relative to its centre
-    CHECK(mover.getPosY() == 5);
 }
 
 TEST_CASE("Decorations are drawn, but aren't obstacles")
@@ -325,32 +264,6 @@ TEST_CASE("The exit's rotation is applied anticlockwise, as level_designer shows
         const auto& after = exit.getVec()[i];
         CHECK(std::abs(after.x0 - before.y0) < 1e-9);
         CHECK(std::abs(after.y0 + before.x0) < 1e-9);
-    }
-}
-
-TEST_CASE("Bad JSON level files throw")
-{
-    TempLevelFile file(R"({ "formatVersion": 1, "ship": { "x": 1 } })");
-    CHECK_THROWS_AS(readLevelFile(file.path()), AmazeRuntimeException);
-}
-
-TEST_CASE("Every old format level gives the same shapes when converted to JSON")
-{
-    // Converted by levelformat.cpp, as level_designer does
-    int count = 0;
-    for (const auto& entry : std::filesystem::directory_iterator(AMAZE_DATA_DIR)) {
-        const std::string contents = readFile(entry.path());
-        if (entry.path().extension() != ".lvl" || !contents.starts_with('!')) {
-            continue;
-        }
-        INFO(entry.path().string());
-        ++count;
-        const LevelData old = readLevelFile(entry.path().string());
-        TempLevelFile json(mgo::levelformat::toJson(mgo::levelformat::parseOldFormat(contents)));
-        CHECK(comparable(readLevelFile(json.path())) == comparable(old));
-    }
-    if (count == 0) {
-        SKIP("No old format levels left to check, in " << AMAZE_DATA_DIR);
     }
 }
 

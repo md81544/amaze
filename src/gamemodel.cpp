@@ -45,13 +45,20 @@ bool isObstacle(GameShapeType type)
         || type == GameShapeType::BREAKABLE;
 }
 
+// A new ship, with its own shapes, which the caller adds to the shapes drawn
+std::unique_ptr<ShipModel> newShipModel()
+{
+    return std::make_unique<ShipModel>(std::make_shared<GameShape>(),
+                                       std::make_shared<GameShape>(),
+                                       std::make_shared<GameShape>());
+}
+
 } // namespace
 
 GameModel::GameModel(const std::string& dataPath)
     : m_dataPath(dataPath)
 {
-    m_shipModel
-        = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+    m_shipModel = newShipModel();
 }
 
 void GameModel::initialise(const std::string& levelFileName)
@@ -62,9 +69,7 @@ void GameModel::initialise(const std::string& levelFileName)
     m_levelDescription.clear();
     m_allDynamicGameShapes.clear();
 
-    m_shipModel.reset();
-    m_shipModel
-        = std::make_unique<ShipModel>(ShipModel(newGameShape(), newGameShape(), newGameShape()));
+    m_shipModel = newShipModel();
 
     buildBreakableExplosionShape();
     m_allDynamicGameShapes.push_back(m_breakableExplosionShape);
@@ -143,8 +148,7 @@ void GameModel::levelLoad(const std::string& filename)
     m_shipModel->setRotation(level.shipRotation);
     m_levelDescription = level.description;
     // Shapes are drawn in order. Neutral ones (decorations) go just above the
-    // background, so under the ship; the rest go on top. (Not before the
-    // ship's shape: it's in the list twice, once before the background.)
+    // background, so under the ship; the rest go on top.
     const auto background = std::ranges::find_if(
         m_allDynamicGameShapes, [](const auto& s) { return s->getName() == "Background"; });
     auto underShip = background == m_allDynamicGameShapes.end()
@@ -173,13 +177,6 @@ std::string GameModel::levelDescription() const
 void GameModel::setLevelDescription(const std::string& value)
 {
     m_levelDescription = value;
-}
-
-std::shared_ptr<GameShape> GameModel::newGameShape()
-{
-    std::shared_ptr<GameShape> gameShape(new GameShape);
-    m_allDynamicGameShapes.push_back(gameShape);
-    return (gameShape);
 }
 
 ShipModel& GameModel::shipModel()

@@ -7,8 +7,6 @@ namespace marengo {
 namespace amaze {
 namespace utils {
 
-void csvSplit(const std::string& s, char c, std::vector<std::string>& v);
-void csvSplit(const std::string& s, char c, std::vector<double>& v);
 double sine(double degrees);
 double cosine(double degrees);
 uint8_t rnd(uint8_t max); // return random integer from range [0-max)

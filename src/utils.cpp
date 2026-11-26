@@ -9,34 +9,6 @@ namespace marengo {
 namespace amaze {
 namespace utils {
 
-void csvSplit(const std::string& s, char c, std::vector<std::string>& v)
-{
-    size_t j = s.find(c);
-    if (j == std::string::npos) {
-        // no separators found
-        v.push_back(s);
-    } else {
-        size_t i = 0;
-        while (j != std::string::npos) {
-            v.push_back(s.substr(i, j - i));
-            i = ++j;
-            j = s.find(c, j);
-            if (j == std::string::npos) {
-                v.push_back(s.substr(i, s.length()));
-            }
-        }
-    }
-}
-
-void csvSplit(const std::string& s, char c, std::vector<double>& v)
-{
-    std::vector<std::string> items;
-    csvSplit(s, c, items);
-    for (const std::string& item : items) {
-        v.push_back(std::stod(item));
-    }
-}
-
 double cosine(double degrees)
 {
     return std::cos(degrees * (std::numbers::pi / 180.0));

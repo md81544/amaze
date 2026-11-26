@@ -64,8 +64,6 @@ public:
     std::string levelDescription() const;
     void setLevelDescription(const std::string& value);
 
-    std::shared_ptr<GameShape> newGameShape();
-
     // The ship is replaced when a level loads, so don't keep this reference
     // beyond the current tick
     ShipModel& shipModel();
