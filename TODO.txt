@@ -16,6 +16,3 @@
 * Teleport / portals
 
 * Standardise fuel items
-
-* Fuel items should dim when ship is over them if shields are 100%
-
