@@ -27,6 +27,12 @@ enum class MenuType {
     Exit, // user selected "exit game"
 };
 
+// Range offered for the stick dead zone. Zero isn't allowed: sticks rarely
+// rest exactly at centre, and any input outside the dead zone turns the ship
+// at a noticeable minimum speed, so too small a dead zone shows as drift.
+constexpr int MIN_STICK_DEAD_ZONE_PERCENT = 3;
+constexpr int MAX_STICK_DEAD_ZONE_PERCENT = 25;
+
 struct MenuResults {
     int musicVolumePercent { 100 };
     int stickDeadZonePercent { 5 };

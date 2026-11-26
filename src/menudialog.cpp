@@ -159,7 +159,10 @@ MenuDialog::MenuDialog(
     , m_levelFileLister(dataDir)
     , m_levelList(new QTreeWidget)
     , m_musicVolume(makeSlider(0, 100, 5, initialValues.musicVolumePercent))
-    , m_deadZone(makeSlider(0, 25, 1, initialValues.stickDeadZonePercent))
+    , m_deadZone(makeSlider(MIN_STICK_DEAD_ZONE_PERCENT,
+          MAX_STICK_DEAD_ZONE_PERCENT,
+          1,
+          initialValues.stickDeadZonePercent))
     , m_musicVolumeLabel(makeOptionLabel("Background music volume"))
     , m_deadZoneLabel(makeOptionLabel("Stick dead zone"))
     , m_ok(new QPushButton("OK"))

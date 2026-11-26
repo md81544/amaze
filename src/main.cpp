@@ -1,5 +1,6 @@
 #include "audio.h"
 #include "configreader.h"
+#include "controls.h"
 #include "controller.h"
 #include "exceptions.h"
 #include "gameshell.h"
@@ -10,6 +11,7 @@
 
 #include <QApplication>
 
+#include <algorithm>
 #include <filesystem>
 #include <format>
 #include <iostream>
@@ -128,8 +130,11 @@ int main(int argc, char* argv[])
         MenuResults menuValues;
         menuValues.musicVolumePercent
             = settings.musicVolumePercent().value_or(menuValues.musicVolumePercent);
-        menuValues.stickDeadZonePercent
-            = settings.stickDeadZonePercent().value_or(menuValues.stickDeadZonePercent);
+        // Clamped in case it was saved by a version that allowed other values
+        menuValues.stickDeadZonePercent = std::clamp(
+            settings.stickDeadZonePercent().value_or(menuValues.stickDeadZonePercent),
+            MIN_STICK_DEAD_ZONE_PERCENT,
+            MAX_STICK_DEAD_ZONE_PERCENT);
 
         Audio audio;
         GameShell shell(

@@ -28,9 +28,19 @@ float normaliseAxis(int16_t value)
 // sticks that don't quite reach their extremes still reach maximum.
 constexpr float OUTER_DEAD_ZONE = 0.9f;
 
+// Output just outside the dead zone. Consumers treat values below 0.01 as
+// "no input", and the exponential below is under 0.01 for the first third of
+// its travel, so without this floor that whole range of the stick does
+// nothing. Starting here makes the full travel usable for fine control.
+constexpr float MIN_OUTPUT = 0.02f;
+
+// Steepness of the response: higher gives finer control near the centre and
+// a more abrupt rise towards full deflection.
+constexpr float CURVE = 6.f;
+
 // Allows for fine control near the middle of the stick's input
 // and much larger input when pushed further
-float joystickCurve(float input, float deadzone, float curve = 6.f)
+float joystickCurve(float input, float deadzone)
 {
     input = std::clamp(input, -1.f, 1.f);
     float sign = input < 0.f ? -1.f : 1.f;
@@ -40,7 +50,8 @@ float joystickCurve(float input, float deadzone, float curve = 6.f)
     }
     float outer = std::max(OUTER_DEAD_ZONE, deadzone + 0.05f);
     float scaled = std::min((abs_x - deadzone) / (outer - deadzone), 1.f); // [0, 1]
-    float result = (std::exp(curve * scaled) - 1.f) / (std::exp(curve) - 1.f);
+    float expo = (std::exp(CURVE * scaled) - 1.f) / (std::exp(CURVE) - 1.f); // [0, 1]
+    float result = MIN_OUTPUT + (1.f - MIN_OUTPUT) * expo;
     return std::clamp(sign * result, -1.f, 1.f);
 }
 
