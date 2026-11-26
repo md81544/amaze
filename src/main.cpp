@@ -135,6 +135,8 @@ int main(int argc, char* argv[])
             settings.stickDeadZonePercent().value_or(menuValues.stickDeadZonePercent),
             MIN_STICK_DEAD_ZONE_PERCENT,
             MAX_STICK_DEAD_ZONE_PERCENT);
+        menuValues.rumbleIntensityPercent = std::clamp(
+            settings.rumbleIntensityPercent().value_or(menuValues.rumbleIntensityPercent), 0, 100);
 
         Audio audio;
         GameShell shell(

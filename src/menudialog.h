@@ -9,6 +9,7 @@
 
 #include <QDialog>
 
+#include <array>
 #include <string>
 
 class QLabel;
@@ -32,7 +33,7 @@ public:
 
 protected:
     // Arrow-key navigation (also used by the gamepad, which sends arrow keys):
-    // the dialog is a column of rows (the two sliders, the level list, the
+    // the dialog is a column of rows (the sliders, the level list, the
     // buttons). Up/Down moves between rows, leaving the level list only from
     // its first or last level; Left/Right adjusts a slider, moves between
     // buttons, or jumps from the level list to the row above / below.
@@ -44,14 +45,21 @@ protected:
 
 private:
     void updateFocusHighlight();
+    // Top to bottom
+    std::array<QSlider*, 3> sliders() const
+    {
+        return { m_musicVolume, m_deadZone, m_rumble };
+    }
 
     MenuResults m_results;
     LevelFileLister m_levelFileLister;
     QTreeWidget* m_levelList;
     QSlider* m_musicVolume;
     QSlider* m_deadZone;
+    QSlider* m_rumble;
     QLabel* m_musicVolumeLabel;
     QLabel* m_deadZoneLabel;
+    QLabel* m_rumbleLabel;
     QPushButton* m_ok;
     QPushButton* m_cancel;
     QPushButton* m_exitGame;

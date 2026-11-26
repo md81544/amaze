@@ -51,6 +51,8 @@ private:
     int m_lastPause { 0 };
     Scheduler m_scheduler;
     MenuType m_currentMenu { MenuType::None };
+    // Last rumble intensity applied from the menu, to spot changes
+    int m_rumbleIntensityPercent;
     // A level has been loaded but play hasn't started on it yet
     bool m_levelStartPending { false };
     std::chrono::steady_clock::time_point m_lastFrameTime;

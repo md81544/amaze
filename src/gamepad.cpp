@@ -382,7 +382,15 @@ void Gamepad::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint
     if (it == m_gamepads.end()) {
         it = m_gamepads.begin();
     }
-    SDL_RumbleGamepad(it->second, lowFreqIntensity, highFreqIntensity, durationMs);
+    auto scale = [this](uint16_t intensity) {
+        return static_cast<uint16_t>(std::lround(intensity * m_rumbleIntensity));
+    };
+    SDL_RumbleGamepad(it->second, scale(lowFreqIntensity), scale(highFreqIntensity), durationMs);
+}
+
+void Gamepad::setRumbleIntensity(float fraction)
+{
+    m_rumbleIntensity = std::clamp(fraction, 0.f, 1.f);
 }
 
 } // namespace gamepad

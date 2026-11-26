@@ -23,6 +23,9 @@ public:
     std::optional<int> stickDeadZonePercent() const;
     void setStickDeadZonePercent(int value);
 
+    std::optional<int> rumbleIntensityPercent() const;
+    void setRumbleIntensityPercent(int value);
+
     // Full path of the level file last played
     std::optional<std::string> lastLevelFile() const;
     void setLastLevelFile(const std::string& value);

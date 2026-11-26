@@ -30,6 +30,10 @@ constexpr std::chrono::milliseconds STALL_LOG_THRESHOLD { 50 };
 constexpr double SCRAPE_RUMBLE_INTENSITY = 0.5;
 constexpr double SCRAPE_RUMBLE_FULL_SPEED = 3.0;
 constexpr uint32_t SCRAPE_RUMBLE_MS = 200;
+// Short rumble when the rumble intensity is changed in the menu, so the new
+// strength can be felt
+constexpr uint16_t RUMBLE_PREVIEW_INTENSITY = 0xC000;
+constexpr uint32_t RUMBLE_PREVIEW_MS = 150;
 // How much of the shield each fuel object restores
 constexpr double FUEL_SHIELD_RECHARGE = 0.1;
 
@@ -41,6 +45,7 @@ Controller::Controller(GameModel& m, View& v, GameShell& shell, Audio& audio, Se
     , m_shell(shell)
     , m_audio(audio)
     , m_settings(settings)
+    , m_rumbleIntensityPercent(shell.menuResults().rumbleIntensityPercent)
 {
     registerControlHandlers();
 
@@ -245,6 +250,7 @@ void Controller::saveMenuOptions()
     MenuResults results = m_shell.menuResults();
     m_settings.setMusicVolumePercent(results.musicVolumePercent);
     m_settings.setStickDeadZonePercent(results.stickDeadZonePercent);
+    m_settings.setRumbleIntensityPercent(results.rumbleIntensityPercent);
 }
 
 void Controller::startPlayIfReady()
@@ -267,8 +273,14 @@ void Controller::processMenu()
         m_view.stopSounds();
     }
     m_shell.processMenuInput();
-    // Adjust background music immediately
+    // Adjust background music and rumble intensity immediately
     m_audio.setMusicVolumePercent(m_shell.menuResults().musicVolumePercent);
+    int rumblePercent = m_shell.menuResults().rumbleIntensityPercent;
+    if (rumblePercent != m_rumbleIntensityPercent) {
+        m_rumbleIntensityPercent = rumblePercent;
+        m_shell.setRumbleIntensityPercent(rumblePercent);
+        m_shell.rumble(RUMBLE_PREVIEW_INTENSITY, RUMBLE_PREVIEW_INTENSITY, RUMBLE_PREVIEW_MS);
+    }
     if (m_currentMenu == MenuType::OK || m_currentMenu == MenuType::Cancel) {
         // User closed dialog with OK or Cancel. (Like the music volume, the
         // dead zone applies even on Cancel: these options take effect as

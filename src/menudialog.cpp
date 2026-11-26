@@ -163,8 +163,10 @@ MenuDialog::MenuDialog(
           MAX_STICK_DEAD_ZONE_PERCENT,
           1,
           initialValues.stickDeadZonePercent))
+    , m_rumble(makeSlider(0, 100, 5, initialValues.rumbleIntensityPercent))
     , m_musicVolumeLabel(makeOptionLabel("Background music volume"))
     , m_deadZoneLabel(makeOptionLabel("Stick dead zone"))
+    , m_rumbleLabel(makeOptionLabel("Rumble intensity"))
     , m_ok(new QPushButton("OK"))
     , m_cancel(new QPushButton("Cancel"))
     , m_exitGame(new QPushButton("Exit Game"))
@@ -192,9 +194,13 @@ MenuDialog::MenuDialog(
     connect(m_deadZone, &QSlider::valueChanged, this, [this](int value) {
         m_results.stickDeadZonePercent = value;
     });
+    connect(m_rumble, &QSlider::valueChanged, this, [this](int value) {
+        m_results.rumbleIntensityPercent = value;
+    });
     auto* options = new QFormLayout;
     options->addRow(m_musicVolumeLabel, m_musicVolume);
     options->addRow(m_deadZoneLabel, m_deadZone);
+    options->addRow(m_rumbleLabel, m_rumble);
 
     // Level selection
     // Number and name are separate columns, with the numbers right-aligned,
@@ -231,7 +237,7 @@ MenuDialog::MenuDialog(
     buttons->addStretch();
     buttons->addWidget(m_exitGame);
     for (QWidget* widget : std::initializer_list<QWidget*> {
-             m_musicVolume, m_deadZone, m_levelList, m_ok, m_cancel, m_exitGame }) {
+             m_musicVolume, m_deadZone, m_rumble, m_levelList, m_ok, m_cancel, m_exitGame }) {
         widget->setFocusPolicy(Qt::StrongFocus);
         widget->installEventFilter(this);
     }
@@ -276,13 +282,20 @@ bool MenuDialog::eventFilter(QObject* watched, QEvent* event)
         return true;
     }
 
-    if (watched == m_musicVolume || watched == m_deadZone) {
+    const auto sliderList = sliders();
+    auto slider = std::find(sliderList.begin(), sliderList.end(), watched);
+    if (slider != sliderList.end()) {
         // Up/Down would otherwise change the value; Left/Right still do
-        if (up && watched == m_deadZone) {
-            m_musicVolume->setFocus();
+        if (up && slider != sliderList.begin()) {
+            (*std::prev(slider))->setFocus();
         } else if (down) {
-            (watched == m_musicVolume ? static_cast<QWidget*>(m_deadZone) : m_levelList)
-                ->setFocus();
+            if (std::next(slider) != sliderList.end()) {
+                (*std::next(slider))->setFocus();
+            } else {
+                m_levelList->setFocus();
+            }
+        } else if (up) {
+            // Nothing above the top slider
         } else if (enter) {
             accept();
         } else {
@@ -295,12 +308,12 @@ bool MenuDialog::eventFilter(QObject* watched, QEvent* event)
         int row = m_levelList->currentIndex().row();
         int lastRow = m_levelList->topLevelItemCount() - 1;
         if (up && row <= 0) {
-            m_deadZone->setFocus();
+            sliders().back()->setFocus();
         } else if (down && row >= lastRow) {
             m_ok->setFocus();
         } else if (keyEvent->key() == Qt::Key_Left) {
             // Shortcuts out of the list without scrolling to either end
-            m_deadZone->setFocus();
+            sliders().back()->setFocus();
         } else if (keyEvent->key() == Qt::Key_Right) {
             m_ok->setFocus();
         } else {
@@ -335,8 +348,8 @@ bool MenuDialog::eventFilter(QObject* watched, QEvent* event)
 
 bool MenuDialog::focusNextPrevChild(bool next)
 {
-    const std::array<QWidget*, 6> order {
-        m_musicVolume, m_deadZone, m_levelList, m_ok, m_cancel, m_exitGame
+    const std::array<QWidget*, 7> order {
+        m_musicVolume, m_deadZone, m_rumble, m_levelList, m_ok, m_cancel, m_exitGame
     };
     auto it = std::find(order.begin(), order.end(), focusWidget());
     int index = it == order.end() ? 0 : static_cast<int>(it - order.begin());
@@ -351,7 +364,8 @@ void MenuDialog::updateFocusHighlight()
     // Light up the label of the slider that has focus, so it's clear which
     // row the arrow keys / gamepad are on
     for (auto [label, slider] : { std::pair { m_musicVolumeLabel, m_musicVolume },
-                                  std::pair { m_deadZoneLabel, m_deadZone } }) {
+                                  std::pair { m_deadZoneLabel, m_deadZone },
+                                  std::pair { m_rumbleLabel, m_rumble } }) {
         bool focused = slider->hasFocus();
         if (label->property("focused").toBool() != focused) {
             label->setProperty("focused", focused);

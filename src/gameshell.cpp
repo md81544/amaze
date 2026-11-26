@@ -23,10 +23,21 @@ namespace {
 // The virtual canvas always has this area (see gameshell.h)
 constexpr double CANVAS_AREA = 1920.0 * 1200.0;
 
-// Menu navigation with a stick: how far it must be pushed, and auto-repeat timing
 // Full thrust, from the keyboard or with the right stick fully pushed
 constexpr float FULL_THRUST = 6.f;
 
+// Gamepad rumble while thrusting with the right stick: none below this
+// fraction of full thrust; from there it rises linearly with thrust, from
+// THRUST_RUMBLE_MIN_SCALE of full strength at the threshold to full strength
+// at full thrust. (Starting above zero means it's felt as soon as it starts.)
+constexpr float THRUST_RUMBLE_THRESHOLD = 0.25f;
+constexpr float THRUST_RUMBLE_MIN_SCALE = 0.25f;
+constexpr float THRUST_RUMBLE_LOW_FREQ = 0x2000;
+constexpr float THRUST_RUMBLE_HIGH_FREQ = 0xA000;
+// Long enough to outlast gaps between stick events; replaced by the next one
+constexpr uint32_t THRUST_RUMBLE_MS = 5000;
+
+// Menu navigation with a stick: how far it must be pushed, and auto-repeat timing
 constexpr float MENU_STICK_THRESHOLD = 0.2f;
 constexpr qint64 MENU_STICK_REPEAT_DELAY_MS = 400;
 constexpr qint64 MENU_STICK_REPEAT_INTERVAL_MS = 120;
@@ -64,6 +75,7 @@ GameShell::GameShell(
 {
     m_clock.start();
     setStickDeadZonePercent(initialMenuValues.stickDeadZonePercent);
+    setRumbleIntensityPercent(initialMenuValues.rumbleIntensityPercent);
 
     // Ignore saved geometry for a screen which is no longer there
     if (windowGeometry.has_value() && QGuiApplication::screenAt(windowGeometry->center())) {
@@ -457,18 +469,12 @@ void GameShell::processGamepadForGame()
                     if (v > 0.01f) {
                         m_gamepadInUse = true;
                         m_controlHandlers[KeyControls::ACCELERATE](true, v * FULL_THRUST);
-                        if (v > 0.1f) {
-                            m_gamepad.rumble(
-                                static_cast<uint16_t>(static_cast<float>(0x2000) * v),
-                                static_cast<uint16_t>(static_cast<float>(0xA000) * v),
-                                5000);
-                        }
                     } else {
                         if (m_gamepadInUse) {
                             m_controlHandlers[KeyControls::ACCELERATE](false, 0.f);
                         }
-                        m_gamepad.rumble(0, 0, 0);
                     }
+                    updateThrustRumble(v);
                     break;
                 }
             case gamepad::EventType::ButtonPressed:
@@ -585,9 +591,32 @@ void GameShell::sendMenuKey(int key, bool pressed)
         target, new QKeyEvent(pressed ? QEvent::KeyPress : QEvent::KeyRelease, key, Qt::NoModifier));
 }
 
+void GameShell::updateThrustRumble(float thrust)
+{
+    if (thrust >= THRUST_RUMBLE_THRESHOLD) {
+        float t = (thrust - THRUST_RUMBLE_THRESHOLD) / (1.f - THRUST_RUMBLE_THRESHOLD);
+        float scale = THRUST_RUMBLE_MIN_SCALE + (1.f - THRUST_RUMBLE_MIN_SCALE) * std::min(t, 1.f);
+        m_gamepad.rumble(static_cast<uint16_t>(THRUST_RUMBLE_LOW_FREQ * scale),
+            static_cast<uint16_t>(THRUST_RUMBLE_HIGH_FREQ * scale),
+            THRUST_RUMBLE_MS);
+        m_thrustRumbling = true;
+    } else if (m_thrustRumbling) {
+        // Only stop a rumble this started, not e.g. a scrape's
+        m_gamepad.rumble(0, 0, 0);
+        m_thrustRumbling = false;
+    }
+}
+
 void GameShell::rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs)
 {
     m_gamepad.rumble(lowFreqIntensity, highFreqIntensity, durationMs);
+    // Any rumble replaces the thrust one
+    m_thrustRumbling = false;
+}
+
+void GameShell::setRumbleIntensityPercent(int percent)
+{
+    m_gamepad.setRumbleIntensity(percent / 100.f);
 }
 
 } // namespace amaze

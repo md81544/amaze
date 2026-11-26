@@ -7,6 +7,7 @@ namespace {
 
 constexpr const char* MUSIC_VOLUME = "audio/musicVolumePercent";
 constexpr const char* STICK_DEAD_ZONE = "gamepad/stickDeadZonePercent";
+constexpr const char* RUMBLE_INTENSITY = "gamepad/rumbleIntensityPercent";
 constexpr const char* LAST_LEVEL_FILE = "game/lastLevelFile";
 constexpr const char* WINDOW_GEOMETRY = "window/geometry";
 constexpr const char* FULL_SCREEN = "window/fullScreen";
@@ -40,6 +41,16 @@ std::optional<int> Settings::stickDeadZonePercent() const
 void Settings::setStickDeadZonePercent(int value)
 {
     m_settings.setValue(STICK_DEAD_ZONE, value);
+}
+
+std::optional<int> Settings::rumbleIntensityPercent() const
+{
+    return get<int>(RUMBLE_INTENSITY);
+}
+
+void Settings::setRumbleIntensityPercent(int value)
+{
+    m_settings.setValue(RUMBLE_INTENSITY, value);
 }
 
 std::optional<std::string> Settings::lastLevelFile() const

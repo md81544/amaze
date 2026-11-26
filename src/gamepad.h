@@ -73,7 +73,10 @@ public:
     // of events that have happened since the last call.
     std::vector<Event> getEvents();
     bool isGamePadAttached();
+    // Intensities are scaled by the rumble intensity (see setRumbleIntensity)
     void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs);
+    // Scales all rumbles, from 0 (off) to 1 (full strength, the default)
+    void setRumbleIntensity(float fraction);
     // Stick movement within this fraction (0 to 1) of centre is reported as zero
     void setDeadZone(float fraction);
 
@@ -86,6 +89,7 @@ private:
     std::unordered_map<SDL_JoystickID, AnalogueStatus> m_analogueStatus;
     AnalogueStatus m_previousAnalogueStatus;
     float m_deadZone { 0.05f };
+    float m_rumbleIntensity { 1.f };
 };
 
 } // namespace gamepad

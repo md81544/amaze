@@ -36,6 +36,8 @@ constexpr int MAX_STICK_DEAD_ZONE_PERCENT = 25;
 struct MenuResults {
     int musicVolumePercent { 100 };
     int stickDeadZonePercent { 5 };
+    // Scales all gamepad rumble; 0 turns it off
+    int rumbleIntensityPercent { 100 };
     std::string levelFileToLoad;
 };
 

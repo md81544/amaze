@@ -75,6 +75,8 @@ public:
 
     void setMouseCursorVisible(bool value);
     void setStickDeadZonePercent(int percent);
+    // Scales all gamepad rumble; 0 turns it off
+    void setRumbleIntensityPercent(int percent);
     // The window's normal (i.e. not full screen) geometry, and whether it's
     // full screen, e.g. for saving between runs. Geometry may be invalid if
     // the window has only been shown full screen.
@@ -94,6 +96,8 @@ private:
     // elsewhere because the window has lost focus
     void releaseHeldKeys();
     void processGamepadForGame();
+    // Starts, adjusts or stops the rumble for right-stick thrust (0 to 1)
+    void updateThrustRumble(float thrust);
     void processGamepadForMenu();
     void sendMenuKey(int key, bool pressed);
     void toggleFullScreen();
@@ -107,6 +111,8 @@ private:
     std::unordered_map<KeyControls, ControlHandler> m_controlHandlers;
     gamepad::Gamepad m_gamepad;
     bool m_gamepadInUse { false };
+    // Whether the current rumble is the thrust one (see updateThrustRumble)
+    bool m_thrustRumbling { false };
     // Keyboard rotate / thrust keys currently held: the most recently pressed
     // direction (-1, 0 or 1; for rotation, 1 is left; for thrust, 1 is up), and
     // whether shift (fine control) is held
