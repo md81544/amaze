@@ -1,9 +1,3 @@
-* Add colours to the main menu dialog now we've introduced colours into the
-  ship's "status panel"
-    - Wondering whether the dialog should have a separate tab for options
-      games often use the shoulder buttons for tab traversal.
-      Add "full screen" / "windowed" option to the options tab
-
 * Log level in cfg file
 
 * (Low priority) Shapes could keep original geometry plus position/angle/scale and
