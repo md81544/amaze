@@ -9,6 +9,9 @@
 
 #include <SDL3/SDL.h>
 #include <cstdint>
+#include <optional>
+#include <string>
+#include <utility>
 #include <unordered_map>
 #include <vector>
 
@@ -73,6 +76,10 @@ public:
     // of events that have happened since the last call.
     std::vector<Event> getEvents();
     bool isGamePadAttached();
+    // What the left and right shoulder buttons are called on the gamepad in
+    // use (e.g. "LB" and "RB" on an Xbox gamepad, "L1" and "R1" on a
+    // PlayStation one), if one is attached
+    std::optional<std::pair<std::string, std::string>> shoulderButtonNames() const;
     // Intensities are scaled by the rumble intensity (see setRumbleIntensity)
     void rumble(uint16_t lowFreqIntensity, uint16_t highFreqIntensity, uint32_t durationMs);
     // Scales all rumbles, from 0 (off) to 1 (full strength, the default)

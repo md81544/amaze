@@ -38,6 +38,7 @@ struct MenuResults {
     int stickDeadZonePercent { 5 };
     // Scales all gamepad rumble; 0 turns it off
     int rumbleIntensityPercent { 100 };
+    bool fullScreen { false };
     std::string levelFileToLoad;
 };
 

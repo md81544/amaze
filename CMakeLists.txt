@@ -120,7 +120,7 @@ if(APPLE)
                 ${PLUGINS_DIR} $<TARGET_BUNDLE_CONTENT_DIR:${APP_NAME}>/Frameworks
             ${COPY_PLUGINS}
             COMMAND ${MACDEPLOYQT} $<TARGET_BUNDLE_DIR:${APP_NAME}> -no-plugins ${DEPLOY_PLUGINS}
-            COMMENT "Bundling app"
+            COMMENT "Bundling app (errors expected)"
         )
     endif()
 endif()

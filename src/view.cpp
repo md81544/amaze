@@ -2,6 +2,7 @@
 #include "audio.h"
 #include "exceptions.h"
 #include "fonts.h"
+#include "palette.h"
 #include "shape.h"
 #include "utils.h"
 #include "viewtransform.h"
@@ -36,12 +37,8 @@ constexpr double FUEL_NOT_NEEDED_BRIGHTNESS = 0.2;
 // The outer fraction of the vignette's radius over which the arena fades to black
 constexpr double VIGNETTE_FADE_FRACTION = 0.2;
 
-// Status panel, in the top left corner. Its labels, border and the
-// bars' outlines are in STATUS_COLOUR.
-const QColor STATUS_COLOUR(0, 128, 0);
-// The filled part of the shield and thrust bars: darker than the outline, but
-// brighter than the background grid
-const QColor BAR_FILL_COLOUR(0, 80, 0);
+// Status panel, in the top left corner. Its colours are in palette.h; its
+// labels, border and the bars' outlines are in STATUS_COLOUR.
 // The shield bar's fill fades from BAR_FILL_COLOUR at full shield through
 // yellow and orange to red at SHIELD_BAR_COLOUR_STOPS' lowest level and below,
 // blending between neighbouring stops. The stops are about as dim as
@@ -57,12 +54,6 @@ const ShieldBarColourStop SHIELD_BAR_COLOUR_STOPS[] = {
     { 0.7, QColor(85, 85, 0) },
     { 1.0, BAR_FILL_COLOUR },
 };
-const QColor PANEL_BACKGROUND_COLOUR(0, 14, 0);
-// The inner bezel line and the dividers between sections
-const QColor PANEL_BEZEL_COLOUR(0, 56, 0);
-const QColor PANEL_VALUE_COLOUR(0, 210, 0);
-const QColor PANEL_FAULT_COLOUR(210, 40, 40);
-const QColor PANEL_DEPLETED_COLOUR(220, 150, 0);
 constexpr double PANEL_LEFT = 30.0;
 constexpr double PANEL_TOP = 30.0;
 constexpr int PANEL_FONT_SIZE = 22;

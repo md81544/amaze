@@ -99,6 +99,11 @@ GameShell::GameShell(
         }
         m_window->activateWindow();
         m_window->setFocus();
+        // The display option (like the stick dead zone) applies however the
+        // dialog was closed
+        if (m_menu->results().fullScreen != m_window->isFullScreen()) {
+            toggleFullScreen();
+        }
     });
 
     // Never leave the cursor hidden while another application is active
@@ -187,6 +192,8 @@ MenuType GameShell::updateMenu(MenuType menuType)
         QTimer::singleShot(0, m_menu, [this]() {
             m_menuOpenPending = false;
             m_menuStickKey = 0;
+            m_menu->prepareToShow(m_window->isFullScreen());
+            m_menu->setShoulderButtonNames(m_gamepad.shoulderButtonNames());
             m_menu->show();
             m_menu->raise();
             m_menu->activateWindow();
@@ -498,8 +505,8 @@ void GameShell::processGamepadForGame()
 void GameShell::processGamepadForMenu()
 {
     // Either stick, or the D-pad, moves around the dialog (arrow keys; see
-    // MenuDialog::eventFilter); shoulder buttons page through the level list;
-    // South (A / cross) is Enter; East (B / circle) or Start is Escape.
+    // MenuDialog::eventFilter); shoulder buttons switch tabs; South (A /
+    // cross) is Enter; East (B / circle) or Start is Escape.
     qint64 now = m_clock.elapsed();
     for (const auto& evt : m_gamepad.getEvents()) {
         switch (evt.eventType) {
@@ -559,10 +566,12 @@ void GameShell::processGamepadForMenu()
                             key = Qt::Key_Right;
                             break;
                         case gamepad::ButtonType::LeftShoulder:
-                            key = Qt::Key_PageUp;
-                            break;
                         case gamepad::ButtonType::RightShoulder:
-                            key = Qt::Key_PageDown;
+                            if (evt.eventType == gamepad::EventType::ButtonPressed
+                                && m_menu->isVisible()) {
+                                m_menu->switchTab(
+                                    evt.buttonType == gamepad::ButtonType::LeftShoulder ? -1 : 1);
+                            }
                             break;
                         default:
                             break;
@@ -581,6 +590,8 @@ void GameShell::processGamepadForMenu()
         sendMenuKey(m_menuStickKey, true);
         m_menuStickRepeatAt = now + MENU_STICK_REPEAT_INTERVAL_MS;
     }
+    // (Gamepads may be connected or disconnected while the menu's open)
+    m_menu->setShoulderButtonNames(m_gamepad.shoulderButtonNames());
 }
 
 void GameShell::sendMenuKey(int key, bool pressed)

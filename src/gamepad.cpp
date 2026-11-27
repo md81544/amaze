@@ -368,6 +368,28 @@ bool Gamepad::isGamePadAttached()
     return !m_gamepads.empty();
 }
 
+std::optional<std::pair<std::string, std::string>> Gamepad::shoulderButtonNames() const
+{
+    if (m_gamepads.empty()) {
+        return std::nullopt;
+    }
+    auto active = m_gamepads.find(m_activeGamepad);
+    SDL_Gamepad* pad = active != m_gamepads.end() ? active->second : m_gamepads.begin()->second;
+    switch (SDL_GetGamepadType(pad)) {
+        case SDL_GAMEPAD_TYPE_PS3:
+        case SDL_GAMEPAD_TYPE_PS4:
+        case SDL_GAMEPAD_TYPE_PS5:
+            return std::pair { "L1", "R1" };
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_PRO:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_LEFT:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_RIGHT:
+        case SDL_GAMEPAD_TYPE_NINTENDO_SWITCH_JOYCON_PAIR:
+            return std::pair { "L", "R" };
+        default:
+            return std::pair { "LB", "RB" };
+    }
+}
+
 void Gamepad::setDeadZone(float fraction)
 {
     m_deadZone = std::clamp(fraction, 0.f, 0.95f);
