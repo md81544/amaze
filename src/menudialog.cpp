@@ -1,7 +1,7 @@
 #include "menudialog.h"
+#include "fonts.h"
 
 #include <QApplication>
-#include <QFontDatabase>
 #include <QFormLayout>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -25,14 +25,11 @@ namespace amaze {
 namespace {
 
 // Green on black to match the in-game status display (see view.cpp).
-// %1 is the font size in points, %2 the font family.
+// (The font isn't set here, as its weight can't be (see fonts.h), and any font
+// setting here would replace the font set on the dialog.)
 const char* const STYLE_SHEET = R"(
 QDialog {
     background-color: black;
-}
-QWidget {
-    font-size: %1pt;
-    font-family: "%2";
 }
 QFrame#border {
     border: 3px solid rgb(0, 224, 0);
@@ -176,17 +173,6 @@ MenuDialog::MenuDialog(
     // No title bar: the OS's light-mode one clashes with the game. The
     // green border drawn by the "border" frame below marks the edges instead.
     setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-    const double fontSize = QApplication::font().pointSizeF() * 1.5;
-    // The game's font. The dialog may be created before the View has loaded
-    // it, so load it here too; if that fails, Qt falls back to the default.
-    QString fontFamily;
-    int fontId = QFontDatabase::addApplicationFont(
-        QString::fromStdString(dataDir + "/Oxanium-SemiBold.ttf"));
-    if (fontId >= 0) {
-        fontFamily = QFontDatabase::applicationFontFamilies(fontId).value(0);
-    }
-    setStyleSheet(QString(STYLE_SHEET).arg(fontSize).arg(fontFamily));
-
     // Options
     connect(m_musicVolume, &QSlider::valueChanged, this, [this](int value) {
         m_results.musicVolumePercent = value;
@@ -256,6 +242,15 @@ MenuDialog::MenuDialog(
     layout->addWidget(new QLabel("Level selection"));
     layout->addWidget(m_levelList, 1);
     layout->addLayout(buttons);
+
+    // The game's font. The dialog may be created before the View has loaded
+    // it, so load it here too; if that fails, Qt falls back to the default.
+    // This is done once all the widgets are in the dialog, so they all
+    // inherit it.
+    QFont font = fonts::load(dataDir);
+    font.setPointSizeF(QApplication::font().pointSizeF() * 1.5);
+    setFont(font);
+    setStyleSheet(STYLE_SHEET);
 
     resize(840, 690);
     m_levelList->setFocus();

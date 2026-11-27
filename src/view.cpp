@@ -1,6 +1,7 @@
 #include "view.h"
 #include "audio.h"
 #include "exceptions.h"
+#include "fonts.h"
 #include "shape.h"
 #include "utils.h"
 #include "viewtransform.h"
@@ -10,6 +11,8 @@
 #include <QPainter>
 #include <QAbstractTextDocumentLayout>
 #include <QRadialGradient>
+#include <QTextBlock>
+#include <QTextCursor>
 #include <QTextDocument>
 
 #include <algorithm>
@@ -113,7 +116,8 @@ constexpr double INTRO_PADDING = 36.0;
 constexpr int INTRO_TITLE_FONT_SIZE = 60;
 constexpr int INTRO_FONT_SIZE = 32;
 const QColor INTRO_TITLE_COLOUR(0, 192, 0);
-const QColor INTRO_TEXT_COLOUR(200, 220, 200);
+// As the status panel's values
+const QColor INTRO_TEXT_COLOUR = PANEL_VALUE_COLOUR;
 // The panel is a little translucent, so the level shows faintly through it
 constexpr int INTRO_BACKGROUND_ALPHA = 230;
 
@@ -163,18 +167,52 @@ QColor shieldBarColour(double shield)
     return std::end(stops)[-1].colour;
 }
 
+// Sets the weight of each run of the document's text on the font's weight axis
+// (see fonts.h). The default font's weight is set on the axis, which would
+// otherwise override the weights HTML gives text, e.g. <b>'s.
+void applyFontWeights(QTextDocument& document)
+{
+    struct Run {
+        int start;
+        int end;
+        QTextCharFormat format;
+    };
+    // (Changing a run's format can merge runs, so they're all found first)
+    std::vector<Run> runs;
+    for (QTextBlock block = document.begin(); block.isValid(); block = block.next()) {
+        for (auto it = block.begin(); !it.atEnd(); ++it) {
+            const QTextFragment fragment = it.fragment();
+            runs.push_back(
+                { fragment.position(), fragment.position() + fragment.length(), fragment.charFormat() });
+        }
+    }
+    QTextCursor cursor(&document);
+    for (auto& run : runs) {
+        // Bold (<b>, <strong> or "font-weight: bold") is BOLD_WEIGHT; any
+        // other weight the HTML gives is used as it is
+        float weight = fonts::WEIGHT;
+        if (run.format.hasProperty(QTextFormat::FontWeight)) {
+            const int htmlWeight = run.format.fontWeight();
+            weight = htmlWeight == QFont::Bold ? fonts::BOLD_WEIGHT : static_cast<float>(htmlWeight);
+        }
+        run.format.setFont(fonts::withWeight(run.format.font(), weight));
+        cursor.setPosition(run.start);
+        cursor.setPosition(run.end, QTextCursor::KeepAnchor);
+        cursor.setCharFormat(run.format);
+    }
+}
+
 } // namespace
 
 View::View(GameModel& model, Audio& audio, const std::string& dataDir)
     : m_model(model)
     , m_audio(audio)
 {
-    int fontId = QFontDatabase::addApplicationFont(
-        QString::fromStdString(dataDir + "/Oxanium-SemiBold.ttf"));
-    if (fontId < 0) {
+    bool loaded = false;
+    m_font = fonts::load(dataDir, &loaded);
+    if (!loaded) {
         throw AmazeRuntimeException("Font file load error");
     }
-    m_font = QFont(QFontDatabase::applicationFontFamilies(fontId).at(0));
 
     // The status panel's layout doesn't depend on the canvas's size, so is
     // worked out here
@@ -342,6 +380,7 @@ View::drawIntroduction(QPainter& painter, const QPointF& centre, const QSizeF& c
         } else {
             m_introduction->setPlainText(text);
         }
+        applyFontWeights(*m_introduction);
     }
     if (m_introduction->textWidth() != textWidth) {
         m_introduction->setTextWidth(textWidth);
