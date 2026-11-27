@@ -1,5 +1,6 @@
 #include "menudialog.h"
 #include "fonts.h"
+#include "levelprogress.h"
 
 #include <QApplication>
 #include <QFormLayout>
@@ -16,6 +17,7 @@
 
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <initializer_list>
 #include <iterator>
 
@@ -57,6 +59,9 @@ QTreeWidget:focus {
 }
 QTreeWidget::item:hover {
     background-color: rgb(0, 40, 0);
+}
+QTreeWidget::item:disabled {
+    color: rgb(0, 80, 0);
 }
 QTreeWidget::item:selected {
     background-color: rgb(0, 80, 0);
@@ -303,11 +308,11 @@ bool MenuDialog::eventFilter(QObject* watched, QEvent* event)
     }
 
     if (watched == m_levelList) {
+        // (Levels which can't be chosen yet are skipped)
         int row = m_levelList->currentIndex().row();
-        int lastRow = m_levelList->topLevelItemCount() - 1;
-        if (up && row <= 0) {
+        if (up && row <= firstUnlockedRow()) {
             sliders().back()->setFocus();
-        } else if (down && row >= lastRow) {
+        } else if (down && row >= lastUnlockedRow()) {
             m_ok->setFocus();
         } else if (keyEvent->key() == Qt::Key_Left) {
             // Shortcuts out of the list without scrolling to either end
@@ -342,6 +347,43 @@ bool MenuDialog::eventFilter(QObject* watched, QEvent* event)
     }
 
     return QDialog::eventFilter(watched, event);
+}
+
+void MenuDialog::updateLevels(const LevelProgress& progress, const std::string& currentLevelFile)
+{
+    const std::string current = std::filesystem::path(currentLevelFile).filename().string();
+    for (int row = 0; row < m_levelList->topLevelItemCount(); ++row) {
+        QTreeWidgetItem* item = m_levelList->topLevelItem(row);
+        const std::string level
+            = std::filesystem::path(item->data(0, Qt::UserRole).toString().toStdString())
+                  .filename()
+                  .string();
+        // Disabled items are drawn dimmed, and can't be selected
+        item->setDisabled(!progress.isUnlocked(level));
+        if (level == current) {
+            m_levelList->setCurrentItem(item);
+        }
+    }
+}
+
+int MenuDialog::firstUnlockedRow() const
+{
+    for (int row = 0; row < m_levelList->topLevelItemCount(); ++row) {
+        if (!m_levelList->topLevelItem(row)->isDisabled()) {
+            return row;
+        }
+    }
+    return 0;
+}
+
+int MenuDialog::lastUnlockedRow() const
+{
+    for (int row = m_levelList->topLevelItemCount() - 1; row >= 0; --row) {
+        if (!m_levelList->topLevelItem(row)->isDisabled()) {
+            return row;
+        }
+    }
+    return 0;
 }
 
 bool MenuDialog::focusNextPrevChild(bool next)

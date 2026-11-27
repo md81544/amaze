@@ -28,6 +28,7 @@ add_executable(${APP_NAME}
     src/levelfile.cpp
     src/levelformat.cpp
     src/levelfilelister.cpp
+    src/levelprogress.cpp
     src/main.cpp
     src/menudialog.cpp
     src/scheduler.cpp
@@ -134,6 +135,9 @@ set(AMAZE_COMPILE_OPTIONS
     $<$<CONFIG:Release>:-O3>
 )
 target_compile_options(${APP_NAME} PRIVATE ${AMAZE_COMPILE_OPTIONS})
+# Debug builds treat every level as completed, so any level can be played
+# without working through the ones before it (see LevelProgress)
+target_compile_definitions(${APP_NAME} PRIVATE $<$<CONFIG:Debug>:AMAZE_ALL_LEVELS_COMPLETED>)
 target_link_libraries(${APP_NAME} PRIVATE
     Qt6::Widgets
     Qt6::OpenGLWidgets
@@ -153,11 +157,13 @@ if(Catch2_FOUND)
         tests/viewtransform_tests.cpp
         tests/bounce_tests.cpp
         tests/path_tests.cpp
+        tests/levelprogress_tests.cpp
         src/gamemodel.cpp
         src/gameshape.cpp
         src/levelfile.cpp
         src/levelfilelister.cpp
         src/levelformat.cpp
+        src/levelprogress.cpp
         src/scheduler.cpp
         src/shape.cpp
         src/shipmodel.cpp

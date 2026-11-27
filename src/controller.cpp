@@ -2,6 +2,7 @@
 #include "audio.h"
 #include "gamemodel.h"
 #include "gameshape.h"
+#include "levelprogress.h"
 #include "log.h" // IWYU pragma: keep
 #include "settings.h"
 #include "utils.h"
@@ -14,6 +15,12 @@ namespace marengo {
 namespace amaze {
 
 namespace {
+
+// How levels are identified in the progress (see LevelProgress)
+std::string levelName(const std::string& filename)
+{
+    return std::filesystem::path(filename).filename().string();
+}
 
 constexpr std::chrono::nanoseconds TICK_DURATION { 1'000'000'000 / TICKS_PER_SECOND };
 // If a frame takes longer than this (e.g. window being set up, dragged, level
@@ -39,12 +46,19 @@ constexpr double FUEL_SHIELD_RECHARGE = 0.1;
 
 } // namespace
 
-Controller::Controller(GameModel& m, View& v, GameShell& shell, Audio& audio, Settings& settings)
+Controller::Controller(
+    GameModel& m,
+    View& v,
+    GameShell& shell,
+    Audio& audio,
+    Settings& settings,
+    LevelProgress& progress)
     : m_gameModel(m)
     , m_view(v)
     , m_shell(shell)
     , m_audio(audio)
     , m_settings(settings)
+    , m_progress(progress)
     , m_rumbleIntensityPercent(shell.menuResults().rumbleIntensityPercent)
 {
     registerControlHandlers();
@@ -149,18 +163,13 @@ void Controller::registerControlHandlers()
     });
 }
 
-void Controller::start(int gameLevel, const std::string& levelFile)
+void Controller::start(const std::string& levelFile)
 {
     // TODO splash screen?
     m_audio.musicPlayLoop();
     m_audio.setMusicVolumePercent(m_shell.menuResults().musicVolumePercent);
 
-    if (!levelFile.empty()) {
-        loadLevel(levelFile);
-    } else {
-        m_gameModel.levelLoad(gameLevel);
-        m_settings.setLastLevelFile(m_gameModel.levelFileName());
-    }
+    loadLevel(levelFile);
     m_levelStartPending = true;
     beginLevel();
 
@@ -242,7 +251,28 @@ void Controller::beginLevel()
 void Controller::loadLevel(const std::string& filename)
 {
     m_gameModel.levelLoad(filename);
+    m_gameModel.setShield(m_progress.startingShield(levelName(filename)));
     m_settings.setLastLevelFile(m_gameModel.levelFileName());
+}
+
+void Controller::levelCompleted()
+{
+    if (m_progress.complete(levelName(m_gameModel.levelFileName()), m_gameModel.shield())) {
+        m_settings.setCompletedLevels(m_progress.completedLevels());
+        m_settings.setCarriedShield(m_progress.carriedShield());
+    }
+}
+
+void Controller::loadLevelAfterSuccess()
+{
+    // The next level in order, or this one again if it's the last (or isn't
+    // one of the game's levels)
+    const std::string current = m_gameModel.levelFileName();
+    if (auto next = m_progress.levelAfter(levelName(current))) {
+        loadLevel((std::filesystem::path(current).parent_path() / *next).string());
+    } else {
+        loadLevel(current);
+    }
 }
 
 void Controller::saveMenuOptions()
@@ -271,6 +301,8 @@ void Controller::processMenu()
         m_shell.rumble(0, 0, 0); // turn off any rumbles
         m_gameModel.shipModel().setIsAccelerating(false, 0.f);
         m_view.stopSounds();
+        // Which levels can be chosen, with the current one selected
+        m_shell.updateMenuLevels(m_progress, m_gameModel.levelFileName());
     }
     m_shell.processMenuInput();
     // Adjust background music and rumble intensity immediately
@@ -327,7 +359,7 @@ void Controller::tick()
             m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
                 // We just reload the level, but display the menu
                 // in case the user wants a different level
-                m_gameModel.levelLoad(m_gameModel.levelFileName());
+                loadLevel(m_gameModel.levelFileName());
                 m_levelStartPending = true;
                 m_gameModel.shipModel().setVisible(false);
                 m_gameModel.setGameState(GameState::Menu);
@@ -341,9 +373,9 @@ void Controller::tick()
             m_gameModel.shipModel().flamesGameShape()->setVisible(false);
             m_gameModel.setBreakableExploding(false);
             m_scheduler.doAfter(ScheduleEventName::LevelEnded, 300, [&]() {
-                // We just reload the level, but display the menu
-                // in case the user wants a different level
-                m_gameModel.levelLoad(m_gameModel.levelFileName());
+                // On to the next level, but display the menu in case the
+                // user wants a different one
+                loadLevelAfterSuccess();
                 m_levelStartPending = true;
                 m_gameModel.shipModel().setVisible(false);
                 m_gameModel.setGameState(GameState::Menu);
@@ -384,6 +416,7 @@ void Controller::collisionChecks()
                 if (collideeType != GameShapeType::FLAMES) {
                     m_audio.soundPlay("success");
                     m_gameModel.setGameState(GameState::Succeeded);
+                    levelCompleted();
                 }
                 break;
             case GameShapeType::FUEL:

@@ -68,7 +68,6 @@ public:
 
     // Reset the model to a state ready for a new Level:
     void initialise(const std::string& levelFileName);
-    void levelLoad(size_t levelNum);
     void levelLoad(const std::string& filename);
 
     const std::string getDataPath();
@@ -109,6 +108,8 @@ public:
     // clear of an obstacle counts as at least a graze.
     void shieldImpact(const Impact& impact);
     void rechargeShield(double amount);
+    // e.g. the shield carried over from the previous level
+    void setShield(double value);
 
     // The pull on the ship (as a change in its velocity per tick) of the
     // strongest gravity affecting it, or 0 if none is

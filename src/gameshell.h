@@ -31,6 +31,7 @@ namespace marengo {
 namespace amaze {
 
 class GameWidget;
+class LevelProgress;
 class MenuDialog;
 struct GameInputEvent;
 
@@ -72,6 +73,9 @@ public:
     MenuType updateMenu(MenuType menuType);
     void processMenuInput();
     MenuResults menuResults() const;
+    // Updates which levels the menu lets the player choose, selecting the
+    // current one. Call before the menu opens.
+    void updateMenuLevels(const LevelProgress& progress, const std::string& currentLevelFile);
 
     void setMouseCursorVisible(bool value);
     void setStickDeadZonePercent(int percent);

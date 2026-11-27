@@ -15,6 +15,7 @@ namespace marengo {
 namespace amaze {
 
 class Audio;
+class LevelProgress;
 class Settings;
 
 // The game simulation runs at a fixed rate, independent of the display's
@@ -23,9 +24,15 @@ class Settings;
 
 class Controller {
 public:
-    Controller(GameModel& m, View& v, GameShell& shell, Audio& audio, Settings& settings);
+    Controller(
+        GameModel& m,
+        View& v,
+        GameShell& shell,
+        Audio& audio,
+        Settings& settings,
+        LevelProgress& progress);
     // Loads the initial level; call once before the first frame()
-    void start(int gameLevel, const std::string& levelFile);
+    void start(const std::string& levelFile);
     // Processes one displayed frame, drawing it with the painter. Returns
     // false when the game should exit.
     bool frame(QPainter& painter, const QSizeF& canvasSize);
@@ -35,7 +42,13 @@ private:
     void processMenu();
     void beginLevel(); // shows "Get Ready" until the player presses something
     void startPlayIfReady();
-    void loadLevel(const std::string& filename); // also remembers it for next time
+    // Loads the level, with the shield it starts with, and remembers it for
+    // next time
+    void loadLevel(const std::string& filename);
+    // After the level's been completed: the next level, if there is one
+    void loadLevelAfterSuccess();
+    // Records that the current level has been completed
+    void levelCompleted();
     void saveMenuOptions();
     void tick(); // once per simulation tick
     void render(QPainter& painter, const QSizeF& canvasSize); // once per displayed frame
@@ -48,6 +61,7 @@ private:
     GameShell& m_shell;
     Audio& m_audio;
     Settings& m_settings;
+    LevelProgress& m_progress;
     int m_lastPause { 0 };
     Scheduler m_scheduler;
     MenuType m_currentMenu { MenuType::None };

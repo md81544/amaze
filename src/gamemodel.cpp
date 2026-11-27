@@ -235,14 +235,6 @@ void GameModel::setLevelFileName(const std::string& filename)
     m_levelFileName = filename;
 }
 
-void GameModel::levelLoad(size_t levelNum)
-{
-    std::string filename = "level" + std::to_string(levelNum) + ".lvl";
-    std::filesystem::path levelFile(getDataPath());
-    levelFile.append(filename);
-    levelLoad(levelFile.string());
-}
-
 void GameModel::levelLoad(const std::string& filename)
 {
     mgo::Log::debug(std::format("Loading from '{}'", filename));
@@ -528,6 +520,12 @@ void GameModel::shieldImpact(const Impact& impact)
 void GameModel::rechargeShield(double amount)
 {
     m_shield = std::min(m_shield + amount, 1.0);
+    m_shipModel->setShieldLevel(m_shield);
+}
+
+void GameModel::setShield(double value)
+{
+    m_shield = std::clamp(value, 0.0, 1.0);
     m_shipModel->setShieldLevel(m_shield);
 }
 

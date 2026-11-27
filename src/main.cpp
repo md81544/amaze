@@ -4,6 +4,8 @@
 #include "controller.h"
 #include "exceptions.h"
 #include "gameshell.h"
+#include "levelfilelister.h"
+#include "levelprogress.h"
 #include "log.h"
 #include "programoptions.h"
 #include "settings.h"
@@ -15,6 +17,19 @@
 #include <filesystem>
 #include <format>
 #include <iostream>
+#include <string>
+#include <vector>
+
+namespace {
+
+// Debug builds treat every level as completed (see CMakeLists.txt)
+#ifdef AMAZE_ALL_LEVELS_COMPLETED
+constexpr bool ALL_LEVELS_COMPLETED = true;
+#else
+constexpr bool ALL_LEVELS_COMPLETED = false;
+#endif
+
+} // namespace
 
 // MVC intentions
 // What goes where in the MVC pattern can be a matter for debate; here's
@@ -106,15 +121,27 @@ int main(int argc, char* argv[])
             useFullScreen = false;
         }
 
+        // The levels, in order, and the player's progress through them
+        std::vector<std::string> levels;
+        for (const auto& [number, fileData] : LevelFileLister(dataDir).getFileMap()) {
+            levels.push_back(std::filesystem::path(fileData.filename).filename().string());
+        }
+        LevelProgress progress(
+            levels, settings.completedLevels(), settings.carriedShield(), ALL_LEVELS_COMPLETED);
+
         // Level to start with: a level FILE or number from the command line,
         // otherwise the last level played, otherwise the level number from
         // amaze.cfg
-        int gameLevel = config.readLong("GameLevel", 0);
+        auto numberedLevel = [&](long number) {
+            return (std::filesystem::path(dataDir) / std::format("level{}.lvl", number)).string();
+        };
+        const bool levelOnCommandLine
+            = programOptions.cmdOptionExists("--file") || programOptions.cmdOptionExists("-l");
         std::string levelFile;
         if (programOptions.cmdOptionExists("--file")) {
             levelFile = programOptions.getCmdOption("--file");
         } else if (programOptions.cmdOptionExists("-l")) {
-            gameLevel = std::atoi(programOptions.getCmdOption("-l").c_str());
+            levelFile = numberedLevel(std::atol(programOptions.getCmdOption("-l").c_str()));
         } else if (auto lastLevel = settings.lastLevelFile()) {
             std::filesystem::path lastLevelPath(*lastLevel);
             if (std::filesystem::exists(lastLevelPath)) {
@@ -124,6 +151,17 @@ int main(int argc, char* argv[])
                 std::filesystem::exists(moved)) {
                 // e.g. the app has moved since
                 levelFile = moved.string();
+            }
+        }
+        if (levelFile.empty()) {
+            levelFile = numberedLevel(config.readLong("GameLevel", 0));
+        }
+        // Unless it was asked for on the command line, start on a level
+        // which can be played
+        if (!levelOnCommandLine
+            && !progress.isUnlocked(std::filesystem::path(levelFile).filename().string())) {
+            if (auto next = progress.nextLevel()) {
+                levelFile = (std::filesystem::path(dataDir) / *next).string();
             }
         }
 
@@ -145,8 +183,8 @@ int main(int argc, char* argv[])
         GameModel gameModel(dataDir);
         View view(gameModel, audio, dataDir);
 
-        Controller controller(gameModel, view, shell, audio, settings);
-        controller.start(gameLevel, levelFile);
+        Controller controller(gameModel, view, shell, audio, settings, progress);
+        controller.start(levelFile);
         // Qt owns the event loop, and calls the controller once per displayed frame
         shell.run([&](QPainter& painter, const QSizeF& canvasSize) {
             return controller.frame(painter, canvasSize);

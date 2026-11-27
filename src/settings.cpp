@@ -1,5 +1,7 @@
 #include "settings.h"
 
+#include <QStringList>
+
 namespace marengo {
 namespace amaze {
 
@@ -9,6 +11,8 @@ constexpr const char* MUSIC_VOLUME = "audio/musicVolumePercent";
 constexpr const char* STICK_DEAD_ZONE = "gamepad/stickDeadZonePercent";
 constexpr const char* RUMBLE_INTENSITY = "gamepad/rumbleIntensityPercent";
 constexpr const char* LAST_LEVEL_FILE = "game/lastLevelFile";
+constexpr const char* COMPLETED_LEVELS = "game/completedLevels";
+constexpr const char* CARRIED_SHIELD = "game/carriedShield";
 constexpr const char* WINDOW_GEOMETRY = "window/geometry";
 constexpr const char* FULL_SCREEN = "window/fullScreen";
 
@@ -51,6 +55,38 @@ std::optional<int> Settings::rumbleIntensityPercent() const
 void Settings::setRumbleIntensityPercent(int value)
 {
     m_settings.setValue(RUMBLE_INTENSITY, value);
+}
+
+std::vector<std::string> Settings::completedLevels() const
+{
+    std::vector<std::string> levels;
+    for (const QString& level : get<QStringList>(COMPLETED_LEVELS).value_or(QStringList {})) {
+        levels.push_back(level.toStdString());
+    }
+    return levels;
+}
+
+void Settings::setCompletedLevels(const std::vector<std::string>& value)
+{
+    QStringList levels;
+    for (const auto& level : value) {
+        levels.append(QString::fromStdString(level));
+    }
+    m_settings.setValue(COMPLETED_LEVELS, levels);
+}
+
+std::optional<double> Settings::carriedShield() const
+{
+    return get<double>(CARRIED_SHIELD);
+}
+
+void Settings::setCarriedShield(std::optional<double> value)
+{
+    if (value.has_value()) {
+        m_settings.setValue(CARRIED_SHIELD, *value);
+    } else {
+        m_settings.remove(CARRIED_SHIELD);
+    }
 }
 
 std::optional<std::string> Settings::lastLevelFile() const

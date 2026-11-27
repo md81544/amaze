@@ -11,6 +11,7 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace marengo {
 namespace amaze {
@@ -25,6 +26,13 @@ public:
 
     std::optional<int> rumbleIntensityPercent() const;
     void setRumbleIntensityPercent(int value);
+
+    // File names (without directories) of the levels completed, and the
+    // shield left after the last new level was completed: see LevelProgress
+    std::vector<std::string> completedLevels() const;
+    void setCompletedLevels(const std::vector<std::string>& value);
+    std::optional<double> carriedShield() const;
+    void setCarriedShield(std::optional<double> value);
 
     // Full path of the level file last played
     std::optional<std::string> lastLevelFile() const;

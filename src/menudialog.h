@@ -20,6 +20,8 @@ class QTreeWidget;
 namespace marengo {
 namespace amaze {
 
+class LevelProgress;
+
 class MenuDialog final : public QDialog {
 public:
     static constexpr int ExitGame = 2;
@@ -30,6 +32,9 @@ public:
     {
         return m_results;
     }
+    // Dims, and stops the player choosing, levels they can't play yet, and
+    // selects the current level
+    void updateLevels(const LevelProgress& progress, const std::string& currentLevelFile);
 
 protected:
     // Arrow-key navigation (also used by the gamepad, which sends arrow keys):
@@ -45,6 +50,9 @@ protected:
 
 private:
     void updateFocusHighlight();
+    // The first and last levels in the list which can be chosen
+    int firstUnlockedRow() const;
+    int lastUnlockedRow() const;
     // Top to bottom
     std::array<QSlider*, 3> sliders() const
     {

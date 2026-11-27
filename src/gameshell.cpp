@@ -195,6 +195,11 @@ MenuType GameShell::updateMenu(MenuType menuType)
     return menuType;
 }
 
+void GameShell::updateMenuLevels(const LevelProgress& progress, const std::string& currentLevelFile)
+{
+    m_menu->updateLevels(progress, currentLevelFile);
+}
+
 void GameShell::processMenuInput()
 {
     // The dialog handles keyboard and mouse itself; we just translate gamepad
