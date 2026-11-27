@@ -1,3 +1,17 @@
+* Make breakable walls only breakable by ship collision, not flames
+    - Will require a certain velocity - any less than a constexpr value
+      will just cause the ship to bounce off/take damage.
+      This will make collecting fuel more important even if no normal
+      collisions occur
+
+* Maybe breakable walls have two or more categories - one that IS flammable,
+  but not rammable, and the other breaks as described above?
+
+* Keys required to open certain doors
+
+* Tractor beam
+
+
 * Log level in cfg file
 
 * (Low priority) Shapes could keep original geometry plus position/angle/scale and
