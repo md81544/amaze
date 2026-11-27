@@ -16,6 +16,10 @@ namespace {
 constexpr double MAX_SPIN = 2.0;
 constexpr double SPIN_DAMPING = 0.97;
 
+// The amount the ship slows per tick; this is multipled by motion, so
+// the closer to 1.0 it is, the slower the ship slows by itself. 0.0 - 1.0
+constexpr double FRICTION = 0.9995; 
+
 // The ship's colour at full shield, fading towards the empty shield colour
 // as the shield weakens
 constexpr int FULL_SHIELD_COLOUR[] = { 192, 192, 255 };
@@ -211,8 +215,8 @@ float ShipModel::accelerationAmount() const
 void ShipModel::updateShipPosition()
 {
     // atmospheric friction:
-    m_dx *= 0.9985;
-    m_dy *= 0.9985;
+    m_dx *= FRICTION;
+    m_dy *= FRICTION;
 
     m_velocity = sqrt((m_dx * m_dx) + (m_dy * m_dy));
 
