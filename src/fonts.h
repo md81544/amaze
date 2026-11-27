@@ -19,7 +19,7 @@ namespace fonts {
 
 inline constexpr const char* FILE_NAME = "Oxanium-VariableFont_wght.ttf";
 // Normal text
-inline constexpr float WEIGHT = 600;
+inline constexpr float WEIGHT = 400;
 // Bold text (<b> or <strong>) in level introductions
 inline constexpr float BOLD_WEIGHT = 800;
 

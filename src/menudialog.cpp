@@ -245,11 +245,14 @@ MenuDialog::MenuDialog(
 
     // The game's font. The dialog may be created before the View has loaded
     // it, so load it here too; if that fails, Qt falls back to the default.
-    // This is done once all the widgets are in the dialog, so they all
-    // inherit it.
+    // It's set on each widget, as on macOS, Qt gives some kinds of widget
+    // (e.g. labels and buttons) their own font, rather than the dialog's.
     QFont font = fonts::load(dataDir);
     font.setPointSizeF(QApplication::font().pointSizeF() * 1.5);
     setFont(font);
+    for (QWidget* widget : findChildren<QWidget*>()) {
+        widget->setFont(font);
+    }
     setStyleSheet(STYLE_SHEET);
 
     resize(840, 690);
