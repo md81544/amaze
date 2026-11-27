@@ -81,10 +81,18 @@ TEST_CASE("The ship's position and the title are read")
     CHECK(level.shapes.empty());
 }
 
-TEST_CASE("The title is optional")
+TEST_CASE("The title and introduction are optional")
 {
     TempLevelFile file(R"({ "formatVersion": 2, "ship": { "x": 1, "y": 2 } })");
-    CHECK(readLevelFile(file.path()).description.empty());
+    auto level = readLevelFile(file.path());
+    CHECK(level.description.empty());
+    CHECK(level.introduction.empty());
+}
+
+TEST_CASE("The introduction is read")
+{
+    TempLevelFile file(R"({ "formatVersion": 2, "introduction": "<p>Hello</p>\n<p>There</p>" })");
+    CHECK(readLevelFile(file.path()).introduction == "<p>Hello</p>\n<p>There</p>");
 }
 
 TEST_CASE("Each item becomes a shape, with the standard appearance")

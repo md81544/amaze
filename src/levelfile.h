@@ -16,7 +16,8 @@ struct LevelData {
     double shipX { 0.0 };
     double shipY { 0.0 };
     double shipRotation { 0.0 };
-    std::string description;
+    std::string description; // the level's title
+    std::string introduction; // plain text or HTML; see LEVEL_FORMAT.md
     std::vector<std::unique_ptr<GameShape>> shapes;
 };
 

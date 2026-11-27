@@ -80,6 +80,9 @@ public:
 
     std::string levelDescription() const;
     void setLevelDescription(const std::string& value);
+    // Shown before the level starts instead of "Get Ready", if not empty:
+    // plain text or HTML (see LEVEL_FORMAT.md)
+    const std::string& levelIntroduction() const;
 
     // The ship is replaced when a level loads, so don't keep this reference
     // beyond the current tick
@@ -119,6 +122,7 @@ private:
 
     std::string m_levelFileName;
     std::string m_levelDescription;
+    std::string m_levelIntroduction;
 
     // Container for all GameShapes in the game:
     std::vector<std::shared_ptr<GameShape>> m_allDynamicGameShapes;

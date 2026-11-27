@@ -100,6 +100,7 @@ LevelData readJsonLevel(const std::string& contents)
     const mgo::levelformat::LevelData data = mgo::levelformat::parse(contents);
     LevelData level;
     level.description = data.title;
+    level.introduction = data.introduction;
     if (data.ship.has_value()) {
         level.shipX = data.ship->x;
         level.shipY = data.ship->y;

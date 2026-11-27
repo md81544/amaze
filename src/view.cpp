@@ -8,7 +8,9 @@
 #include <QFontDatabase>
 #include <QFontMetricsF>
 #include <QPainter>
+#include <QAbstractTextDocumentLayout>
 #include <QRadialGradient>
+#include <QTextDocument>
 
 #include <algorithm>
 #include <cmath>
@@ -101,6 +103,20 @@ const QColor GRAVITY_DEBRIS_COLOUR(0, 72, 0);
 constexpr double GRAVITY_DEBRIS_SIZE = 5.0;
 constexpr int GRAVITY_DEBRIS_FADE_IN_TICKS = 60;
 
+// The level's introduction (see drawIntroduction()). The panel is at most
+// INTRO_MAX_WIDTH wide, keeping INTRO_MARGIN clear of the canvas's edges and
+// the status panel, with its top INTRO_TOP of the way down the canvas.
+constexpr double INTRO_MAX_WIDTH = 1100.0;
+constexpr double INTRO_MARGIN = 40.0;
+constexpr double INTRO_TOP = 0.15;
+constexpr double INTRO_PADDING = 36.0;
+constexpr int INTRO_TITLE_FONT_SIZE = 60;
+constexpr int INTRO_FONT_SIZE = 32;
+const QColor INTRO_TITLE_COLOUR(0, 192, 0);
+const QColor INTRO_TEXT_COLOUR(200, 220, 200);
+// The panel is a little translucent, so the level shows faintly through it
+constexpr int INTRO_BACKGROUND_ALPHA = 230;
+
 // The ship's systems, which are shown but never change
 struct SystemStatus {
     const char* label;
@@ -190,6 +206,8 @@ View::View(GameModel& model, Audio& audio, const std::string& dataDir)
             + 2 * (2 * PANEL_DIVIDER_SPACE));
 }
 
+View::~View() = default;
+
 void View::playSounds()
 {
     // (No rocket noise while waiting to start, even if thrust is held)
@@ -256,25 +274,7 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     double messageY = canvasSize.height() * 0.3;
 
     if (m_model.getGameState() == GameState::GetReady) {
-        drawText(painter, centre, "Get Ready", QColor(255, 255, 0), 160, {}, messageY);
-        if (!m_model.levelDescription().empty()) {
-            drawText(
-                painter,
-                centre,
-                m_model.levelDescription(),
-                QColor(0, 192, 0),
-                60,
-                {},
-                messageY + 200);
-        }
-        drawText(
-            painter,
-            centre,
-            "Press any key to start",
-            QColor(160, 160, 160),
-            40,
-            {},
-            messageY + 300);
+        drawGetReady(painter, centre, canvasSize);
     }
 
     if (m_model.gameIsPaused()) {
@@ -288,6 +288,112 @@ void View::draw(QPainter& painter, const QSizeF& canvasSize) const
     if (m_model.getGameState() == GameState::Dead) {
         drawText(painter, centre, "Game Over", QColor(255, 0, 0), 160, {}, messageY);
     }
+}
+
+void View::drawGetReady(QPainter& painter, const QPointF& centre, const QSizeF& canvasSize) const
+{
+    double messageY = canvasSize.height() * 0.3;
+    double promptY = messageY + 300;
+    if (m_model.levelIntroduction().empty()) {
+        drawText(painter, centre, "Get Ready", QColor(255, 255, 0), 160, {}, messageY);
+        if (!m_model.levelDescription().empty()) {
+            drawText(
+                painter,
+                centre,
+                m_model.levelDescription(),
+                INTRO_TITLE_COLOUR,
+                60,
+                {},
+                messageY + 200);
+        }
+    } else {
+        QRectF panel = drawIntroduction(painter, centre, canvasSize);
+        promptY = panel.bottom() + INTRO_MARGIN;
+    }
+    drawText(
+        painter, centre, "Press any key to start", QColor(160, 160, 160), 40, {}, promptY);
+}
+
+QRectF
+View::drawIntroduction(QPainter& painter, const QPointF& centre, const QSizeF& canvasSize) const
+{
+    // Centred on the ship (like the other messages), as wide as there's room
+    // for between the status panel and the right of the canvas
+    double halfWidth = std::min(
+        { INTRO_MAX_WIDTH / 2.0,
+          centre.x() - m_panelRect.right() - INTRO_MARGIN,
+          canvasSize.width() - INTRO_MARGIN - centre.x() });
+    double textWidth = std::max(halfWidth * 2.0 - INTRO_PADDING * 2.0, 100.0);
+
+    const std::string& source = m_model.levelIntroduction();
+    if (!m_introduction || source != m_introductionSource) {
+        m_introductionSource = source;
+        m_introduction = std::make_unique<QTextDocument>();
+        m_introduction->setDocumentMargin(0);
+        m_introduction->setDefaultFont(withPixelSize(m_font, INTRO_FONT_SIZE));
+        QTextOption option;
+        option.setAlignment(Qt::AlignHCenter);
+        option.setWrapMode(QTextOption::WordWrap);
+        m_introduction->setDefaultTextOption(option);
+        // HTML if it starts with a tag (see LEVEL_FORMAT.md), else plain text
+        QString text = QString::fromStdString(source);
+        if (text.trimmed().startsWith('<')) {
+            m_introduction->setHtml(text);
+        } else {
+            m_introduction->setPlainText(text);
+        }
+    }
+    if (m_introduction->textWidth() != textWidth) {
+        m_introduction->setTextWidth(textWidth);
+    }
+
+    QFont titleFont = withPixelSize(m_font, INTRO_TITLE_FONT_SIZE);
+    QFontMetricsF titleMetrics(titleFont);
+    const std::string& title = m_model.levelDescription();
+    double titleHeight = title.empty() ? 0.0 : titleMetrics.height() + 2 * PANEL_DIVIDER_SPACE;
+
+    QRectF panel(
+        centre.x() - textWidth / 2.0 - INTRO_PADDING,
+        canvasSize.height() * INTRO_TOP,
+        textWidth + INTRO_PADDING * 2.0,
+        INTRO_PADDING * 2.0 + titleHeight + m_introduction->size().height());
+    QColor background = PANEL_BACKGROUND_COLOUR;
+    background.setAlpha(INTRO_BACKGROUND_ALPHA);
+    drawPanelBox(painter, panel, background);
+
+    double y = panel.top() + INTRO_PADDING;
+    if (!title.empty()) {
+        drawText(painter, centre, title, INTRO_TITLE_COLOUR, INTRO_TITLE_FONT_SIZE, {}, y);
+        y += titleMetrics.height() + PANEL_DIVIDER_SPACE;
+        painter.setPen(QPen(PANEL_BEZEL_COLOUR, 1));
+        painter.drawLine(
+            QPointF(panel.left() + INTRO_PADDING, y), QPointF(panel.right() - INTRO_PADDING, y));
+        y += PANEL_DIVIDER_SPACE;
+    }
+
+    // Text without a colour of its own (from the HTML) is in INTRO_TEXT_COLOUR
+    QAbstractTextDocumentLayout::PaintContext context;
+    context.palette.setColor(QPalette::Text, INTRO_TEXT_COLOUR);
+    painter.save();
+    painter.translate(panel.left() + INTRO_PADDING, y);
+    m_introduction->documentLayout()->draw(&painter, context);
+    painter.restore();
+    return panel;
+}
+
+void View::drawPanelBox(QPainter& painter, const QRectF& rect, const QColor& background) const
+{
+    // The box, with a bezel inside its border
+    painter.setPen(QPen(STATUS_COLOUR, 2));
+    painter.setBrush(background);
+    painter.drawRoundedRect(rect, PANEL_CORNER_RADIUS, PANEL_CORNER_RADIUS);
+    painter.setPen(QPen(PANEL_BEZEL_COLOUR, 1));
+    painter.setBrush(Qt::NoBrush);
+    double inset = PANEL_BEZEL_INSET;
+    painter.drawRoundedRect(
+        rect.adjusted(inset, inset, -inset, -inset),
+        PANEL_CORNER_RADIUS - inset,
+        PANEL_CORNER_RADIUS - inset);
 }
 
 QPointF View::viewCentre(const QSizeF& canvasSize) const
@@ -316,17 +422,7 @@ void View::drawStatusPanel(QPainter& painter) const
     QFontMetricsF metrics(font);
     QFontMetricsF titleMetrics(titleFont);
 
-    // The box, with a bezel inside its border
-    painter.setPen(QPen(STATUS_COLOUR, 2));
-    painter.setBrush(PANEL_BACKGROUND_COLOUR);
-    painter.drawRoundedRect(m_panelRect, PANEL_CORNER_RADIUS, PANEL_CORNER_RADIUS);
-    painter.setPen(QPen(PANEL_BEZEL_COLOUR, 1));
-    painter.setBrush(Qt::NoBrush);
-    double inset = PANEL_BEZEL_INSET;
-    painter.drawRoundedRect(
-        m_panelRect.adjusted(inset, inset, -inset, -inset),
-        PANEL_CORNER_RADIUS - inset,
-        PANEL_CORNER_RADIUS - inset);
+    drawPanelBox(painter, m_panelRect, PANEL_BACKGROUND_COLOUR);
 
     double left = m_panelRect.left() + PANEL_PADDING;
     double right = m_panelRect.right() - PANEL_PADDING;

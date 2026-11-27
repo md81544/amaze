@@ -170,6 +170,7 @@ void GameModel::initialise(const std::string& levelFileName)
     m_shield = 1.0;
     m_recentShieldDamage = 0.0;
     m_levelDescription.clear();
+    m_levelIntroduction.clear();
     m_allDynamicGameShapes.clear();
     m_gravityFields.clear();
 
@@ -251,6 +252,7 @@ void GameModel::levelLoad(const std::string& filename)
     m_shipModel->setShipY(level.shipY);
     m_shipModel->setRotation(level.shipRotation);
     m_levelDescription = level.description;
+    m_levelIntroduction = level.introduction;
     // Shapes are drawn in order. Neutral ones (decorations) go just above the
     // background; the rest go above those. The ship, its flames and its
     // explosion stay top-most.
@@ -305,6 +307,11 @@ std::string GameModel::levelDescription() const
 void GameModel::setLevelDescription(const std::string& value)
 {
     m_levelDescription = value;
+}
+
+const std::string& GameModel::levelIntroduction() const
+{
+    return m_levelIntroduction;
 }
 
 ShipModel& GameModel::shipModel()

@@ -7,11 +7,13 @@
 #include <QRectF>
 
 #include <chrono>
+#include <memory>
 #include <optional>
 #include <string>
 
 class QPainter;
 class QSizeF;
+class QTextDocument;
 class QTransform;
 
 // This class acts as the MVC "view" component - its function is to
@@ -33,6 +35,7 @@ class View {
 public:
     // A QApplication must exist before this is constructed
     View(GameModel& model, Audio& audio, const std::string& dataDir);
+    ~View();
     // this is called once per displayed frame
     void draw(QPainter& painter, const QSizeF& canvasSize) const;
     void playSounds(); // this is called once per simulation tick
@@ -41,7 +44,15 @@ public:
 private:
     // Where on the canvas the ship appears
     QPointF viewCentre(const QSizeF& canvasSize) const;
+    // A box in the status panel's style
+    void drawPanelBox(QPainter& painter, const QRectF& rect, const QColor& background) const;
     void drawStatusPanel(QPainter& painter) const;
+    // Before the level starts: "Get Ready", or the level's introduction
+    void drawGetReady(QPainter& painter, const QPointF& centre, const QSizeF& canvasSize) const;
+    // The level's introduction (with its title), in a panel. Returns the
+    // panel's area.
+    QRectF
+    drawIntroduction(QPainter& painter, const QPointF& centre, const QSizeF& canvasSize) const;
     void
     drawShape(QPainter& painter, const QTransform& arenaTransform, const GameShape& shape) const;
     // Debris falling into objects with gravity
@@ -71,6 +82,11 @@ private:
     // rapid changes (e.g. from a gamepad stick) don't make it jitter
     mutable double m_thrustBarFill { 0.0 };
     mutable std::optional<std::chrono::steady_clock::time_point> m_lastPanelDrawTime;
+
+    // The level's introduction, laid out, and the text it was made from, so
+    // it's only laid out again when that changes
+    mutable std::unique_ptr<QTextDocument> m_introduction;
+    mutable std::string m_introductionSource;
 };
 
 } // namespace amaze
