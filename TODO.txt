@@ -1,17 +1,3 @@
-* Levels should be progressional; the user can only progress to the next
-  level once a previous level has been completed. Shield value should carry
-  over to the next level provided it is a new level. If the user re-plays a
-  previously-completed level, they get full shields. So we'd need to store
-  a shield value but only apply it to a new level.
-  All levels should be displayed on the main menu, but non-completed levels
-  other than the next one should be dimmed.
-    - The intention is to have this as a story that the user progresses along.
-      Down the line, it might be an idea to add a paragraph of text into each
-      level file which is displayed instead of the "Get ready" message.
-    - Levels need to be designed to introduce the user to different obstacles
-      one at a time. The first few are just navigational, then maybe breakable
-      walls, then gravity, maybe weapons? maybe rescue missions? Teleport / portals?
-
 * Add colours to the main menu dialog now we've introduced colours into the
   ship's "status panel"
     - Wondering whether the dialog should have a separate tab for options
